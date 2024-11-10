@@ -1,0 +1,18 @@
+{
+  "name": "mj-crm",
+  "version": "1.0.0",
+  "description": "git add server/controllers/ git add server/routes/ git add server/utils/ git add server/Docs.md git commit -m \" made and tested, Controller and Routes, For createUser And Login Also Added Docs\" git push",
+  "main": "index.js",
+  "scripts": {
+    "start": "concurrently \"cd server && npm run watch\" \"cd client && npm run build",
+    "develop": "concurrently \"cd server && npm run watch\" \"cd client && npm run start\"",
+    "install": "cd server && npm i --legacy-peer-deps && cd ../client && npm i --legacy-peer-deps",
+    "build": "cd client && npm run build",
+    "watch": "cd server && nodemon index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
