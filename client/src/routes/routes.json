@@ -1,0 +1,21 @@
+{
+  "publicRoutes": [
+    {
+      "name": "login",
+      "path": "/login",
+      "element": "Login"
+    },
+    {
+      "name": "homepage",
+      "path": "/homepage",
+      "element": "Homepage"
+    }
+  ],
+  "authRoutes": [
+    {
+      "name": "homepage",
+      "path": "/homepage",
+      "element": "Homepage"
+    }
+  ]
+}
