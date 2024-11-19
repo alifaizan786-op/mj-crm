@@ -15,7 +15,64 @@
     {
       "name": "homepage",
       "path": "/homepage",
-      "element": "Homepage"
+      "element": "Homepage",
+      "menuItem": false
+    },
+    {
+      "name": "Dashboard",
+      "path": "/",
+      "element": "Dashboard",
+      "menuItem": false
+    },
+    {
+      "name": "Client Look Up",
+      "path": "/Client/LookUp",
+      "element": "ClientLookUp"
+    },
+    {
+      "name": "Client Profile",
+      "path": "/Client/:id",
+      "element": "ClientProfile"
+    },
+    {
+      "name": "Client",
+      "path": "/Client/Reports/Birthday",
+      "element": "ClientReport"
+    },
+    {
+      "name": "Client",
+      "path": "/Client/Reports",
+      "element": "ClientReportsMenu"
+    },
+    {
+      "name": "Client",
+      "path": "/Client/",
+      "element": "Client"
+    },
+    {
+      "name": "Notification",
+      "path": "/User/Notification/",
+      "element": "UserNotifications"
+    },
+    {
+      "name": "Chat",
+      "path": "/User/Chat/",
+      "element": "UserChats"
+    },
+    {
+      "name": "User Profile",
+      "path": "/User/:id",
+      "element": "UserProfile"
+    },
+    {
+      "name": "All Users",
+      "path": "/User/AllUser",
+      "element": "AllUsers"
+    },
+    {
+      "name": "User",
+      "path": "/User/",
+      "element": "Users"
     }
   ]
 }
