@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import {
+  Collapse,
   List,
   ListItem,
   ListItemText,
-  Collapse,
 } from '@mui/material';
-import { ExpandLess, ExpandMore } from '@mui/icons-material';
+import React, { useState } from 'react';
 
 const DrawerMenu = ({ menuData }) => {
   const [openStates, setOpenStates] = useState({});
@@ -35,7 +35,7 @@ const DrawerMenu = ({ menuData }) => {
         if (!currentLevel[segment]) {
           currentLevel[segment] = {
             name: isLast ? route.name : segment,
-            path: route.path,
+            path: isLast ? route.path : null, // Only last items have valid paths
             submenus: {},
           };
         }
@@ -57,7 +57,11 @@ const DrawerMenu = ({ menuData }) => {
 
     return (
       <React.Fragment key={key}>
-        <ListItem button onClick={() => handleToggle(key)} sx={{ paddingLeft }}>
+        <ListItem
+          button={!!menu.path} // Only make clickable if there's a valid path
+          onClick={() => menu.path ? window.location.assign(menu.path) : handleToggle(key)}
+          sx={{ paddingLeft }}
+        >
           <ListItemText primary={menu.name} />
           {menu.submenus && Object.keys(menu.submenus).length > 0 ? (
             isOpen ? <ExpandLess /> : <ExpandMore />

@@ -14,6 +14,7 @@ import UserFetch from '../../fetch/UserFetch';
 import Auth from '../../utils/auth';
 
 export default function Login() {
+  document.title = "Brilliance Base | Login"
   const [error, setError] = React.useState(false);
   const [formState, setFormState] = React.useState({
     employeeId: '',

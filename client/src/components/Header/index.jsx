@@ -1,4 +1,3 @@
-import { Inbox as InboxIcon } from '@mui/icons-material';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import MailIcon from '@mui/icons-material/Mail';
 import MenuOpenOutlinedIcon from '@mui/icons-material/MenuOpenOutlined';
@@ -11,14 +10,16 @@ import Badge from '@mui/material/Badge';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
+
 import InputBase from '@mui/material/InputBase';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { alpha, styled } from '@mui/material/styles';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
+import logoIcon from '../../assets/Icon.svg';
+import routes from '../../routes/routes.json';
 import DrawerMenu from '../Menu';
-import routes from '../../routes/routes.json'
 
 import * as React from 'react';
 
@@ -92,7 +93,6 @@ export default function Header() {
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
   };
-
 
   const DrawerList = (
     <Box
@@ -186,7 +186,11 @@ export default function Header() {
     <Box sx={{ flexGrow: 1 }}>
       <AppBar
         position='static'
-        sx={{ backgroundColor: 'primary.main' }}>
+        elevation={0}
+        sx={{
+          backgroundColor: 'primary.contrastText',
+          color: 'primary.main',
+        }}>
         <Toolbar>
           <Box
             sx={{
@@ -216,13 +220,25 @@ export default function Header() {
                 )}
               </IconButton>
               {/* Logo */}
-              <Typography
-                variant='h6'
-                noWrap
-                component='div'
-                sx={{ display: { xs: 'none', sm: 'block' } }}>
-                Brilliance Base
-              </Typography>
+              <Box
+                sx={{
+                  display: { xs: 'none', sm: 'flex' },
+                  justifyContent: 'space-evenly',
+                  width: '11rem',
+                }}>
+                <img
+                  src={logoIcon}
+                  alt='Mantis'
+                  width='25'
+                />
+                <Typography
+                  variant='h6'
+                  noWrap
+                  component='div'
+                  sx={{}}>
+                  Brilliance Base
+                </Typography>
+              </Box>
             </Box>
             {/* Search */}
             <Search>

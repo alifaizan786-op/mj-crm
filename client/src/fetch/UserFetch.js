@@ -9,6 +9,10 @@ class UserFetch extends BaseFetch {
   loginHandler(data) {
     return this.request('/login', 'POST', data);
   }
+
+  getAllUsers() {
+    return this.request('/', 'get');
+  }
 }
 
 export default new UserFetch(); // Export as a singleton

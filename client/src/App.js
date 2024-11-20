@@ -27,10 +27,10 @@ const materialTheme = materialExtendTheme({
               borderColor: 'gray',
             },
             '&:hover fieldset': {
-              borderColor: '#011929',
+              borderColor: '#103783',
             },
             '&.Mui-focused fieldset': {
-              borderColor: '#011929',
+              borderColor: '#103783',
             },
           },
         },
@@ -39,13 +39,22 @@ const materialTheme = materialExtendTheme({
   },
   palette: {
     primary: {
-      main: '#011929', // Dark Blue
-      light: '#0380d0', // Light Blue
+      main: '#103783', // Dark Blue (from logo)
+      light: '#9BAFD9', // Light Blue (from logo)
+      contrastText: '#FFFFFF', // White text for better contrast
     },
     secondary: {
-      main: '#f50057', // Pink
+      main: '#f50057', // Pink (unchanged)
     },
-    mode: 'dark', // Use 'mode' instead of 'type' (deprecated)
+    background: {
+      default: '#F5F5F5', // Light gray for better contrast
+      paper: '#FFFFFF', // White for card backgrounds
+    },
+    text: {
+      primary: '#103783', // Use dark blue for primary text
+      secondary: '#9BAFD9', // Use light blue for secondary text
+    },
+    mode: 'light', // Updated to light mode for better contrast
   },
   typography: {
     h1: {
@@ -54,29 +63,7 @@ const materialTheme = materialExtendTheme({
     },
     fontFamily: 'Playfair Display',
   },
-  breakpoints: {
-    values: {
-      sm: 640,
-      md: 1325,
-      lg: 1280,
-      xl: 1536,
-    },
-  },
 });
-
-// Standard Material theme
-// const theme = createTheme({
-//   palette: {
-//     primary: {
-//       main: '#011929',
-//       light: '#0380d0',
-//     },
-//     secondary: {
-//       main: '#f50057',
-//     },
-//     mode: 'dark',
-//   },
-// });
 
 function App() {
   return (
