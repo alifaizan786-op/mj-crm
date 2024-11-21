@@ -13,6 +13,7 @@ const Client = require('./Client');
 
 //Models For App
 const User = require('./User');
+const UserRoutes = require('./UserRoutes');
 
 module.exports = {
   // Models For Data From VJS
@@ -27,4 +28,5 @@ module.exports = {
   Client,
   //Models For App
   User,
+  UserRoutes,
 };

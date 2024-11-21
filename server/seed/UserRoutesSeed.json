@@ -1,0 +1,166 @@
+[
+  {
+    "name": "Homepage",
+    "path": "/homepage",
+    "element": "Homepage",
+    "menuItem": false
+  },
+  {
+    "name": "Dashboard",
+    "path": "/",
+    "element": "Dashboard",
+    "menuItem": false
+  },
+
+  {
+    "name": "Client Look Up",
+    "path": "/Client/LookUp",
+    "element": "ClientLookUp"
+  },
+  {
+    "name": "Client Profile",
+    "path": "/Client/:id",
+    "element": "ClientProfile"
+  },
+  {
+    "name": "Anniversary",
+    "path": "/Client/Reports/Anniversary",
+    "element": "ClientAnniversaryReport"
+  },
+  {
+    "name": "Birthday",
+    "path": "/Client/Reports/Birthday",
+    "element": "ClientBirthdayReport"
+  },
+  {
+    "name": "Rewards Point",
+    "path": "/Client/Reports/Rewardspoints",
+    "element": "ClientRewardspointsReport"
+  },
+  {
+    "name": "Client Reports",
+    "path": "/Client/Reports",
+    "element": "ClientReportsMenu"
+  },
+  {
+    "name": "Client",
+    "path": "/Client/",
+    "element": "Client"
+  },
+
+  {
+    "name": "Notification",
+    "path": "/User/Notification/",
+    "element": "UserNotifications"
+  },
+  {
+    "name": "Chat",
+    "path": "/User/Chat/",
+    "element": "UserChats"
+  },
+  {
+    "name": "User Profile",
+    "path": "/User/:id",
+    "element": "UserProfile"
+  },
+  {
+    "name": "All Users",
+    "path": "/User/AllUser",
+    "element": "AllUsers"
+  },
+  {
+    "name": "User",
+    "path": "/User/",
+    "element": "Users"
+  },
+  {
+    "name": "Recieve",
+    "path": "/Supplies/Recieve/",
+    "element": "SuppliesRecieve"
+  },
+  {
+    "name": "Inventory",
+    "path": "/Supplies/Inventory/",
+    "element": "SuppliesInventory"
+  },
+  {
+    "name": "Transfer",
+    "path": "/Supplies/Transfer/",
+    "element": "SuppliesTransfer"
+  },
+  {
+    "name": "Supplies",
+    "path": "/Supplies/",
+    "element": "Supplies"
+  },
+  {
+    "name": "MalaniJewelers.com",
+    "path": "/Merchandise/Reports/DealsReport/Web",
+    "element": "DealsReport"
+  },
+  {
+    "name": "VJS",
+    "path": "/Merchandise/Reports/DealsReport/JS",
+    "element": "DealsReport"
+  },
+  {
+    "name": "DealsReport",
+    "path": "/Merchandise/Reports/DealsReport",
+    "element": "DealsReport"
+  },
+  {
+    "name": "OpenToBuy",
+    "path": "/Merchandise/Reports/OpenToBuy",
+    "element": "OpenToBuy"
+  },
+  {
+    "name": "Merchandise Reports",
+    "path": "/Merchandise/Reports",
+    "element": "MerchandiseReports"
+  },
+  {
+    "name": "CheckStatus",
+    "path": "/Merchandise/CheckStatus",
+    "element": "CheckStatus"
+  },
+  {
+    "name": "Merchandise",
+    "path": "/Merchandise/",
+    "element": "Merchandise"
+  },
+  {
+    "name": "Malani Jewelers (.com)",
+    "path": "/web/",
+    "element": "mj"
+  },
+  {
+    "name": "Multi Code",
+    "path": "/web/Multi/",
+    "element": "Multi"
+  },
+  {
+    "name": "Image Downloader",
+    "path": "/web/Multi/ImageRenamer/",
+    "element": "ImageDownloader"
+  },
+  {
+    "name": "Look Up",
+    "path": "/web/Multi/Lookup/",
+    "element": "ImageDownloader"
+  },
+  {
+    "name": "Pending Uploads",
+    "path": "/web/Reports/PendingUploading",
+    "element": "PendingUploads"
+  },
+  {
+    "name": "Recent Uploads",
+    "path": "/web/Reports/RecentUploads",
+    "element": "RecentUploads"
+  },
+  {
+    "name": "All Merchandise",
+    "path": "/web/Reports/UploadingSheet",
+    "element": "UploadingSheet"
+  }
+]

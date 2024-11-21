@@ -28,7 +28,7 @@ const userSchema = new Schema({
     default: true,
     require: true,
   },
-  views: [String], // Example: ['admin', 'sales']
+  views: [String], // Example: ['/Client/LookUp', '/Client/Reports/Anniversary']
   permissions: [String], // Example: ['view_users', 'edit_sales']
 });
 
