@@ -58,8 +58,12 @@ const DrawerMenu = ({ menuData }) => {
     return (
       <React.Fragment key={key}>
         <ListItem
-          button={!!menu.path} // Only make clickable if there's a valid path
-          onClick={() => menu.path ? window.location.assign(menu.path) : handleToggle(key)}
+          button={!menu.submenus || Object.keys(menu.submenus).length === 0} // Only clickable if no children
+          onClick={() =>
+            menu.submenus && Object.keys(menu.submenus).length > 0
+              ? handleToggle(key)
+              : menu.path && window.location.assign(menu.path)
+          }
           sx={{ paddingLeft }}
         >
           <ListItemText primary={menu.name} />

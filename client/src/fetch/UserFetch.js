@@ -11,7 +11,15 @@ class UserFetch extends BaseFetch {
   }
 
   getAllUsers() {
-    return this.request('/', 'get');
+    return this.request('/', 'GET');
+  }
+
+  getUserById(id) {
+    return this.request(`/${id}`, 'GET');
+  }
+
+  UpdateUserById(id, data) {
+    return this.request(`/${id}`, 'PUT', data);
   }
 }
 

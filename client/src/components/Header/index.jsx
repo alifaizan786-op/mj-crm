@@ -18,7 +18,9 @@ import { alpha, styled } from '@mui/material/styles';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import logoIcon from '../../assets/Icon.svg';
-import routes from '../../routes/routes.json';
+import UserFetch from '../../fetch/UserFetch';
+import UserRoutesFetch from '../../fetch/UserRoutesFetch';
+import Auth from '../../utils/auth';
 import DrawerMenu from '../Menu';
 
 import * as React from 'react';
@@ -68,6 +70,25 @@ export default function Header() {
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
     React.useState(null);
 
+  const [routes, setRoutes] = React.useState([]);
+
+  async function getAuthRoutes() {
+    let userData = Auth.getProfile();
+    const getUserData = await UserFetch.getUserById(
+      userData.data._id
+    );
+
+    const userRoutes = await UserRoutesFetch.getUserRoutesByPaths({
+      paths: getUserData.views,
+    });
+
+    setRoutes(userRoutes);
+  }
+
+  React.useEffect(() => {
+    getAuthRoutes();
+  }, []);
+
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
@@ -101,7 +122,7 @@ export default function Header() {
       onClick={(event) => event.stopPropagation()} // Prevent closing drawer on inner clicks
       onKeyDown={toggleDrawer(false)} // Keep this for keyboard interactions
     >
-      <DrawerMenu menuData={routes.authRoutes} />
+      <DrawerMenu menuData={routes} />
     </Box>
   );
 

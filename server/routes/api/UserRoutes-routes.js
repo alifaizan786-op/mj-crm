@@ -14,6 +14,6 @@ router.route('/').get(getAllRoutes).post(createRoute);
 router.route('/:id').put(updateRoutes).delete(deleteRoutes);
 
 // /api/userRoutes/:id
-router.route('/paths').get(getRoutesByPaths);
+router.route('/paths').post(getRoutesByPaths);
 
 module.exports = router;

@@ -68,7 +68,9 @@ const materialTheme = materialExtendTheme({
 function App() {
   return (
     <div className='App'>
-      <SnackbarProvider maxSnack={3}>
+      <SnackbarProvider
+        maxSnack={3}
+        autoHideDuration={2000}>
         {/* Material theme is provided via MaterialCssVarsProvider */}
         <MaterialCssVarsProvider
           theme={{ [MATERIAL_THEME_ID]: materialTheme }}>

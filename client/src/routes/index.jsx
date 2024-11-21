@@ -4,6 +4,8 @@ import {
   BrowserRouter as Router,
   Routes,
 } from 'react-router-dom';
+import UserFetch from '../fetch/UserFetch';
+import UserRoutesFetch from '../fetch/UserRoutesFetch';
 import Auth from '../utils/auth';
 import components from './components'; // Import your component mapping
 import ErrorBoundary from './ErrorBoundary';
@@ -12,9 +14,22 @@ import routesJson from './routes.json'; // Import your JSON file
 const AppRoutes = () => {
   const [routes, setRoutes] = useState([]);
 
+  async function getAuthRoutes() {
+    let userData = Auth.getProfile();
+    const getUserData = await UserFetch.getUserById(
+      userData.data._id
+    );
+
+    const userRoutes = await UserRoutesFetch.getUserRoutesByPaths({
+      paths: getUserData.views,
+    });
+
+    setRoutes(userRoutes);
+  }
+
   useEffect(() => {
     Auth.loggedIn()
-      ? setRoutes(routesJson.authRoutes)
+      ? getAuthRoutes()
       : setRoutes(routesJson.publicRoutes);
   }, []);
 
