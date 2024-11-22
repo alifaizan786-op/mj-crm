@@ -48,7 +48,6 @@ module.exports = {
   async getRoutesByPaths(req, res) {
     try {
       const { paths } = req.body; // Expecting an array of paths in the request body
-      console.log(paths);
 
       if (!Array.isArray(paths)) {
         return res
