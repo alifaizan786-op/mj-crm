@@ -21,12 +21,10 @@ module.exports = {
       });
 
       await newRoute.save();
-      res
-        .status(201)
-        .json({
-          message: 'Route created successfully',
-          route: newRoute,
-        });
+      res.status(201).json({
+        message: 'Route created successfully',
+        route: newRoute,
+      });
     } catch (error) {
       console.error('Error:', error);
       res.status(500).json({ error: 'Internal Server Error' });
@@ -55,7 +53,9 @@ module.exports = {
           .json({ error: 'Paths must be an array' });
       }
 
-      const routes = await UserRoutes.find({ path: { $in: paths } });
+      const routes = await UserRoutes.find({
+        path: { $in: paths },
+      }).sort({_id :-1});
       res.status(200).json(routes);
     } catch (error) {
       console.error('Error:', error);
@@ -81,12 +81,10 @@ module.exports = {
         updateData,
         { new: true }
       );
-      res
-        .status(200)
-        .json({
-          message: 'Route updated successfully',
-          route: updatedRoute,
-        });
+      res.status(200).json({
+        message: 'Route updated successfully',
+        route: updatedRoute,
+      });
     } catch (error) {
       console.error('Error:', error);
       res.status(500).json({ error: 'Internal Server Error' });

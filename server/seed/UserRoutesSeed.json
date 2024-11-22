@@ -1,7 +1,7 @@
 [
   {
     "name": "Homepage",
-    "path": "/homepage",
+    "path": "/homepage/",
     "element": "Homepage",
     "menuItem": false
   },
@@ -14,7 +14,7 @@
 
   {
     "name": "Client Look Up",
-    "path": "/Client/LookUp",
+    "path": "/Client/LookUp/",
     "element": "ClientLookUp"
   },
   {
@@ -24,22 +24,22 @@
   },
   {
     "name": "Anniversary",
-    "path": "/Client/Reports/Anniversary",
+    "path": "/Client/Reports/Anniversary/",
     "element": "ClientAnniversaryReport"
   },
   {
     "name": "Birthday",
-    "path": "/Client/Reports/Birthday",
+    "path": "/Client/Reports/Birthday/",
     "element": "ClientBirthdayReport"
   },
   {
     "name": "Rewards Point",
-    "path": "/Client/Reports/Rewardspoints",
+    "path": "/Client/Reports/Rewardspoints/",
     "element": "ClientRewardspointsReport"
   },
   {
     "name": "Client Reports",
-    "path": "/Client/Reports",
+    "path": "/Client/Reports/",
     "element": "ClientReportsMenu"
   },
   {
@@ -65,7 +65,7 @@
   },
   {
     "name": "All Users",
-    "path": "/User/AllUser",
+    "path": "/User/AllUser/",
     "element": "AllUsers"
   },
   {
@@ -94,33 +94,33 @@
     "element": "Supplies"
   },
   {
-    "name": "MalaniJewelers.com",
-    "path": "/Merchandise/Reports/DealsReport/Web",
+    "name": "Web",
+    "path": "/Merchandise/Reports/DealsReport/Web/",
     "element": "DealsReport"
   },
   {
     "name": "VJS",
-    "path": "/Merchandise/Reports/DealsReport/JS",
+    "path": "/Merchandise/Reports/DealsReport/JS/",
     "element": "DealsReport"
   },
   {
     "name": "DealsReport",
-    "path": "/Merchandise/Reports/DealsReport",
+    "path": "/Merchandise/Reports/DealsReport/",
     "element": "DealsReport"
   },
   {
     "name": "OpenToBuy",
-    "path": "/Merchandise/Reports/OpenToBuy",
+    "path": "/Merchandise/Reports/OpenToBuy/",
     "element": "OpenToBuy"
   },
   {
     "name": "Merchandise Reports",
-    "path": "/Merchandise/Reports",
+    "path": "/Merchandise/Reports/",
     "element": "MerchandiseReports"
   },
   {
     "name": "CheckStatus",
-    "path": "/Merchandise/CheckStatus",
+    "path": "/Merchandise/CheckStatus/",
     "element": "CheckStatus"
   },
   {
@@ -150,17 +150,27 @@
   },
   {
     "name": "Pending Uploads",
-    "path": "/web/Reports/PendingUploading",
+    "path": "/web/Reports/PendingUploading/",
     "element": "PendingUploads"
   },
   {
     "name": "Recent Uploads",
-    "path": "/web/Reports/RecentUploads",
+    "path": "/web/Reports/RecentUploads/",
     "element": "RecentUploads"
   },
   {
-    "name": "All Merchandise",
-    "path": "/web/Reports/UploadingSheet",
+    "name": "Uploading Sheet",
+    "path": "/web/Reports/UploadingSheet/",
     "element": "UploadingSheet"
+  },
+  {
+    "name": "Settings",
+    "path": "/settings/",
+    "element": "Settings"
+  },
+  {
+    "name": "Routes",
+    "path": "/settings/routes/",
+    "element": "RoutesSettings"
   }
 ]

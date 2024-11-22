@@ -4,7 +4,6 @@ const userRoutesSchema = new Schema({
   name: {
     type: String,
     require: true,
-    unique: true,
   },
   path: {
     type: String,
