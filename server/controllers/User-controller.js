@@ -1,5 +1,6 @@
 const { User } = require('../models');
 const { signToken } = require('../utils/auth');
+const { getFavicon } = require('../utils/getFavicon'); // Import the favicon utility
 
 module.exports = {
   async createUser(req, res) {
@@ -64,10 +65,39 @@ module.exports = {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   },
+
   async updateUserById(req, res) {
     try {
       const { id } = req.params;
       const updates = req.body;
+
+      // Check if the update contains bookmarks
+      if (updates.bookmarks && Array.isArray(updates.bookmarks)) {
+        // Process each bookmark to fetch missing favicons
+        const processedBookmarks = await Promise.all(
+          updates.bookmarks.map(async (bookmark) => {
+            if (!bookmark.image) {
+              try {
+                const faviconResponse = await getFavicon({
+                  query: { url: bookmark.link },
+                });
+                bookmark.image =
+                  faviconResponse.imageLinks?.[0] || null; // Use the first favicon, if available
+              } catch (error) {
+                console.error(
+                  `Error fetching favicon for ${bookmark.link}:`,
+                  error.message
+                );
+                bookmark.image = null; // Default to null if favicon fetch fails
+              }
+            }
+            return bookmark;
+          })
+        );
+
+        // Update the bookmarks with processed ones
+        updates.bookmarks = processedBookmarks;
+      }
 
       const updatedUser = await User.findByIdAndUpdate(id, updates, {
         new: true,
@@ -84,6 +114,7 @@ module.exports = {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   },
+
   async deleteUserById(req, res) {
     try {
       const { id } = req.params;

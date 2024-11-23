@@ -6,9 +6,14 @@
       "element": "Login"
     },
     {
+      "name": "Client In Take",
+      "path": "/ClientInTake",
+      "element": "ClientInTake"
+    },
+    {
       "name": "homepage",
-      "path": "/homepage",
-      "element": "Homepage"
+      "path": "/",
+      "element": "Home"
     }
   ],
   "authRoutes": [
