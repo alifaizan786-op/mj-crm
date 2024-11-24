@@ -6,6 +6,7 @@ const {
   getUserById,
   updateUserById,
   deleteUserById,
+  getUserBookmarks,
 } = require('../../controllers/User-controller');
 
 // /api/user/
@@ -13,6 +14,9 @@ router.route('/').get(getAllUsers).post(createUser);
 
 // /api/user/login
 router.route('/login').post(login);
+
+// /api/user/bookmarks/:
+router.route('/bookmarks/:id').get(getUserBookmarks);
 
 // /api/user/:id
 router

@@ -21,6 +21,11 @@ class UserFetch extends BaseFetch {
   UpdateUserById(id, data) {
     return this.request(`/${id}`, 'PUT', data);
   }
+
+  ///bookmarks/:id
+  getUserBookmarks(id) {
+    return this.request(`/bookmarks/${id}`, 'get');
+  }
 }
 
 export default new UserFetch(); // Export as a singleton

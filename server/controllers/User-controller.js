@@ -12,6 +12,8 @@ module.exports = {
         department: req.body.department,
         password: req.body.password,
         active: true,
+        region: req.body.region,
+        title: req.body.title,
         views: req.body.views,
         permissions: req.body.permissions,
       });
@@ -65,6 +67,23 @@ module.exports = {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   },
+  async getUserBookmarks(req, res) {
+    try {
+      const { id } = req.params;
+      const user = await User.findById(id).select(
+        '_id bookmarks region'
+      );
+
+      if (!user) {
+        return res.status(404).json({ error: 'User Not Found' });
+      }
+
+      res.status(200).json(user);
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  },
 
   async updateUserById(req, res) {
     try {
@@ -78,11 +97,11 @@ module.exports = {
           updates.bookmarks.map(async (bookmark) => {
             if (!bookmark.image) {
               try {
-                const faviconResponse = await getFavicon({
-                  query: { url: bookmark.link },
-                });
+                const faviconResponse = await getFavicon(
+                  bookmark.link
+                ); // Pass URL directly
                 bookmark.image =
-                  faviconResponse.imageLinks?.[0] || null; // Use the first favicon, if available
+                  faviconResponse.imageLinks?.[0] || null;
               } catch (error) {
                 console.error(
                   `Error fetching favicon for ${bookmark.link}:`,

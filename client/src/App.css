@@ -37,25 +37,22 @@
   }
 }
 
+.jiggle {
+  animation: jiggle 0.2s ease infinite;
+}
 
 @keyframes jiggle {
   0% {
-    transform: translateX(0);
+    transform: rotate(-1.5deg);
+    animation-timing-function: ease-in;
   }
-  25% {
-    transform: translateX(5px);
-  }
+
   50% {
-    transform: translateX(-5px);
-  }
-  75% {
-    transform: translateX(5px);
-  }
-  100% {
-    transform: translateX(0);
+    transform: rotate(2deg);
+    animation-timing-function: ease-out;
   }
 }
 
 a {
-  text-decoration: none;
+  text-decoration: "none";
 }

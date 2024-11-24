@@ -36,6 +36,9 @@ module.exports = {
     department,
     views,
     permissions,
+    region,
+    title,
+    bookmarks,
   }) {
     const payload = {
       _id,
@@ -45,6 +48,9 @@ module.exports = {
       department,
       views,
       permissions,
+      region,
+      title,
+      bookmarks,
     };
     return jwt.sign({ data: payload }, secret, {
       expiresIn: expiration,
