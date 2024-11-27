@@ -12,6 +12,6 @@ const client = new Schema(
   { strict: false }
 );
 
-const Client = model('Client', client, 'Client');
+const ClientForm = model('ClientForm', client, 'ClientForm');
 
-module.exports = Client;
+module.exports = ClientForm;

@@ -9,7 +9,7 @@ const Multi = require('./Multi');
 
 // Models For In Showroom Data
 const Gold = require('./Gold');
-const Client = require('./Client');
+const ClientForm = require('./ClientForm');
 
 //Models For App
 const User = require('./User');
@@ -25,7 +25,7 @@ module.exports = {
   Multi,
   // Models For In Showroom Data
   Gold,
-  Client,
+  ClientForm,
   //Models For App
   User,
   UserRoutes,

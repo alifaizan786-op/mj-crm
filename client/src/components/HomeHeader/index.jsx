@@ -45,7 +45,7 @@ export default function HomeHeader({ edit, setEdit }) {
               aria-label='delete'
               sx={{ margin: '10px' }}
               onClick={async () => {
-                window.location.href = '/ClientData';
+                window.location.href = '/ClientInTake';
               }}>
               <PeopleAltIcon fontSize='large' />
             </IconButton>
