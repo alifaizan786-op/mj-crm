@@ -73,6 +73,9 @@ export default function Home() {
           <HomeHeader
             edit={edit}
             setEdit={setEdit}
+            showSetting={true}
+            showHome={false}
+            showClientInTake={true}
           />
           <Box
             sx={{
