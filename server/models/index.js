@@ -14,6 +14,7 @@ const ClientForm = require('./ClientForm');
 //Models For App
 const User = require('./User');
 const UserRoutes = require('./UserRoutes');
+const UserLogs = require('./UserLog');
 
 module.exports = {
   // Models For Data From VJS
@@ -29,4 +30,5 @@ module.exports = {
   //Models For App
   User,
   UserRoutes,
+  UserLogs,
 };
