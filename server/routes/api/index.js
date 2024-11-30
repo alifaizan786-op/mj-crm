@@ -5,6 +5,7 @@ const userRoutes_Routes = require('./UserRoutes-routes');
 const userLogs_Routes = require('./UserLogs-routes');
 const clientForm_Routes = require('./ClientForm-routes');
 const quotes_Routes = require('./Quotes-routes');
+const gold_Routes = require('./Gold-routes');
 
 // /api/user
 router.use('/user', userRoutes);
@@ -17,6 +18,9 @@ router.use('/userlogs', userLogs_Routes);
 
 // /api/ClientForm
 router.use('/ClientForm', clientForm_Routes);
+
+// /api/Gold
+router.use('/Gold', gold_Routes);
 
 // /api/quotes
 router.use('/quotes', quotes_Routes);
