@@ -4,6 +4,7 @@ const userRoutes = require('./User-routes');
 const userRoutes_Routes = require('./UserRoutes-routes');
 const userLogs_Routes = require('./UserLogs-routes');
 const clientForm_Routes = require('./ClientForm-routes');
+const quotes_Routes = require('./Quotes-routes');
 
 // /api/user
 router.use('/user', userRoutes);
@@ -16,5 +17,8 @@ router.use('/userlogs', userLogs_Routes);
 
 // /api/ClientForm
 router.use('/ClientForm', clientForm_Routes);
+
+// /api/quotes
+router.use('/quotes', quotes_Routes);
 
 module.exports = router;

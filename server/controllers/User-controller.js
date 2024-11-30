@@ -118,10 +118,14 @@ module.exports = {
         updates.bookmarks = processedBookmarks;
       }
 
-      const updatedUser = await User.findByIdAndUpdate(id, updates, {
-        new: true,
-        runValidators: true,
-      });
+      const updatedUser = await User.findByIdAndUpdate(
+        id,
+        { ...updates, $inc: { __v: 1 } },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
 
       if (!updatedUser) {
         return res.status(404).json({ error: 'User Not Found' });

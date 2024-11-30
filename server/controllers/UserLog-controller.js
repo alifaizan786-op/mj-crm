@@ -1,4 +1,4 @@
-const UserLogs = require('../models/');
+const {UserLogs} = require('../models/');
 
 module.exports = {
   async getAllUserLogs(req, res) {
