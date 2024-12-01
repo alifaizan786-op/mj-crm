@@ -6,12 +6,10 @@ module.exports = {
       const { body, author, tags } = req.body;
       const newQuote = new Quotes({ body, author, tags });
       await newQuote.save();
-      res
-        .status(201)
-        .json({
-          message: 'Quote added successfully',
-          quote: newQuote,
-        });
+      res.status(201).json({
+        message: 'Quote added successfully',
+        quote: newQuote,
+      });
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
@@ -52,12 +50,10 @@ module.exports = {
           .status(404)
           .json({ message: 'Quote not found or deleted' });
       }
-      res
-        .status(200)
-        .json({
-          message: 'Quote updated successfully',
-          quote: updatedQuote,
-        });
+      res.status(200).json({
+        message: 'Quote updated successfully',
+        quote: updatedQuote,
+      });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
@@ -74,12 +70,10 @@ module.exports = {
       if (!deletedQuote) {
         return res.status(404).json({ message: 'Quote not found' });
       }
-      res
-        .status(200)
-        .json({
-          message: 'Quote soft deleted successfully',
-          quote: deletedQuote,
-        });
+      res.status(200).json({
+        message: 'Quote soft deleted successfully',
+        quote: deletedQuote,
+      });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
@@ -88,6 +82,7 @@ module.exports = {
   async getRandomQuotes(req, res) {
     try {
       const { count } = req.params;
+
       const numberOfQuotes = parseInt(count, 10);
 
       if (isNaN(numberOfQuotes) || numberOfQuotes <= 0) {
@@ -98,7 +93,6 @@ module.exports = {
 
       // Add filter for non-deleted quotes
       const randomQuotes = await Quotes.aggregate([
-        { $match: { deleted: false } }, // Ensure only non-deleted items are considered
         { $sample: { size: numberOfQuotes } },
       ]);
 

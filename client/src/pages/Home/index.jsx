@@ -19,6 +19,8 @@ export default function Home() {
     JSON.parse(localStorage.getItem('bookmarks'))
   );
 
+  document.title = 'MJ | Home';
+
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 

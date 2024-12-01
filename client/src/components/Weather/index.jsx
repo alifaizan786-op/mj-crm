@@ -27,7 +27,6 @@ export default function Weather() {
       },
     };
 
-
     const url =
       `https://api.openweathermap.org/data/2.5/weather?lat=` +
       coordinates[currentRegion].lat +
@@ -46,7 +45,7 @@ export default function Weather() {
     weather?.weather && (
       <Box
         sx={{
-          width: '30%',
+          width: { xs: '80%', sm: '30%' },
           display: 'flex',
           justifyContent: 'start',
           alignItems: 'center',

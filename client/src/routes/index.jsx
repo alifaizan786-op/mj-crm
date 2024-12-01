@@ -1,3 +1,4 @@
+import { helix } from 'ldrs';
 import { Suspense, useEffect, useState } from 'react';
 import {
   Route,
@@ -13,6 +14,7 @@ import routesJson from './routes.json'; // Import your JSON file
 
 const AppRoutes = () => {
   const [routes, setRoutes] = useState([]);
+  helix.register();
 
   async function getAuthRoutes() {
     let userData = Auth.getProfile();
@@ -44,7 +46,14 @@ const AppRoutes = () => {
               path={path}
               element={
                 <ErrorBoundary>
-                  <Suspense fallback={<div>Loading...</div>}>
+                  <Suspense
+                    fallback={
+                      // Default values shown
+                      <l-helix
+                        size='45'
+                        speed='2.5'
+                        color='black'></l-helix>
+                    }>
                     <Component />
                   </Suspense>
                 </ErrorBoundary>

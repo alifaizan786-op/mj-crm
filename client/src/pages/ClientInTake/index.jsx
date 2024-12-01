@@ -17,6 +17,8 @@ export default function ClientInTake() {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
+  document.title = 'MJ | Client In Take ';
+
   React.useEffect(() => {
     getClientData();
 
@@ -35,23 +37,22 @@ export default function ClientInTake() {
         allClientData = await ClientInTakeFetch.getMonthEntries(
           region.toLowerCase()
         );
+        // Ensure response is an array
+        setClientData(allClientData.clients);
       } else {
         allClientData = await ClientInTakeFetch.getTodayEntries(
           region.toLowerCase()
         );
+        // Ensure response is an array
+        setClientData(allClientData);
       }
-
-      // Ensure response is an array
-      setClientData(
-        Array.isArray(allClientData.clients)
-          ? allClientData.clients
-          : []
-      );
     } catch (error) {
       console.error('Error fetching client data:', error);
       setClientData([]); // Default to empty array on error
     }
   }
+
+  console.log(clientData);
 
   const columns = [
     {
@@ -152,7 +153,9 @@ export default function ClientInTake() {
     setArchive(event.target.checked);
   };
 
-  const rows = Array.isArray(clientData) ? [...clientData] : [];
+  const rows = clientData?.length > 0 ? [...clientData] : [];
+
+  console.log(rows);
 
   return (
     <>
@@ -192,7 +195,7 @@ export default function ClientInTake() {
                     hover
                     role='checkbox'
                     tabIndex={-1}
-                    key={row.code}>
+                    key={row._id}>
                     {columns.map((column) => {
                       const value = row[column.id];
                       return (

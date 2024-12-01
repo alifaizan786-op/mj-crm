@@ -21,7 +21,7 @@ const quotesSchema = new Schema(
       default: false,
     },
     liked: {
-      type: Boolean,
+      type: Number,
       default: false,
     },
     deleted: {

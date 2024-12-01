@@ -14,7 +14,7 @@ import UserFetch from '../../fetch/UserFetch';
 import Auth from '../../utils/auth';
 
 export default function Login() {
-  document.title = "Brilliance Base | Login"
+  document.title = 'Brilliance Base | Login';
   const [error, setError] = React.useState(false);
   const [formState, setFormState] = React.useState({
     employeeId: '',
@@ -117,6 +117,7 @@ export default function Login() {
                 fullWidth
                 id='employeeId'
                 label='employeeId'
+                variant='standard'
                 name='employeeId'
                 autoComplete='email'
                 autoFocus
@@ -127,6 +128,7 @@ export default function Login() {
                 margin='normal'
                 required
                 fullWidth
+                variant='standard'
                 name='password'
                 label='Password'
                 type='password'
@@ -138,7 +140,7 @@ export default function Login() {
               <Button
                 type='submit'
                 fullWidth
-                variant='contained'
+                variant='outlined'
                 sx={{ mt: 3, mb: 2 }}>
                 Sign In
               </Button>

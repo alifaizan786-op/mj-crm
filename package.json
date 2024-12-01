@@ -8,7 +8,8 @@
     "develop": "concurrently \"cd server && npm run watch\" \"cd client && npm run start\"",
     "install": "cd server && npm i --legacy-peer-deps && cd ../client && npm i --legacy-peer-deps",
     "build": "cd client && npm run build",
-    "watch": "cd server && nodemon index.js"
+    "watch": "cd server && nodemon index.js",
+    "count": "cloc . --exclude-dir=node_modules"
   },
   "author": "",
   "license": "ISC",

@@ -6,20 +6,34 @@ class UserFetch extends BaseFetch {
     super('/api/user'); // Base URL for users
   }
 
-  loginHandler(data) {
-    return this.request('/login', 'POST', data);
+  async createUser(data) {
+    const newUserData = await this.request('/', 'POST', data);
+
+    return newUserData;
   }
 
-  getAllUsers() {
-    return this.request('/', 'GET');
+  async loginHandler(data) {
+    const loginData = await this.request('/login', 'POST', data);
+
+    return loginData;
   }
 
-  getUserById(id) {
-    return this.request(`/${id}`, 'GET');
+  async getAllUsers() {
+    const allUserData = await this.request('/', 'GET');
+
+    return allUserData;
   }
 
-  UpdateUserById(id, data) {
-    return this.request(`/${id}`, 'PUT', data);
+  async getUserById(id) {
+    const userById = await this.request(`/${id}`, 'GET');
+
+    return userById;
+  }
+
+  async UpdateUserById(id, data) {
+    const updateUser = await this.request(`/${id}`, 'PUT', data);
+
+    return updateUser;
   }
 
   ///bookmarks/:id

@@ -59,7 +59,6 @@ const materialTheme = materialExtendTheme({
   typography: {
     h1: {
       fontFamily: 'Cinzel',
-      fontSize: '2rem',
     },
     fontFamily: 'Playfair Display',
   },

@@ -11,12 +11,16 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import * as React from 'react';
+import NewUser from '../../components/NewUser';
 import UserFetch from '../../fetch/UserFetch';
 import CommonLayout from '../../layouts/common';
 import properCase from '../../utils/ProperCase';
 
 export default function AllUsers() {
   const [allUsers, setAllUsers] = React.useState([]);
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
   React.useEffect(() => {
     async function getAllUserHandler() {
@@ -25,7 +29,7 @@ export default function AllUsers() {
     }
 
     getAllUserHandler();
-  }, []);
+  }, [open]);
 
   return (
     <CommonLayout>
@@ -42,6 +46,7 @@ export default function AllUsers() {
         <Button
           variant='outlined'
           size='small'
+          onClick={handleOpen}
           startIcon={<AddCircleOutlineIcon />}>
           New User
         </Button>
@@ -96,6 +101,12 @@ export default function AllUsers() {
           </TableBody>
         </Table>
       </TableContainer>
+      <NewUser
+        open={open}
+        setOpen={setOpen}
+        handleOpen={handleOpen}
+        handleClose={handleClose}
+      />
     </CommonLayout>
   );
 }
