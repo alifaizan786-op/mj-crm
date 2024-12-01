@@ -13,6 +13,7 @@ import TableRow from '@mui/material/TableRow';
 import TextField from '@mui/material/TextField';
 import { useSnackbar } from 'notistack';
 import * as React from 'react';
+import NewRoute from '../../components/NewRoute';
 import UserRoutesFetch from '../../fetch/UserRoutesFetch';
 import CommonLayout from '../../layouts/common';
 
@@ -24,6 +25,11 @@ export default function RoutesSettings() {
     element: '',
     menuItem: '',
   });
+
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
   const [edit, setEdit] = React.useState(false);
   const { enqueueSnackbar } = useSnackbar();
 
@@ -121,7 +127,7 @@ export default function RoutesSettings() {
         }}>
         <Fab
           color='primary'
-          // onClick={toggleMenu}
+          onClick={handleOpen}
           // sx={{
           //   transform: open ? 'rotate(45deg)' : 'rotate(0deg)',
           //   transition: 'transform 0.3s ease',
@@ -227,6 +233,12 @@ export default function RoutesSettings() {
           </TableBody>
         </Table>
       </TableContainer>
+      <NewRoute
+        open={open}
+        setOpen={setOpen}
+        handleOpen={handleOpen}
+        handleClose={handleClose}
+      />
     </CommonLayout>
   );
 }

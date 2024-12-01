@@ -10,7 +10,6 @@ import Badge from '@mui/material/Badge';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
-
 import InputBase from '@mui/material/InputBase';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
@@ -20,7 +19,7 @@ import Typography from '@mui/material/Typography';
 import logoIcon from '../../assets/Icon.svg';
 import UserFetch from '../../fetch/UserFetch';
 import UserRoutesFetch from '../../fetch/UserRoutesFetch';
-import Auth from '../../utils/auth';
+import { default as auth, default as Auth } from '../../utils/auth';
 import DrawerMenu from '../Menu';
 
 import * as React from 'react';
@@ -144,6 +143,12 @@ export default function Header() {
       onClose={handleMenuClose}>
       <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
       <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+      <MenuItem
+        onClick={() => {
+          auth.logout();
+        }}>
+        Logout
+      </MenuItem>
     </Menu>
   );
 

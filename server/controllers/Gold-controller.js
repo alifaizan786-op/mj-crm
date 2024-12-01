@@ -43,11 +43,43 @@ const saveGoldPriceToDatabase = async (date, prices) => {
   }
 };
 
+const getLatestGoldPriceFromDatabase = async () => {
+  try {
+    const latestGoldPrice = await Gold.findOne().sort({ date: -1 }); // Get the most recent entry
+    return latestGoldPrice;
+  } catch (error) {
+    console.log(error);
+    throw new Error(
+      'Error fetching the latest gold price from database'
+    );
+  }
+};
+
 const getGoldPriceHandler = async (req, res) => {
-  const today = new Date().toDateString();
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0 (Sunday) to 6 (Saturday)
+  const todayString = today.toDateString();
 
   try {
-    const goldPriceFromDB = await getGoldPriceFromDatabase(today);
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      // If today is Saturday or Sunday
+      const latestGoldPrice = await getLatestGoldPriceFromDatabase();
+
+      if (latestGoldPrice) {
+        res.json(latestGoldPrice);
+        return;
+      } else {
+        res.status(404).json({
+          error: 'No gold price data available in the database',
+        });
+        return;
+      }
+    }
+
+    // For weekdays, proceed as usual
+    const goldPriceFromDB = await getGoldPriceFromDatabase(
+      todayString
+    );
 
     if (goldPriceFromDB.length > 0) {
       console.log('goldPriceFromDB', goldPriceFromDB);
@@ -55,8 +87,8 @@ const getGoldPriceHandler = async (req, res) => {
     } else {
       const goldPriceFromAPI = await getGoldPrice();
       console.log('goldPriceFromAPI', goldPriceFromAPI);
-      await saveGoldPriceToDatabase(today, goldPriceFromAPI);
-      res.json({ date: today, prices: goldPriceFromAPI });
+      await saveGoldPriceToDatabase(todayString, goldPriceFromAPI);
+      res.json({ date: todayString, prices: goldPriceFromAPI });
     }
   } catch (error) {
     console.error(error);

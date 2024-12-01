@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import * as React from 'react';
-import UserFetch from '../../fetch/UserFetch';
+import UserRoutesFetch from '../../fetch/UserRoutesFetch';
 
 const style = {
   position: 'absolute',
@@ -22,7 +22,7 @@ const style = {
   borderRadius: 5,
 };
 
-export default function NewUser({
+export default function NewRoute({
   open,
   setOpen,
   handleOpen,
@@ -30,14 +30,10 @@ export default function NewUser({
 }) {
   const { enqueueSnackbar } = useSnackbar();
   const [formState, setFormState] = React.useState({
-    firstName: '',
-    lastName: '',
-    employeeId: '',
-    department: '',
-    password: '',
-    active: '',
-    region: '',
-    title: '',
+    name: '',
+    path: '',
+    element: '',
+    menuItem: '',
   });
 
   const handleChange = (e) => {
@@ -52,8 +48,10 @@ export default function NewUser({
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent the default form submission behavior
     try {
-      const createNewUser = await UserFetch.createUser(formState);
-      enqueueSnackbar('User Created Successfully  ', {
+      const createNewRoute = await UserRoutesFetch.createUserRoute(
+        formState
+      );
+      enqueueSnackbar('Routes Created Successfully  ', {
         variant: 'success',
       });
       handleClose();
@@ -74,77 +72,40 @@ export default function NewUser({
     {
       inputType: 'text',
       selectitemsArr: [],
-      label: 'First Name',
-      name: 'firstName',
-      labelId: 'firstNameLabel',
-      value: formState.firstName,
+      label: 'Name',
+      name: 'name',
+      labelId: 'nameLabel',
+      value: formState.name,
       onChange: handleChange,
       ...textFieldProps,
     },
     {
       inputType: 'text',
       selectitemsArr: [],
-      label: 'Last Name',
-      name: 'lastName',
-      labelId: 'lastNameLabel',
-      value: formState.lastName,
+      label: 'Path',
+      name: 'path',
+      labelId: 'pathLabel',
+      value: formState.path,
       onChange: handleChange,
       ...textFieldProps,
     },
     {
       inputType: 'text',
       selectitemsArr: [],
-      label: 'Employee Id',
-      name: 'employeeId',
-      labelId: 'employeeIdLabel',
-      value: formState.employeeId,
-      onChange: handleChange,
-      ...textFieldProps,
-    },
-    {
-      inputType: 'text',
-      selectitemsArr: [],
-      label: 'Title/Postion',
-      name: 'title',
-      labelId: 'titleLabel',
-      value: formState.title,
+      label: 'Element',
+      name: 'element',
+      labelId: 'elementLabel',
+      value: formState.element,
       onChange: handleChange,
       ...textFieldProps,
     },
     {
       inputType: 'select',
-      selectitemsArr: [
-        'Tagging',
-        'Sales',
-        'Exec',
-        'Finance',
-        'Photography',
-        'Marketing',
-      ],
-      label: 'Department',
-      name: 'department',
-      labelId: 'departmentLabel',
-      value: formState.department,
-      onChange: handleChange,
-      ...textFieldProps,
-    },
-    {
-      inputType: 'text',
-      selectitemsArr: [],
-      label: 'Password',
-      name: 'password',
-      labelId: 'passwordLabel',
-      value: formState.password,
-      onChange: handleChange,
-      ...textFieldProps,
-    },
-    {
-      inputType: 'select',
-      selectitemsArr: ['Georgia', 'Texas', 'Florida'],
-      label: 'Region',
-      name: 'region',
-      labelId: 'regionLabel',
-      value: formState.department,
+      selectitemsArr: ['true', 'false'],
+      label: 'Menu Item',
+      name: 'menuItem',
+      labelId: 'menuItemLabel',
+      value: formState.menuItem,
       onChange: handleChange,
       ...textFieldProps,
     },
@@ -169,7 +130,7 @@ export default function NewUser({
               component='h2'
               textAlign='center'
               sx={{ p: 0.5, color: 'primary.main' }}>
-              New User
+              New Route
             </Typography>
           </Box>
           <Box
@@ -226,13 +187,10 @@ export default function NewUser({
               type='submit'
               fullWidth
               disabled={
-                !formState.firstName ||
-                !formState.lastName ||
-                !formState.password ||
-                !formState.title ||
-                !formState.department ||
-                !formState.employeeId ||
-                !formState.region
+                !formState.name ||
+                !formState.path ||
+                !formState.element ||
+                !formState.menuItem
               }
               variant='standard'
               sx={{ mt: 1, mb: 1, color: 'primary.main' }}>

@@ -10,7 +10,8 @@ export default function Weather() {
   }, []);
 
   function getWeather() {
-    let currentRegion = localStorage.getItem('region').toLowerCase();
+    let currentRegion =
+      localStorage.getItem('region').toLowerCase() || 'georgia';
 
     const coordinates = {
       georgia: {

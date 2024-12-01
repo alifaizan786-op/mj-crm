@@ -27,11 +27,15 @@ const DrawerMenu = ({ menuData }) => {
   React.useEffect(() => {
     let parentMenuArr = [];
 
+    console.log('menuData', menuData);
+
     const levelOne = menuData
       .filter((menu) => menu.menuItem == true)
       .filter(
         (menu) => menu.path.split('/').filter(Boolean).length == 1
       );
+
+    console.log('levelOne', levelOne);
 
     const levelTwo = menuData
       .filter((menu) => menu.menuItem == true)
@@ -45,6 +49,8 @@ const DrawerMenu = ({ menuData }) => {
           ] != ':id'
       );
 
+    console.log('levelTwo', levelTwo);
+
     const levelThree = menuData
       .filter((menu) => menu.menuItem == true)
       .filter(
@@ -57,6 +63,8 @@ const DrawerMenu = ({ menuData }) => {
           ] != ':id'
       );
 
+    console.log('levelThree', levelThree);
+
     const levelFour = menuData
       .filter((menu) => menu.menuItem == true)
       .filter(
@@ -68,6 +76,8 @@ const DrawerMenu = ({ menuData }) => {
             menu.path.split('/').filter(Boolean).length - 1
           ] != ':id'
       );
+
+    console.log('levelFour', levelFour);
 
     const menuArr = [];
 
@@ -107,6 +117,8 @@ const DrawerMenu = ({ menuData }) => {
 
       menuArr.push(elementI); // Add Level 1 to the final array
     }
+
+    console.log('menuArr', menuArr);
 
     const sortMenu = (arr) => {
       return arr.sort((a, b) => {
