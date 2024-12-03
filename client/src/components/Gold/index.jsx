@@ -16,9 +16,10 @@ export default function Gold() {
     let todayGoldData = await GoldFetch.getGold();
     console.log(todayGoldData);
 
-    setGold([todayGoldData]);
+    setGold(todayGoldData);
   }
 
+  console.log(gold);
 
   return gold?.length > 0 ? (
     <Box
