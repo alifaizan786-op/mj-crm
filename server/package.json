@@ -19,7 +19,7 @@
     "image-size": "^1.1.1",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^8.8.0",
-    "mssql": "^11.0.1",
+    "mssql": "^9.0.1",
     "parsedbf": "^1.1.1"
   }
 }

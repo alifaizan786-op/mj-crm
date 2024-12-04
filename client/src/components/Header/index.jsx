@@ -4,7 +4,6 @@ import MenuOpenOutlinedIcon from '@mui/icons-material/MenuOpenOutlined';
 import MenuOutlinedIcon from '@mui/icons-material/MenuOutlined';
 import MoreIcon from '@mui/icons-material/MoreVert';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import SearchIcon from '@mui/icons-material/Search';
 import { AppBar } from '@mui/material';
 import Badge from '@mui/material/Badge';
 import Box from '@mui/material/Box';
@@ -268,13 +267,13 @@ export default function Header() {
             </Box>
             {/* Search */}
             <Search>
-              <SearchIconWrapper>
+              {/* <SearchIconWrapper>
                 <SearchIcon />
               </SearchIconWrapper>
               <StyledInputBase
                 placeholder='Search…'
                 inputProps={{ 'aria-label': 'search' }}
-              />
+              /> */}
             </Search>
             {/* Account Icons */}
             <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
