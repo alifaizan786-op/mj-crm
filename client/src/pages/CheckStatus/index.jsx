@@ -1,5 +1,4 @@
 import SearchIcon from '@mui/icons-material/Search';
-
 import {
   Box,
   Divider,
@@ -9,22 +8,26 @@ import {
   TableBody,
   TableCell,
   TableContainer,
+  TableHead,
   TableRow,
   TextField,
   Typography,
 } from '@mui/material';
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
+import Image from '../../components/Image';
 import StoreData from '../../components/StoreData';
 import InvFetch from '../../fetch/InvFetch';
 import WebsiteFetch from '../../fetch/WebsiteFetch';
 import Common from '../../layouts/common';
-import FormatImage from '../../utils/FormatImage';
+import formatDate from '../../utils/FormatDate';
+import USDollar from '../../utils/USDollar';
 
 export default function CheckStatus() {
   document.title = 'BB | Merchandise | Check Status';
 
   const [searchParams, setSearchParams] = useSearchParams();
+  const [imgsrc, setImgSrc] = React.useState('js');
 
   const [skuData, setSkuData] = React.useState([]);
   const [skuDataWeb, setSkuDataWeb] = React.useState([]);
@@ -44,9 +47,6 @@ export default function CheckStatus() {
       console.log(error);
     }
   };
-
-  console.log('skuData', skuData);
-  console.log('skuDataWeb', skuDataWeb);
 
   return (
     <Common>
@@ -80,52 +80,172 @@ export default function CheckStatus() {
           }}
         />
       </Box>
-      <StoreData
-        store={'Wholesale'}
-        data={skuData.filter((item) => item.store_code == 'WS')[0]}
-      />
+      <Box
+        sx={{
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'row',
+          flexDirection: 'row',
+          justifyContent: 'space-evenly',
+          alignItems: 'stretch',
+        }}>
+        {/* Whole Sale Data Card */}
+        <Box
+          sx={{
+            boxShadow: '3px 2px 10px #cbcbcb;',
+            borderRadius: 5,
+            padding: '1rem',
+            marginY: '1rem',
+            width: '60%',
+          }}>
+          <StoreData
+            store={'Wholesale'}
+            data={
+              skuData.filter((item) => item.store_code == 'WS')[0]
+            }
+          />
+        </Box>
+        {/* Image Card */}
+        <Box
+          sx={{
+            boxShadow: '3px 2px 10px #cbcbcb;',
+            borderRadius: 5,
+            padding: '1rem',
+            marginY: '1rem',
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'center',
+            width: '30%',
+          }}>
+          <Image sku={skuData[0]?.sku_no} />
+        </Box>
+      </Box>
 
       <Box
         sx={{
           width: '100%',
           display: 'flex',
           flexDirection: 'row',
-          justifyContent: 'space-between',
+          flexDirection: 'row',
+          justifyContent: 'space-evenly',
           alignItems: 'stretch',
         }}>
-        <Box
-          sx={{
-            width: '75%',
-          }}>
-          <StoreData
-            store={'Atlanta'}
-            data={
-              skuData.filter((item) => item.store_code == 'ATL')[0]
-            }
-          />
-          <StoreData
-            store={'Dallas'}
-            data={
-              skuData.filter((item) => item.store_code == 'DAL')[0]
-            }
-          />
-          <StoreData
-            store={'Tampa'}
-            data={
-              skuData.filter((item) => item.store_code == 'TPA')[0]
-            }
-          />
-        </Box>
+        {/* All Store Data Card */}
         <Box
           sx={{
             boxShadow: '3px 2px 10px #cbcbcb;',
-            width: '23%',
             borderRadius: 5,
-            // display: 'flex',
-            // flexDirection: 'column',
-            // justifyContent: 'space-evenly',
-            // alignItems: 'center',
             padding: '1rem',
+            marginY: '1rem',
+            width: '60%',
+          }}>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell align='left'></TableCell>
+                  <TableCell align='left'>SKU Code</TableCell>
+                  <TableCell align='left'>Desc</TableCell>
+                  <TableCell align='left'>Desc 2</TableCell>
+                  <TableCell align='left'>Tag Price</TableCell>
+                  <TableCell align='left'>Entry Date</TableCell>
+                  <TableCell align='left'>QTY</TableCell>
+                  <TableCell align='left'>Status</TableCell>
+                </TableRow>
+              </TableHead>
+              {['ATL', 'TPA', 'DAL'].map(
+                (store, index) =>
+                  skuData.filter((item) => item.store_code == store)
+                    .length > 0 && (
+                    <TableBody key={index}>
+                      <TableRow>
+                        <TableCell align='left'>
+                          <strong>{store}</strong>
+                        </TableCell>
+                        <TableCell align='left'>
+                          <strong>
+                            {
+                              skuData.filter(
+                                (item) => item.store_code == store
+                              )[0].sku_no
+                            }
+                          </strong>
+                        </TableCell>
+
+                        <TableCell align='left'>
+                          <strong>
+                            {
+                              skuData.filter(
+                                (item) => item.store_code == store
+                              )[0].desc
+                            }
+                          </strong>
+                        </TableCell>
+                        <TableCell align='left'>
+                          <strong>
+                            {
+                              skuData.filter(
+                                (item) => item.store_code == store
+                              )[0].desc2
+                            }
+                          </strong>
+                        </TableCell>
+                        <TableCell align='left'>
+                          <strong>
+                            {USDollar.format(
+                              parseInt(
+                                skuData.filter(
+                                  (item) => item.store_code == store
+                                )[0].retail
+                              )
+                            )}
+                          </strong>
+                        </TableCell>
+                        <TableCell align='left'>
+                          <strong>
+                            {formatDate(
+                              skuData.filter(
+                                (item) => item.store_code == store
+                              )[0].date
+                            )}
+                          </strong>
+                        </TableCell>
+                        <TableCell align='left'>
+                          <strong>
+                            {
+                              skuData.filter(
+                                (item) => item.store_code == store
+                              )[0].loc_qty1
+                            }
+                          </strong>
+                        </TableCell>
+                        <TableCell align='left'>
+                          <strong>
+                            {
+                              skuData.filter(
+                                (item) => item.store_code == store
+                              )[0].status
+                            }
+                          </strong>
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  )
+              )}
+            </Table>
+          </TableContainer>
+        </Box>
+        {/* Web Data Card */}
+        <Box
+          sx={{
+            width: '30%',
+            boxShadow: '3px 2px 10px #cbcbcb',
+            borderRadius: 5,
+            padding: '1rem',
+            marginY: '1rem',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
           }}>
           <Typography
             variant='h6'
@@ -142,18 +262,6 @@ export default function CheckStatus() {
               aria-label='simple table'>
               {skuDataWeb?.SKUCode && (
                 <TableBody>
-                  <TableRow>
-                    <TableCell
-                      align='center'
-                      colSpan={2}>
-                      <img
-                        src={`https://www.malanijewelers.com/TransactionImages/Styles/Medium/${FormatImage(
-                          skuDataWeb.SKUCode
-                        )}.jpg`}
-                        width={300}
-                      />
-                    </TableCell>
-                  </TableRow>
                   <TableRow>
                     <TableCell align='left'>
                       <strong>Stock Qty</strong>

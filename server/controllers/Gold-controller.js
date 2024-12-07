@@ -82,7 +82,6 @@ const getGoldPriceHandler = async (req, res) => {
     );
 
     if (goldPriceFromDB.length > 0) {
-      console.log('goldPriceFromDB', goldPriceFromDB);
       res.json(goldPriceFromDB);
     } else {
       const goldPriceFromAPI = await getGoldPrice();

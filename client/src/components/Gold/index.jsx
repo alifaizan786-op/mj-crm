@@ -21,14 +21,14 @@ export default function Gold() {
 
   console.log(gold);
 
-  return gold?.length > 0 ? (
+  return gold?._id.length > 0 ? (
     <Box
       sx={{
         width: '30%',
       }}>
       <Typography variant='h6'>Gold Price</Typography>
       <Typography variant='h4'>
-        {USDollar.format(gold[0]?.prices.rates.XAU)}
+        {USDollar.format(gold.prices.rates.XAU)}
       </Typography>
     </Box>
   ) : (
