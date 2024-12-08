@@ -107,6 +107,8 @@ class Web {
     // Bind the method
     this.getOneSku = this.getOneSku.bind(this);
     this.openToBuy = this.openToBuy.bind(this);
+    this.getMajorCode = this.getMajorCode.bind(this);
+    this.getAllFromArr = this.getAllFromArr.bind(this);
   }
 
   async getOneSku(req, res) {
@@ -115,6 +117,24 @@ class Web {
 
       let result1 = await pool.request().query(`${this.mainQuery}
                 where SKUCode = '${req.params.sku}'`);
+
+      res.json(result1.recordset);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ error: err });
+    }
+  }
+
+  async getMajorCode(req, res) {
+    try {
+      let pool = await this.db;
+
+      let result1 = await pool.request().query(`${this.mainQuery}
+                where ClassCodes.ClassCode = '${req.params.majorCode}'
+                AND Styles.StockQty = 1
+                AND Styles.Hidden = 0
+                AND Styles.Purchasable = 1
+                `);
 
       res.json(result1.recordset);
     } catch (err) {
@@ -177,6 +197,56 @@ class Web {
     } catch (err) {
       console.log(err);
       res.status(500).json({ error: err });
+    }
+  }
+
+  async getAllFromArr(req = null, res = null, arr = []) {
+    let skusArr;
+
+    if (req && req.params && req.params.SKUs) {
+      skusArr = req.params.SKUs;
+    } else {
+      skusArr = arr;
+    }
+
+    if (!Array.isArray(skusArr) || skusArr.length === 0) {
+      if (res) {
+        return res
+          .status(400)
+          .json({ error: 'Invalid SKUs parameter' });
+      } else {
+        throw new Error('SKUs array must be provided and non-empty');
+      }
+    }
+
+    try {
+      let tempString = 'WHERE ';
+      skusArr.forEach((element, index) => {
+        tempString +=
+          index === skusArr.length - 1
+            ? `SKUCode = '${element}'`
+            : `SKUCode = '${element}' OR `;
+      });
+
+      let pool = await this.db;
+      let result = await pool
+        .request()
+        .query(`${this.mainQuery} ${tempString}`);
+
+      if (res) {
+        return res.json(result.recordset);
+      } else {
+        return result.recordset; // Return the result for internal use
+      }
+    } catch (err) {
+      console.error('Error in getAllFromArr:', err);
+      if (res) {
+        return res
+          .status(500)
+          .json({ error: 'Internal Server Error' });
+      } else {
+        throw err;
+      }
     }
   }
 }

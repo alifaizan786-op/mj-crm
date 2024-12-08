@@ -1,4 +1,5 @@
 const { INV } = require('../models');
+const Web = require('./Web-controller');
 
 module.exports = {
   async getOneSku(req, res) {
@@ -108,6 +109,46 @@ module.exports = {
       ]);
 
       res.json(result);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  },
+  async openToBuyByMajorCode(req, res) {
+    try {
+      const { store, majorCode } = req.params;
+
+      const classCodeData = await INV.find({
+        loc_qty1: 1,
+        class_12: majorCode,
+        store_code: store,
+      }).lean();
+
+      // Map SKU numbers correctly
+      const skuNumbers = classCodeData.map((item) => item.sku_no);
+
+
+      // Call getAllFromArr with the array of SKUs
+      const checkIsOnline = await Web.getAllFromArr(
+        null,
+        null,
+        skuNumbers
+      );
+
+
+      // Map the classCodeData to include isOnline flag
+      const allClassCodeData = classCodeData.map((item) => ({
+        ...item,
+        isOnline:
+          checkIsOnline.filter((obj) => obj.SKUCode == item.sku_no)
+            .length > 0
+            ? checkIsOnline.filter(
+                (obj) => obj.SKUCode == item.sku_no
+              )[0]
+            : 'SKU Is Not Online',
+      }));
+
+      res.json(allClassCodeData);
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Server error' });

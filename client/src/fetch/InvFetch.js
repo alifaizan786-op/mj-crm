@@ -20,6 +20,15 @@ class InvFetch extends BaseFetch {
 
     return openToBuy;
   }
+
+  async getOpenToBuyByStoreAndClass(store, majorCode) {
+    const openToBuy = await this.request(
+      `/opentobuy/${store}/${majorCode}`,
+      'GET'
+    );
+
+    return openToBuy;
+  }
 }
 
 export default new InvFetch(); // Export as a singleton

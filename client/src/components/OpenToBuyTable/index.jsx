@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
 
+import { Link } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -86,9 +87,15 @@ export default function OpenToBuyTable({
                 sx={{
                   '&:last-child td, &:last-child th': { border: 0 },
                 }}>
-                <StyledTableCell align='center'>
-                  {row.majorCode}
-                </StyledTableCell>
+                <Link
+                  href={`/Merchandise/Reports/OpenToBuy/${row.majorCode}?store=["${storeAbrev}"]`}
+                  target='_blank'
+                  rel='noopener noreferrer'>
+                  <StyledTableCell align='center'>
+                    {row.majorCode}
+                  </StyledTableCell>
+                </Link>
+
                 {showBase && (
                   <StyledTableCell align='center'>
                     {row.baseColumn}

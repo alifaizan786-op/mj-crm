@@ -12,8 +12,17 @@ class WebsiteFetch extends BaseFetch {
     return getOneSku;
   }
 
-  async getOpenToBuyData(sku) {
+  async getOpenToBuyData() {
     const openToBuy = await this.request(`/reports/opentobuy`, 'GET');
+
+    return openToBuy;
+  }
+
+  async getOpenToBuyDataByClass(majorCode) {
+    const openToBuy = await this.request(
+      `/reports/opentobuy/${majorCode}`,
+      'GET'
+    );
 
     return openToBuy;
   }
