@@ -106,6 +106,7 @@ class Web {
 
     // Bind the method
     this.getOneSku = this.getOneSku.bind(this);
+    this.openToBuy = this.openToBuy.bind(this);
   }
 
   async getOneSku(req, res) {
@@ -116,6 +117,63 @@ class Web {
                 where SKUCode = '${req.params.sku}'`);
 
       res.json(result1.recordset);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ error: err });
+    }
+  }
+
+  async openToBuy(req, res) {
+    try {
+      let pool = await this.db;
+      let result1 = await pool.request()
+        .query(`SELECT ClassCodes.ClassCode as majorCode, ClassCodes.BaseColumn as baseColumn, COUNT(*) as totalQty
+                FROM Styles
+                INNER JOIN ClassCodes ON Styles.ClassCode = ClassCodes.Code
+                WHERE Purchasable = '1' AND StockQty = '1' AND Hidden = '0' AND Img1 IS NULL
+                GROUP BY ClassCodes.ClassCode, ClassCodes.BaseColumn
+                ORDER BY 1;`);
+
+      let templateObject = {
+        totalQty: 0,
+        totalBaseQty: 0,
+        totalRetail: 0,
+        store: 'Web',
+        majorCodes: [],
+      };
+
+      // Use a map to simplify lookups for existing majorCodes
+      let majorCodeMap = new Map();
+      for (let record of result1.recordset) {
+        templateObject.totalQty += record.totalQty; // Increment totalQty
+        templateObject.totalBaseQty += record.baseColumn; // Increment totalQty
+
+        // Store an object containing baseColumn and totalQty
+        majorCodeMap.set(record.majorCode, {
+          baseColumn: record.baseColumn,
+          totalQty: record.totalQty,
+        });
+      }
+
+      // Loop through all possible majorCodes (1 to maxMajorCode)
+      const maxMajorCode = Math.max(...majorCodeMap.keys());
+      for (let i = 1; i <= maxMajorCode; i++) {
+        let data = majorCodeMap.get(i) || {
+          baseColumn: null,
+          totalQty: 0,
+        }; // Default values for missing codes
+
+        templateObject.majorCodes.push({
+          majorCode: i,
+          baseColumn: data.baseColumn, // Add baseColumn to the output
+          totalQty: {
+            majorCode: i,
+            totalQty: data.totalQty, // Use existing totalQty or default to 0
+          },
+        });
+      }
+
+      res.json([templateObject]);
     } catch (err) {
       console.log(err);
       res.status(500).json({ error: err });

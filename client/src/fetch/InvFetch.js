@@ -7,9 +7,18 @@ class InvFetch extends BaseFetch {
   }
 
   async getOneSKUData(sku) {
-    const userById = await this.request(`/sku/${sku}`, 'GET');
+    const skuData = await this.request(`/sku/${sku}`, 'GET');
 
-    return userById;
+    return skuData;
+  }
+
+  async getOpenToBuyByStore(store) {
+    const openToBuy = await this.request(
+      `/opentobuy/${store}`,
+      'GET'
+    );
+
+    return openToBuy;
   }
 }
 

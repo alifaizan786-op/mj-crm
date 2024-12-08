@@ -20,11 +20,97 @@ module.exports = {
       res.json(result);
     } catch (error) {
       console.error(error);
-      res
-        .status(500)
-        .json({
-          error: 'An error occurred while fetching the SKU data.',
-        });
+      res.status(500).json({
+        error: 'An error occurred while fetching the SKU data.',
+      });
+    }
+  },
+  async openToBuy(req, res) {
+    try {
+      const { store } = req.params;
+
+      const result = await INV.aggregate([
+        {
+          $match: {
+            loc_qty1: 1,
+            store_code: store,
+          },
+        },
+        {
+          $group: {
+            _id: {
+              store: '$store_code',
+              majorCode: '$class_12',
+            },
+            totalQty: {
+              $sum: '$loc_qty1',
+            },
+          },
+        },
+        {
+          $group: {
+            _id: '$_id.store',
+            totalQty: {
+              $sum: '$totalQty',
+            },
+            totalRetail: {
+              $sum: '$totalRetail',
+            },
+            majorCodes: {
+              $push: {
+                majorCode: '$_id.majorCode',
+                totalQty: '$totalQty',
+              },
+            },
+          },
+        },
+        {
+          $addFields: {
+            allMajorCodes: {
+              $map: {
+                input: { $range: [1, 701] }, // Generates numbers from 1 to 700
+                as: 'code',
+                in: {
+                  majorCode: '$$code',
+                  totalQty: {
+                    $ifNull: [
+                      {
+                        $arrayElemAt: [
+                          {
+                            $filter: {
+                              input: '$majorCodes',
+                              as: 'major',
+                              cond: {
+                                $eq: ['$$major.majorCode', '$$code'],
+                              },
+                            },
+                          },
+                          0,
+                        ],
+                      },
+                      { totalQty: 0 },
+                    ],
+                  },
+                },
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            store: '$_id',
+            totalQty: 1,
+            totalRetail: 1,
+            majorCodes: '$allMajorCodes',
+          },
+        },
+      ]);
+
+      res.json(result);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Server error' });
     }
   },
 };
