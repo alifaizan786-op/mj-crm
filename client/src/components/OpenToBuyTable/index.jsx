@@ -88,7 +88,11 @@ export default function OpenToBuyTable({
                   '&:last-child td, &:last-child th': { border: 0 },
                 }}>
                 <Link
-                  href={`/Merchandise/Reports/OpenToBuy/${row.majorCode}?store=["${storeAbrev}"]`}
+                  href={`/Merchandise/Reports/OpenToBuy/${
+                    row.majorCode
+                  }?store=["${
+                    storeAbrev == 'WEB' ? 'WS' : storeAbrev
+                  }"]`}
                   target='_blank'
                   rel='noopener noreferrer'>
                   <StyledTableCell align='center'>

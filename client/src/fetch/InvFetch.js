@@ -29,6 +29,16 @@ class InvFetch extends BaseFetch {
 
     return openToBuy;
   }
+
+  async reportBuilder(data) {
+    const reportBuilderData = await this.request(
+      `/reports/reportBuilder`,
+      'POST',
+      data
+    );
+
+    return reportBuilderData;
+  }
 }
 
 export default new InvFetch(); // Export as a singleton

@@ -16,9 +16,11 @@ import USDollar from '../../utils/USDollar';
 export default function OpenToBuyMajorCode() {
   const { MajorCode } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
-  const paginationModel = { page: 0, pageSize: 3 };
+  const [loading, setLoading] = React.useState(false);
 
-  document.title = `BB | Major Code | ${MajorCode}`;
+  React.useEffect(() => {
+    document.title = `BB | Major Code | ${MajorCode}`;
+  }, [MajorCode]);
 
   const [data, setData] = React.useState({
     WS: [],
@@ -59,50 +61,73 @@ export default function OpenToBuyMajorCode() {
   ]);
 
   const handleCheckboxClick = (index) => {
-    setLocations((prevLocations) =>
-      prevLocations.map((location, i) =>
-        i === index
-          ? { ...location, showData: !location.showData }
-          : location
-      )
-    );
+    setLocations((prevLocations) => {
+      const newLocations = [...prevLocations];
+      newLocations[index].showData = !newLocations[index].showData;
+      return newLocations;
+    });
   };
 
   React.useEffect(() => {
+    const updatedStores = locations
+      .filter((location) => location.showData)
+      .map((location) => location.storeAbrev);
+
+    setSearchParams({ store: JSON.stringify(updatedStores) });
+  }, [locations, setSearchParams]);
+
+  React.useEffect(() => {
     async function fetchData() {
-      for (let i = 0; i < locations.length; i++) {
-        const element = locations[i];
-        if (element.showData) {
-          const majorCodeDataStore =
-            await InvFetch.getOpenToBuyByStoreAndClass(
-              element.storeAbrev,
+      setLoading(true);
+      const fetchPromises = locations
+        .filter((location) => location.showData)
+        .map(async (location) => {
+          try {
+            const data = await InvFetch.getOpenToBuyByStoreAndClass(
+              location.storeAbrev,
               MajorCode
             );
-          setData((prevData) => ({
-            ...prevData,
-            [element.storeAbrev]: majorCodeDataStore,
-          }));
-        }
-      }
+            return {
+              store: location.storeAbrev,
+              data: data === "No Sku's found" ? [] : data,
+            };
+          } catch (error) {
+            console.error(
+              `Error fetching data for ${location.storeAbrev}:`,
+              error
+            );
+            return { store: location.storeAbrev, data: [] };
+          }
+        });
+
+      const results = await Promise.all(fetchPromises);
+      setData((prevData) =>
+        results.reduce(
+          (acc, { store, data }) => {
+            acc[store] = data;
+            return acc;
+          },
+          { ...prevData }
+        )
+      );
+      setLoading(false);
     }
 
     fetchData();
   }, [locations, MajorCode]);
 
-  console.log(data);
-
   const columns = [
     {
       field: 'Online Status',
       headerName: 'Online Status',
-      width: 150,
+      width: 175,
       headerAlign: 'center',
       align: 'center',
       valueGetter: (params) =>
         params.row.isOnline !== 'SKU Is Not Online'
-          ? params.row.isOnline.hidden == true
+          ? params.row.isOnline.hidden === true
             ? 'Hidden'
-            : params.row.isOnline.purchasable == false
+            : params.row.isOnline.purchasable === false
             ? 'Not Purchasable'
             : 'Online'
           : 'Not Online',
@@ -110,49 +135,49 @@ export default function OpenToBuyMajorCode() {
     {
       field: 'store_code',
       headerName: 'Location',
-      width: 70,
+      width: 95,
       headerAlign: 'center',
       align: 'center',
     },
     {
       field: 'sku_no',
       headerName: 'SKU',
-      width: 95,
+      width: 125,
       headerAlign: 'center',
       align: 'center',
     },
     {
       field: 'class_34',
       headerName: 'Minor',
-      width: 70,
+      width: 95,
       headerAlign: 'center',
       align: 'center',
     },
     {
       field: 'vndr_style',
       headerName: 'Style',
-      width: 150,
+      width: 175,
       headerAlign: 'center',
       align: 'center',
     },
     {
       field: 'desc',
       headerName: 'Desc',
-      width: 200,
+      width: 275,
       headerAlign: 'center',
       align: 'center',
     },
     {
       field: 'desc2',
       headerName: 'Desc2',
-      width: 200,
+      width: 250,
       headerAlign: 'center',
       align: 'center',
     },
     {
       field: 'retail',
       headerName: 'Retail',
-      width: 95,
+      width: 125,
       valueGetter: (params) => USDollar.format(params.row.retail),
       headerAlign: 'center',
       align: 'center',
@@ -160,7 +185,7 @@ export default function OpenToBuyMajorCode() {
     {
       field: 'date',
       headerName: 'Date',
-      width: 95,
+      width: 125,
       valueGetter: (params) =>
         new Date(params.row.date).toLocaleDateString(),
       headerAlign: 'center',
@@ -169,7 +194,7 @@ export default function OpenToBuyMajorCode() {
     {
       field: 'Image',
       headerName: 'Image',
-      width: 500,
+      width: 450,
       renderCell: (params) => {
         return (
           <Box
@@ -183,10 +208,17 @@ export default function OpenToBuyMajorCode() {
           </Box>
         );
       },
+      headerAlign: 'center',
+      align: 'center',
     },
   ];
 
-  const rows = [...data.WS, ...data.ATL, ...data.TPA, ...data.DAL];
+  const rows = [
+    ...(Array.isArray(data.WS) ? data.WS : []),
+    ...(Array.isArray(data.ATL) ? data.ATL : []),
+    ...(Array.isArray(data.TPA) ? data.TPA : []),
+    ...(Array.isArray(data.DAL) ? data.DAL : []),
+  ];
 
   return (
     <Common>
@@ -216,28 +248,51 @@ export default function OpenToBuyMajorCode() {
         ))}
       </FormGroup>
 
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        initialState={{ pagination: { paginationModel } }}
-        pageSizeOptions={[5, 10, 25, 50]}
-        sx={{ border: 0 }}
-        getRowId={(row) => row._id}
-        getRowHeight={() => 250} // Adjust this value as needed for your images
-        components={{
-          LoadingOverlay: () => (
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: '100%',
-              }}>
-              <Loader />
-            </Box>
-          ),
-        }}
-      />
+      <Box
+        sx={{
+          height: '800px', // Define a fixed height for the DataGrid container
+          overflow: 'auto', // Enable scrolling within this container
+        }}>
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          initialState={{
+            pagination: {
+              paginationModel: { page: 0, pageSize: 25 },
+            },
+          }}
+          style={{
+            border: 'none', // This directly overrides the inline border style
+          }}
+          pageSizeOptions={[5, 10, 25, 50]}
+          sx={{
+            '& .MuiDataGrid-root': {
+              border: 'none !important', // Add !important to override inline styles
+            },
+            '& .MuiDataGrid-columnHeaders': {
+              position: 'sticky',
+              top: 0,
+              zIndex: 2, // Ensure it appears above the rows
+              backgroundColor: '#fff', // Provide a background color
+            },
+          }}
+          getRowId={(row) => row._id}
+          getRowHeight={() => 250}
+          components={{
+            LoadingOverlay: () => (
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '100%',
+                }}>
+                <Loader />
+              </Box>
+            ),
+          }}
+        />
+      </Box>
     </Common>
   );
 }

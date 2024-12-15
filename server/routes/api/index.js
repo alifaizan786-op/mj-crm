@@ -9,6 +9,7 @@ const gold_Routes = require('./Gold-routes');
 const customer_Routes = require('./Customer-routes');
 const Inv_Routes = require('./Inv-routes');
 const Web_Routes = require('./Web-routes');
+const Attribute_Routes = require('./Attribute-routes');
 
 // /api/user
 router.use('/user', userRoutes);
@@ -36,5 +37,8 @@ router.use('/website', Web_Routes);
 
 // /api/inventory
 router.use('/inventory', Inv_Routes);
+
+// /api/attribute
+router.use('/attribute', Attribute_Routes);
 
 module.exports = router;

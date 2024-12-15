@@ -7,8 +7,8 @@ import { Box, IconButton } from '@mui/material';
 
 import React from 'react';
 
-export default function Image({ sku, size }) {
-  const [imgsrc, setImgSrc] = React.useState('js');
+export default function Image({ sku, size, initialState }) {
+  const [imgsrc, setImgSrc] = React.useState(initialState || 'js');
 
   console.log(FormatImage(sku, size || 'medium'));
 
@@ -30,6 +30,7 @@ export default function Image({ sku, size }) {
         target='_blank'
         rel='noopener noreferrer'>
         <img
+          loading='lazy'
           src={FormatImage(sku, imgsrc, size || 'medium')}
           width={imgsrc == 'js' ? 300 : 250}
         />

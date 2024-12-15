@@ -34,7 +34,7 @@ module.exports = {
   // Get all routes
   async getAllRoutes(req, res) {
     try {
-      const routes = await UserRoutes.find({}).sort({ path: -1 });
+      const routes = await UserRoutes.find({}).sort({ path: 1 });
       res.status(200).json(routes);
     } catch (error) {
       console.error('Error:', error);
