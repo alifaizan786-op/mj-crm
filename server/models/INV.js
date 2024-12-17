@@ -95,12 +95,21 @@ invData.statics.getStatus = async function (sku_no) {
 
   const getSKUData = await INV.find({ sku_no });
 
-  if (getSKUData.filter((item) => item.loc_qty1 === 0).length === getSKUData.length) {
+  // Check if all records have `loc_qty1` as 0
+  if (
+    getSKUData.filter((item) => item.loc_qty1 === 0).length ===
+    getSKUData.length
+  ) {
     const recordExists = await SARecord.exists({ sku_no });
     return recordExists ? 'sold out' : 'in-transit';
   }
 
-  return 'available';
+  // For available items, include store codes
+  const availableStores = getSKUData
+    .filter((item) => item.loc_qty1 > 0)
+    .map((item) => item.store_code);
+
+  return `available-${availableStores}`;
 };
 
 const INV = model('INV', invData, 'INV'); // Explicitly set the collection name

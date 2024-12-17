@@ -24,6 +24,7 @@ export default function Filters({
   modalOpen,
   modalName,
   orientation,
+  hideSubmit,
 }) {
   const handleChange = (event, stateId) => {
     console.log(stateId, event.target.value);
@@ -70,24 +71,28 @@ export default function Filters({
         ))}
 
       {/* Submit */}
-      <FormControl>
-        <Button
-          size='medium'
-          variant='outlined'
-          onClick={handleSubmit}
-          disabled={submitDisabled}>
-          Submit
-        </Button>
-      </FormControl>
+      {handleSubmit && (
+        <FormControl>
+          <Button
+            size='medium'
+            variant='outlined'
+            onClick={handleSubmit}
+            disabled={submitDisabled}>
+            Submit
+          </Button>
+        </FormControl>
+      )}
       {/* Clear */}
-      <FormControl>
-        <Button
-          size='medium'
-          variant='outlined'
-          onClick={handleClear}>
-          Clear
-        </Button>
-      </FormControl>
+      {handleClear && (
+        <FormControl>
+          <Button
+            size='medium'
+            variant='outlined'
+            onClick={handleClear}>
+            Clear
+          </Button>
+        </FormControl>
+      )}
       {modalName?.length > 0 && (
         <FormControl>
           <Button

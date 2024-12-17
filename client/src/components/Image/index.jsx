@@ -10,7 +10,6 @@ import React from 'react';
 export default function Image({ sku, size, initialState }) {
   const [imgsrc, setImgSrc] = React.useState(initialState || 'js');
 
-  console.log(FormatImage(sku, size || 'medium'));
 
   return (
     <Box

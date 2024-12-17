@@ -12,9 +12,27 @@ class InvFetch extends BaseFetch {
     return skuData;
   }
 
+  async getNewArrivalsByDays(days) {
+    const newArrivals = await this.request(
+      `/reports/newarrivals/${days}`,
+      'GET'
+    );
+
+    return newArrivals;
+  }
+
+  async getNewArrivalsByDate(date) {
+    const newArrivals = await this.request(
+      `/reports/newarrivals/date/${date}`,
+      'GET'
+    );
+
+    return newArrivals;
+  }
+
   async getOpenToBuyByStore(store) {
     const openToBuy = await this.request(
-      `/opentobuy/${store}`,
+      `/reports/opentobuy/${store}`,
       'GET'
     );
 
@@ -23,7 +41,7 @@ class InvFetch extends BaseFetch {
 
   async getOpenToBuyByStoreAndClass(store, majorCode) {
     const openToBuy = await this.request(
-      `/opentobuy/${store}/${majorCode}`,
+      `/reports/opentobuy/${store}/${majorCode}`,
       'GET'
     );
 

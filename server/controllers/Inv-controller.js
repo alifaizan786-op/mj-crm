@@ -275,4 +275,179 @@ module.exports = {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   },
+  async newArrivals(req, res) {
+    try {
+      const { days } = req.params;
+      if (!days || isNaN(days)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid or missing "days" parameter.',
+        });
+      }
+
+      const storeCode = 'WS';
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - parseInt(days, 10));
+
+      const aggregation = [
+        {
+          $match: {
+            store_code: storeCode,
+            date: { $gte: startDate },
+          },
+        },
+        {
+          $group: {
+            _id: '$date', // Group by date
+            totalSKUs: { $sum: 1 }, // Count the total SKUs per date
+            skus: {
+              $push: {
+                sku_no: '$sku_no',
+                retail: '$retail',
+                weight: '$weight',
+                ven_code: '$ven_code',
+                date: '$date',
+                loc_qty1: '$loc_qty1', // Include `loc_qty1` for status calculation
+                store_code: '$store_code', // Include store_code for status calculation
+              },
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: 'SARECORD',
+            localField: 'skus.sku_no',
+            foreignField: 'sku_no',
+            as: 'sa_records',
+          },
+        },
+        {
+          $addFields: {
+            skus: {
+              $map: {
+                input: '$skus',
+                as: 'sku',
+                in: {
+                  sku_no: '$$sku.sku_no',
+                  retail: '$$sku.retail',
+                  weight: '$$sku.weight',
+                  ven_code: '$$sku.ven_code',
+                  date: '$$sku.date',
+                  status: {
+                    $cond: [
+                      { $eq: ['$$sku.loc_qty1', 0] },
+                      {
+                        $cond: [
+                          {
+                            $gt: [
+                              {
+                                $size: {
+                                  $filter: {
+                                    input: '$sa_records',
+                                    as: 'record',
+                                    cond: {
+                                      $eq: [
+                                        '$$record.sku_no',
+                                        '$$sku.sku_no',
+                                      ],
+                                    },
+                                  },
+                                },
+                              },
+                              0,
+                            ],
+                          },
+                          'sold out',
+                          'in-transit',
+                        ],
+                      },
+                      { $concat: ['available-', '$$sku.store_code'] },
+                    ],
+                  },
+                },
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            totalSKUs: 1,
+            skus: 1,
+          },
+        },
+      ];
+
+      const result = await INV.aggregate(aggregation);
+
+      res.status(200).json(result);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        success: false,
+        message: 'An error occurred while processing the request.',
+        error: error.message,
+      });
+    }
+  },
+  async newArrivalsByDate(req, res) {
+    try {
+      const { date } = req.params;
+      if (new Date(date) == 'Invalid Date') {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid or missing "date" parameter.',
+        });
+      }
+
+      const storeCode = 'WS';
+      const startDate = new Date(date);
+
+      const newArrivalDataByDate = await INV.find({
+        store_code: storeCode,
+        date: startDate,
+      }).select(
+        'sku_no store_code class_12 date desc desc2 invoice retail ven_code vndr_style weight '
+      );
+
+      // Resolve the status for each document using the static method
+      const result = await Promise.all(
+        newArrivalDataByDate.map(async (skuData) => {
+          const status = await INV.getStatus(skuData.sku_no); // Call the static method
+          return { ...skuData.toObject(), status }; // Include the status in the response
+        })
+      );
+
+      // Extract SKU numbers
+      const skuNumbers = result.map((item) => item.sku_no);
+
+      // Fetch online status for the SKUs
+      const onlineStatuses = await Web.getAllFromArr(
+        null,
+        null,
+        skuNumbers
+      );
+
+      // Prepare the response data
+      const resultData = result.map((item) => {
+        const onlineStatus = onlineStatuses.find(
+          (obj) => obj.SKUCode === item.sku_no
+        );
+
+        return {
+          ...item,
+          onlinePurchasable: onlineStatus?.Purchasable ?? null,
+          onlineHidden: onlineStatus?.Hidden ?? null,
+          onlineStockQty: onlineStatus?.StockQty ?? null,
+        };
+      });
+
+      res.status(200).json(resultData);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        error: 'An error occurred while fetching the SKU data.',
+      });
+    }
+  },
 };

@@ -297,6 +297,7 @@ export default function CustomReport() {
               flexWrap: 'wrap',
               width: '100%',
             }}>
+              {/* First Tile */}
             <Box
               sx={{
                 boxShadow: '3px 2px 10px #cbcbcb',
@@ -310,6 +311,8 @@ export default function CustomReport() {
                 alignItems: 'center',
                 flexDirection: 'column',
               }}>
+              {/* VJS Legend */}
+
               <Box
                 sx={{
                   width: '70%',
@@ -326,6 +329,7 @@ export default function CustomReport() {
                   ? 'Means SKU is Instock'
                   : 'Means SKU is Online'}
               </Box>
+              {/* Web Legend */}
               <Box
                 sx={{
                   width: '70%',
@@ -358,6 +362,7 @@ export default function CustomReport() {
             {data.data?.length > 0 &&
               data.data.map((item) =>
                 type == 'web' ? (
+                  // Create Web Tiles
                   <Box
                     key={item.SKUCode}
                     sx={{
@@ -418,6 +423,7 @@ export default function CustomReport() {
                     <strong>{item.StyleGrossWt} G</strong>
                   </Box>
                 ) : (
+                  // Create VJS Tile
                   <Box
                     key={item.sku_no}
                     sx={{
