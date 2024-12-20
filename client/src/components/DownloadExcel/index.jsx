@@ -7,6 +7,7 @@ export default function DownloadExcel({ disabled, data, name }) {
       data={data}
       filename={'InvReport' + '.csv'}>
       <Button
+        sx={{ width: 300, marginX: '1rem' }}
         size='medium'
         variant='outlined'
         disabled={disabled}>

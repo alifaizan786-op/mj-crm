@@ -46,27 +46,45 @@ export default function Filters({
       {filters?.length > 0 &&
         filters.map((item, index) => (
           <FormControl key={index}>
-            <Autocomplete
-              size='small'
-              disablePortal
-              multiple={item.multiple}
-              options={item.options}
-              sx={{ width: 300, marginX: '1rem', marginY: '1rem' }}
-              onChange={(event, value) => {
-                setState({ ...state, [item.stateId]: value });
-              }}
-              getOptionLabel={(option) => String(option)}
-              value={
-                state[item.stateId] || (item.multiple ? [] : null)
-              }
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  size='small'
-                  label={item.name}
-                />
-              )}
-            />
+            {item.type == 'text' && (
+              <TextField
+                size='small'
+                label={item.name}
+                sx={{ width: 300, marginX: '1rem', marginY: '1rem' }}
+                onChange={(event, value) => {
+                  setState({
+                    ...state,
+                    [item.stateId]: event.target.value,
+                  });
+                }}
+                value={
+                  state[item.stateId] || (item.multiple ? [] : null)
+                }
+              />
+            )}
+            {item.type == 'autocomplete' && (
+              <Autocomplete
+                size='small'
+                disablePortal
+                multiple={item.multiple}
+                options={item.options}
+                sx={{ width: 300, marginX: '1rem', marginY: '1rem' }}
+                onChange={(event, value) => {
+                  setState({ ...state, [item.stateId]: value });
+                }}
+                getOptionLabel={(option) => String(option)}
+                value={
+                  state[item.stateId] || (item.multiple ? [] : null)
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    size='small'
+                    label={item.name}
+                  />
+                )}
+              />
+            )}
           </FormControl>
         ))}
 
@@ -74,6 +92,7 @@ export default function Filters({
       {handleSubmit && (
         <FormControl>
           <Button
+            sx={{ width: 300, marginX: '1rem',  }}
             size='medium'
             variant='outlined'
             onClick={handleSubmit}
@@ -86,6 +105,7 @@ export default function Filters({
       {handleClear && (
         <FormControl>
           <Button
+            sx={{ width: 300, marginX: '1rem',  }}
             size='medium'
             variant='outlined'
             onClick={handleClear}>
@@ -96,6 +116,7 @@ export default function Filters({
       {modalName?.length > 0 && (
         <FormControl>
           <Button
+            sx={{ width: 300, marginX: '1rem',  }}
             size='medium'
             variant='outlined'
             onClick={modalOpen}>

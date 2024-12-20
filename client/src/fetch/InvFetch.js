@@ -21,6 +21,24 @@ class InvFetch extends BaseFetch {
     return newArrivals;
   }
 
+  async getNewArrivalsByVendor(days) {
+    const newArrivals = await this.request(
+      `/reports/newarrivals/vendor/${days}`,
+      'GET'
+    );
+
+    return newArrivals;
+  }
+
+  async getNewArrivalsByVendorByDays(days, vendor) {
+    const newArrivals = await this.request(
+      `/reports/newarrivals/vendor/${days}/${vendor}`,
+      'GET'
+    );
+
+    return newArrivals;
+  }
+
   async getNewArrivalsByDate(date) {
     const newArrivals = await this.request(
       `/reports/newarrivals/date/${date}`,

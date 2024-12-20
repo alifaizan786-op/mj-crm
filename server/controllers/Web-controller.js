@@ -261,18 +261,13 @@ LEFT JOIN
 
   async reportBuilder(req, res) {
     try {
-      console.log();
       let pool = await this.db;
 
       let result1 = await pool
         .request()
         .query(`${this.mainQuery} ${generateMSSQLQuery(req.body)}`);
 
-      console.log(`${generateMSSQLQuery(req.body)}`);
-
       res.json(result1.recordset);
-
-      // res.json(req.body);
     } catch (err) {
       console.log(err);
       res.status(500).json({ error: err });

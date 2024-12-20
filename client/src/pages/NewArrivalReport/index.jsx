@@ -2,7 +2,7 @@ import CircleIcon from '@mui/icons-material/Circle';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { Box, IconButton } from '@mui/material';
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import Filters from '../../components/Filters';
 import Image from '../../components/Image';
 import Loader from '../../components/Loader';
@@ -10,8 +10,12 @@ import InvFetch from '../../fetch/InvFetch';
 import Common from '../../layouts/common';
 import USDollar from '../../utils/USDollar';
 
-export default function NewArrivalByDate() {
-  const { date } = useParams();
+export default function NewArrivalReport() {
+  const [searchParams] = useSearchParams(); // Extract the searchParams object
+  const date = searchParams.get('date'); // Retrieve 'date' from query parameters
+  const vendor = searchParams.get('vendor'); // Retrieve 'vendor' from query parameters
+  console.log(date, vendor);
+
   const [data, setData] = React.useState({
     loading: true,
     data: [],
@@ -20,9 +24,16 @@ export default function NewArrivalByDate() {
 
   React.useEffect(() => {
     async function getData() {
-      const newarrivalsData = await InvFetch.getNewArrivalsByDate(
-        date
-      );
+      let newarrivalsData;
+      if (date !== null) {
+        newarrivalsData = await InvFetch.getNewArrivalsByDate(date);
+      }
+      if (vendor !== null) {
+        newarrivalsData = await InvFetch.getNewArrivalsByVendorByDays(
+          30,
+          vendor
+        );
+      }
       setData({
         loading: false,
         data: newarrivalsData,

@@ -38,6 +38,7 @@ export default function CustomReport() {
   const [open, setOpen] = React.useState(true);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  const [visibleCount, setVisibleCount] = React.useState(50); // Initially show 50 items
 
   React.useEffect(() => {
     async function getAttributeData() {
@@ -66,7 +67,25 @@ export default function CustomReport() {
         filters[key] = filters[key].split(',');
       });
       if (type == 'web') {
-        const reportData = await WebsiteFetch.reportBuilder(filters);
+        // Extract and assign PriceMin and PriceMax to custPrice
+        const custPrice = {
+          min:
+            Array.isArray(filters.PriceMin) && filters.PriceMin[0] > 0
+              ? filters.PriceMin[0]
+              : 0,
+          max:
+            Array.isArray(filters.PriceMax) && filters.PriceMax[0] > 0
+              ? filters.PriceMax[0]
+              : 999999,
+        };
+
+        // Remove PriceMin and PriceMax from filters
+        delete filters.PriceMin;
+        delete filters.PriceMax;
+        const reportData = await WebsiteFetch.reportBuilder({
+          ...filters,
+          custPrice,
+        });
         setData({
           data: reportData,
           loading: false,
@@ -107,6 +126,11 @@ export default function CustomReport() {
     return filters;
   };
 
+  // Function to load more items when the 50th (or subsequent trigger items) is visible
+  const loadMoreItems = () => {
+    setVisibleCount((prevCount) => prevCount + 50);
+  };
+
   return (
     <Common>
       {type ? (
@@ -144,6 +168,7 @@ export default function CustomReport() {
                         label: 'vendors',
                         multiple: true,
                         stateId: 'Vendors.VendorName',
+                        type: 'autocomplete',
                       },
                       {
                         name: 'Jewelry Type',
@@ -153,6 +178,7 @@ export default function CustomReport() {
                         label: 'Jewelry Type',
                         multiple: true,
                         stateId: 'Styles.AttribField115',
+                        type: 'autocomplete',
                       },
                       {
                         name: 'Classcodes',
@@ -162,6 +188,7 @@ export default function CustomReport() {
                         label: 'classCode',
                         multiple: true,
                         stateId: 'ClassCodes.ClassCode',
+                        type: 'autocomplete',
                       },
                       {
                         name: 'Categories',
@@ -171,6 +198,7 @@ export default function CustomReport() {
                         label: 'Categories',
                         multiple: true,
                         stateId: 'CategoryHierarchy',
+                        type: 'autocomplete',
                       },
                       {
                         name: 'Years',
@@ -180,6 +208,7 @@ export default function CustomReport() {
                         label: 'Years',
                         multiple: true,
                         stateId: 'Years',
+                        type: 'autocomplete',
                       },
                       {
                         name: 'Purchasable',
@@ -187,6 +216,7 @@ export default function CustomReport() {
                         label: 'Purchasable',
                         multiple: true,
                         stateId: 'Purchasable',
+                        type: 'autocomplete',
                       },
                       {
                         name: 'StockQty',
@@ -194,6 +224,7 @@ export default function CustomReport() {
                         label: 'StockQty',
                         multiple: true,
                         stateId: 'StockQty',
+                        type: 'autocomplete',
                       },
                       {
                         name: 'Hidden',
@@ -201,6 +232,21 @@ export default function CustomReport() {
                         label: 'Hidden',
                         multiple: true,
                         stateId: 'Hidden',
+                        type: 'autocomplete',
+                      },
+                      {
+                        name: 'PriceMin',
+                        label: 'PriceMin',
+                        multiple: false,
+                        stateId: 'PriceMin',
+                        type: 'text',
+                      },
+                      {
+                        name: 'PriceMax',
+                        label: 'PriceMax',
+                        multiple: false,
+                        stateId: 'PriceMax',
+                        type: 'text',
                       },
                       {
                         name: 'Sort',
@@ -210,6 +256,7 @@ export default function CustomReport() {
                         label: 'Sort',
                         multiple: false,
                         stateId: 'sort',
+                        type: 'autocomplete',
                       },
                     ]}
                   />
@@ -231,6 +278,7 @@ export default function CustomReport() {
                         label: 'vendors',
                         multiple: true,
                         stateId: 'ven_code',
+                        type: 'autocomplete',
                       },
 
                       {
@@ -241,6 +289,7 @@ export default function CustomReport() {
                         label: 'classCode',
                         multiple: true,
                         stateId: 'class_12',
+                        type: 'autocomplete',
                       },
 
                       {
@@ -251,6 +300,7 @@ export default function CustomReport() {
                         label: 'Location',
                         multiple: true,
                         stateId: 'store_code',
+                        type: 'autocomplete',
                       },
 
                       {
@@ -261,6 +311,7 @@ export default function CustomReport() {
                         label: 'Years',
                         multiple: true,
                         stateId: 'date',
+                        type: 'autocomplete',
                       },
 
                       {
@@ -269,6 +320,7 @@ export default function CustomReport() {
                         label: 'StockQty',
                         multiple: true,
                         stateId: 'loc_qty1',
+                        type: 'autocomplete',
                       },
 
                       {
@@ -279,6 +331,7 @@ export default function CustomReport() {
                         label: 'Sort',
                         multiple: false,
                         stateId: 'sort',
+                        type: 'autocomplete',
                       },
                     ]}
                   />
@@ -297,7 +350,7 @@ export default function CustomReport() {
               flexWrap: 'wrap',
               width: '100%',
             }}>
-              {/* First Tile */}
+            {/* First Tile */}
             <Box
               sx={{
                 boxShadow: '3px 2px 10px #cbcbcb',

@@ -9,6 +9,9 @@ import { SnackbarProvider } from 'notistack';
 import './App.css';
 import AppRoutes from './routes';
 
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+
 // Extend the Material theme
 const materialTheme = materialExtendTheme({
   components: {
@@ -67,21 +70,23 @@ const materialTheme = materialExtendTheme({
 function App() {
   return (
     <div className='App'>
-      <SnackbarProvider
-        maxSnack={3}
-        autoHideDuration={2000}>
-        {/* Material theme is provided via MaterialCssVarsProvider */}
-        <MaterialCssVarsProvider
-          theme={{ [MATERIAL_THEME_ID]: materialTheme }}>
-          {/* Joy UI theme provider */}
-          <JoyCssVarsProvider>
-            {/* Material-UI ThemeProvider */}
-            <ThemeProvider theme={materialTheme}>
-              <AppRoutes />
-            </ThemeProvider>
-          </JoyCssVarsProvider>
-        </MaterialCssVarsProvider>
-      </SnackbarProvider>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <SnackbarProvider
+          maxSnack={3}
+          autoHideDuration={2000}>
+          {/* Material theme is provided via MaterialCssVarsProvider */}
+          <MaterialCssVarsProvider
+            theme={{ [MATERIAL_THEME_ID]: materialTheme }}>
+            {/* Joy UI theme provider */}
+            <JoyCssVarsProvider>
+              {/* Material-UI ThemeProvider */}
+              <ThemeProvider theme={materialTheme}>
+                <AppRoutes />
+              </ThemeProvider>
+            </JoyCssVarsProvider>
+          </MaterialCssVarsProvider>
+        </SnackbarProvider>
+      </LocalizationProvider>
     </div>
   );
 }
