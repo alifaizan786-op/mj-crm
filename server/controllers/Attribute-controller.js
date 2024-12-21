@@ -4,7 +4,9 @@ module.exports = {
   // Get all attributes
   async getAllAttributes(req, res) {
     try {
-      const allAttributes = await Attributes.find({});
+      const allAttributes = await Attributes.find({
+        isDeleted: null,
+      });
       res.status(200).json(allAttributes);
     } catch (error) {
       console.error('Error fetching attributes:', error);
@@ -44,10 +46,10 @@ module.exports = {
   async updateAttribute(req, res) {
     try {
       const { id } = req.params;
-      const { title, prices } = req.body;
+      const { title, options } = req.body;
       const updatedAttribute = await Attributes.findByIdAndUpdate(
         id,
-        { title, prices },
+        { title, options },
         { new: true, runValidators: true }
       );
       if (!updatedAttribute) {
@@ -64,15 +66,19 @@ module.exports = {
   async deleteAttribute(req, res) {
     try {
       const { id } = req.params;
-      const deletedAttribute = await Attributes.findByIdAndDelete(id);
-      if (!deletedAttribute) {
+      const updatedAttribute = await Attributes.findByIdAndUpdate(
+        id,
+        { isDeleted: true },
+        { new: true } // Return the updated document
+      );
+      if (!updatedAttribute) {
         return res.status(404).json({ error: 'Attribute not found' });
       }
-      res
-        .status(200)
-        .json({ message: 'Attribute deleted successfully' });
+      res.status(200).json({
+        message: 'Attribute marked as deleted successfully',
+      });
     } catch (error) {
-      console.error('Error deleting attribute:', error);
+      console.error('Error marking attribute as deleted:', error);
       res.status(500).json({ error: 'Internal Server Error' });
     }
   },

@@ -5,6 +5,9 @@ const attributesSchema = new Schema({
     type: String,
     required: true,
   },
+  isDeleted: {
+    type: Boolean,
+  },
   options: [
     {
       type: Object,

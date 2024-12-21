@@ -32,8 +32,8 @@ const Image = React.memo(({ sku, imageName, size, initialState }) => {
           loading="lazy"
           src={`/api/image?sku=${sku}&type=${imgsrc}&size=${
             size || 'medium'
-          }&imageName=${imageName}`}
-          width={imgsrc === 'js' ? 300 : 250}
+          }&imageName=${imageName || ""}`}
+          width={250}
           alt={`${imageName}`}
         />
       </a>

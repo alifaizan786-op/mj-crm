@@ -30,7 +30,7 @@ export default function NewArrivalReport() {
       }
       if (vendor !== null) {
         newarrivalsData = await InvFetch.getNewArrivalsByVendorByDays(
-          30,
+          60,
           vendor
         );
       }
