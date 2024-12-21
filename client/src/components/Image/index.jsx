@@ -1,15 +1,14 @@
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-
-import FormatImage from '../../utils/FormatImage';
-
 import { Box, IconButton } from '@mui/material';
+import React, { useState } from 'react';
 
-import React from 'react';
+const Image = React.memo(({ sku, imageName, size, initialState }) => {
+  const [imgsrc, setImgSrc] = useState(initialState || 'js');
 
-export default function Image({ sku, size, initialState }) {
-  const [imgsrc, setImgSrc] = React.useState(initialState || 'js');
-
+  const toggleImageType = () => {
+    setImgSrc((prev) => (prev === 'js' ? 'web' : 'js'));
+  };
 
   return (
     <Box
@@ -17,29 +16,33 @@ export default function Image({ sku, size, initialState }) {
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',
-      }}>
-      <IconButton
-        onClick={() => {
-          imgsrc == 'js' ? setImgSrc('web') : setImgSrc('js');
-        }}>
+      }}
+    >
+      <IconButton onClick={toggleImageType}>
         <ChevronLeftIcon />
       </IconButton>
       <a
-        href={FormatImage(sku, imgsrc, size || 'medium')}
-        target='_blank'
-        rel='noopener noreferrer'>
+        href={`/api/image?sku=${sku}&type=${imgsrc}&size=${
+          size || 'medium'
+        }&imageName=${imageName}`}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         <img
-          loading='lazy'
-          src={FormatImage(sku, imgsrc, size || 'medium')}
-          width={imgsrc == 'js' ? 300 : 250}
+          loading="lazy"
+          src={`/api/image?sku=${sku}&type=${imgsrc}&size=${
+            size || 'medium'
+          }&imageName=${imageName}`}
+          width={imgsrc === 'js' ? 300 : 250}
+          alt={`${imageName}`}
         />
       </a>
-      <IconButton
-        onClick={() => {
-          imgsrc == 'js' ? setImgSrc('web') : setImgSrc('js');
-        }}>
+      <IconButton onClick={toggleImageType}>
         <ChevronRightIcon />
       </IconButton>
     </Box>
   );
-}
+});
+
+// Export the memoized component
+export default Image;

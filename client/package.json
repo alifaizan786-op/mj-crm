@@ -25,6 +25,7 @@
     "react-on-screen": "^2.1.1",
     "react-router-dom": "^6.28.0",
     "react-scripts": "5.0.1",
+    "react-virtualized-auto-sizer": "^1.0.25",
     "react-window": "^1.8.11",
     "web-vitals": "^2.1.4",
     "workbox-background-sync": "^6.6.0",

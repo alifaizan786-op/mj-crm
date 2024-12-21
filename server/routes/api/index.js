@@ -10,6 +10,8 @@ const customer_Routes = require('./Customer-routes');
 const Inv_Routes = require('./Inv-routes');
 const Web_Routes = require('./Web-routes');
 const Attribute_Routes = require('./Attribute-routes');
+const Multi_Routes = require('./Multi-routes');
+const Image_Routes = require('./Image-routes');
 
 // /api/user
 router.use('/user', userRoutes);
@@ -40,5 +42,11 @@ router.use('/inventory', Inv_Routes);
 
 // /api/attribute
 router.use('/attribute', Attribute_Routes);
+
+// /api/multi
+router.use('/multi', Multi_Routes);
+
+// /api/image
+router.use('/image', Image_Routes);
 
 module.exports = router;
