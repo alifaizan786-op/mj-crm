@@ -28,25 +28,38 @@ module.exports = {
 
   async getMultiByQuery(req, res) {
     try {
+      // Validate and build the query dynamically
       let query = [];
+      console.log(req.query);
+
       for (let key in req.query) {
-        if (req.query[key].includes('+')) {
-          query.push({ [key]: req.query[key].split('+').join(' ') });
-        } else {
-          query.push({ [key]: req.query[key] });
+        const value = req.query[key];
+
+        if (value) {
+          // Handle '+' replacements and add the condition
+          const formattedValue = value.includes('+')
+            ? value.split('+').join(' ')
+            : value;
+          query.push({ [key]: formattedValue });
         }
       }
 
-      let data;
-      if (query.length > 1) {
-        data = await Multi.find({ $and: query }).select('-__v -_id');
-      } else {
-        data = await Multi.find(query[0]).select('-__v -_id');
+      // Ensure query has at least one valid condition
+      if (query.length === 0) {
+        return res
+          .status(400)
+          .json({ message: 'No valid query parameters provided.' });
       }
+
+      // Query the database
+      const data = await Multi.find({ $and: query }).select(
+        '-__v -_id'
+      );
+
       res.json(data);
     } catch (err) {
-      console.error(err);
-      res.status(500).json(err);
+      console.error('Error in getMultiByQuery:', err);
+      res.status(500).json({ error: 'Internal server error' });
     }
   },
 

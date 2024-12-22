@@ -27,7 +27,7 @@ class MultiFetch extends BaseFetch {
   }
 
   async getMultiByQuery(query) {
-    return await this.request(`/query/${query}`, 'PUT');
+    return await this.request(`/query${query}`, 'GET');
   }
 
   async bulkMultiCode(data) {

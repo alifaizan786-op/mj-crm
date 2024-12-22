@@ -38,7 +38,6 @@ export default function CustomReport() {
   const [open, setOpen] = React.useState(true);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-  const [visibleCount, setVisibleCount] = React.useState(50); // Initially show 50 items
 
   React.useEffect(() => {
     async function getAttributeData() {
@@ -127,9 +126,7 @@ export default function CustomReport() {
   };
 
   // Function to load more items when the 50th (or subsequent trigger items) is visible
-  const loadMoreItems = () => {
-    setVisibleCount((prevCount) => prevCount + 50);
-  };
+
 
   return (
     <Common>
