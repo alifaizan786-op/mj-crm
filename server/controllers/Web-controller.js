@@ -212,8 +212,8 @@ LEFT JOIN
   async getAllFromArr(req = null, res = null, arr = []) {
     let skusArr;
 
-    if (req && req.params && req.params.SKUs) {
-      skusArr = req.params.SKUs;
+    if (req && req.body && req.body.SKUs) {
+      skusArr = req.body.SKUs;
     } else {
       skusArr = arr;
     }

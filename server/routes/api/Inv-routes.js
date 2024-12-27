@@ -8,6 +8,7 @@ const {
   newArrivalsByDate,
   newArrivalsByVendor,
   newArrivalsByDayVendor,
+  reportBySku
 } = require('../../controllers/Inv-controller');
 
 // /api/inventory/sku/47-04971
@@ -20,6 +21,9 @@ router
 
 // /api/inventory/opentobuy/ATL
 router.route('/reports/opentobuy/:store').get(openToBuy);
+
+// /api/inventory/reports/BySku
+router.route('/reports/BySku/').post(reportBySku);
 
 // /api/inventory/reports/reportBuilder
 router.route('/reports/reportBuilder/').post(reportBuilder);

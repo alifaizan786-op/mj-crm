@@ -36,6 +36,17 @@ class WebsiteFetch extends BaseFetch {
 
     return openToBuy;
   }
+
+  async getReportBySku(data) {
+    try {
+      const reportdata = await this.request('/search', 'POST', {
+        SKUs: data,
+      });
+      return reportdata;
+    } catch (error) {
+      console.log(error);
+    }
+  }
 }
 
 export default new WebsiteFetch(); // Export as a singleton

@@ -560,4 +560,80 @@ module.exports = {
       });
     }
   },
+  async reportBySku(req, res) {
+    try {
+      const data = await INV.find({
+        sku_no: {
+          $in: req.body.sku,
+        },
+      })
+        .select(
+          `
+        _id
+        uuid
+        sku_no
+        class_12
+        class_34
+        date
+        desc
+        desc2
+        loc_qty1
+        retail
+        store_code
+        ven_code
+        vndr_style
+        weight
+        `
+        )
+        .sort({ sku_no: -1 });
+
+      const result = await Promise.all(
+        data.map(async (skuData) => {
+          const status = await INV.getStatus(skuData.sku_no); // Call the static method
+          return { ...skuData.toObject(), status }; // Include the status in the response
+        })
+      );
+
+      const uniqueObj = req.body.sku.map((sku) => {
+        let objectForSku = result.filter(
+          (item) => item.sku_no == sku && item.loc_qty1 == 1
+        );
+
+        return objectForSku.length > 0
+          ? objectForSku[0]
+          : result.filter((item) => item.sku_no == sku)[0];
+      });
+
+      // Extract SKU numbers
+      const skuNumbers = uniqueObj.map((item) => item.sku_no);
+
+      // Fetch online status for the SKUs
+      const onlineStatuses = await Web.getAllFromArr(
+        null,
+        null,
+        skuNumbers
+      );
+
+      // Prepare the response data
+      const resultData = uniqueObj.map((item) => {
+        const onlineStatus = onlineStatuses.find(
+          (obj) => obj.SKUCode === item.sku_no
+        );
+
+        return {
+          ...item,
+          onlinePurchasable: onlineStatus?.Purchasable ?? null,
+          onlineHidden: onlineStatus?.Hidden ?? null,
+          onlineStockQty: onlineStatus?.StockQty ?? null,
+        };
+      });
+
+      res.json(resultData);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        error: 'An error occurred while fetching the SKU data.',
+      });
+    }
+  },
 };
