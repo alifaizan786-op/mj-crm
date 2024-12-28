@@ -12,6 +12,15 @@ class WebsiteFetch extends BaseFetch {
     return getOneSku;
   }
 
+  async generateLongDesc(sku) {
+    const generateLongDescData = await this.request(
+      `/utils/description/${sku}`,
+      'GET'
+    );
+
+    return generateLongDescData;
+  }
+
   async getOpenToBuyData() {
     const openToBuy = await this.request(`/reports/opentobuy`, 'GET');
 

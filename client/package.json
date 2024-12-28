@@ -23,6 +23,7 @@
     "react-csv": "^2.2.2",
     "react-dom": "^18.3.1",
     "react-on-screen": "^2.1.1",
+    "react-progress-timer": "^1.0.3",
     "react-router-dom": "^6.28.0",
     "react-scripts": "5.0.1",
     "react-virtualized-auto-sizer": "^1.0.25",

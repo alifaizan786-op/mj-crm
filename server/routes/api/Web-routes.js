@@ -7,6 +7,9 @@ router.route('/sku/:sku').get(Web.getOneSku);
 // /api/website/search
 router.route('/search').post(Web.getAllFromArr);
 
+// /api/website/utils/description/432-01906
+router.route('/utils/description/:sku').get(Web.descriptionGenerator);
+
 // /api/website/report/reportBuilder
 router.route('/reports/reportBuilder').post(Web.reportBuilder);
 
