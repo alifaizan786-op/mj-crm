@@ -2,6 +2,7 @@ require('dotenv').config();
 const { MalaniWEB } = require('../config/connection');
 const sql = require('mssql');
 const OpenAI = require('openai');
+const { INV } = require('../models');
 
 const openai = new OpenAI({
   apiKey: process.env.OPEN_AI_MJ_CRM_01,
@@ -127,6 +128,7 @@ LEFT JOIN
     this.descriptionGenerator = this.descriptionGenerator.bind(this);
     this.uploadingReport = this.uploadingReport.bind(this);
     this.getSkuBySearchDate = this.getSkuBySearchDate.bind(this);
+    this.outOfStockOnline = this.outOfStockOnline.bind(this);
   }
 
   async getOneSku(req, res) {
@@ -388,6 +390,87 @@ LEFT JOIN
       res.json(result1.recordset);
     } catch (err) {
       console.log(err);
+    }
+  }
+
+  async outOfStockOnline(req, res) {
+    try {
+      let pool = await this.db;
+
+      let result1 = await pool.request().query(
+        `SELECT SKUCode FROM Styles ${generateMSSQLQuery({
+          StockQty: ['1'],
+          Purchasable: ['1'],
+          Hidden: ['0'],
+          custPrice: { min: 0, max: 999999 },
+        })}`
+      );
+
+      // Fetch data from MongoDB based on SKU array
+      const data = await INV.aggregate([
+        {
+          $match: {
+            sku_no: {
+              $in: result1.recordset.map((item) => item.SKUCode),
+            },
+          },
+        },
+        {
+          $sort: {
+            loc_qty1: -1, // Prefer loc_qty1: 1 (higher values first)
+            sku_no: -1, // Secondary sort by SKU number (if needed)
+          },
+        },
+        {
+          $group: {
+            _id: '$sku_no', // Group by SKU
+            doc: { $first: '$$ROOT' }, // Take the first document for each SKU
+          },
+        },
+        {
+          $replaceRoot: { newRoot: '$doc' }, // Flatten the result to original document structure
+        },
+        {
+          $project: {
+            _id: 1,
+            uuid: 1,
+            sku_no: 1,
+            class_12: 1,
+            class_34: 1,
+            date: 1,
+            desc: 1,
+            desc2: 1,
+            loc_qty1: 1,
+            retail: 1,
+            store_code: 1,
+            ven_code: 1,
+            vndr_style: 1,
+            weight: 1,
+          },
+        },
+      ]);
+
+      // Filter SKUs where loc_qty1 is 0 for further status checks
+      const soldOutCandidates = data.filter(
+        (item) => item.loc_qty1 === 0
+      );
+
+      // Calculate statuses only for sold-out candidates
+      const soldOutStatuses = await Promise.all(
+        soldOutCandidates.map(async (skuData) => {
+          const status = await INV.getStatus(skuData.sku_no); // Call the static method
+          return { ...skuData, status }; // Include the status in the response
+        })
+      );
+
+      res.json(
+        soldOutStatuses
+          .filter((item) => item.status == 'sold out')
+          .map((item) => item.sku_no)
+      );
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: err.message });
     }
   }
 }

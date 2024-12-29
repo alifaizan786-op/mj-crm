@@ -1,17 +1,7 @@
 'use client';
-import {
-  Box,
-  Typography,
-  TextField,
-  Divider,
-  Button,
-  Collapse,
-  Alert,
-  IconButton,
-} from '@mui/material';
+import { Alert, Box, Collapse, IconButton } from '@mui/material';
 
 import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
 
 import CloseIcon from '@mui/icons-material/Close';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';

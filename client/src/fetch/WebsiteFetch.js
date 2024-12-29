@@ -103,6 +103,18 @@ class WebsiteFetch extends BaseFetch {
       console.log(error);
     }
   }
+
+  async getOutOfStockOnline() {
+    try {
+      const getOutOfStockOnlineData = await this.request(
+        `/reports/outOfStockOnline`,
+        'GET'
+      );
+      return getOutOfStockOnlineData;
+    } catch (error) {
+      console.log(error);
+    }
+  }
 }
 
 export default new WebsiteFetch(); // Export as a singleton

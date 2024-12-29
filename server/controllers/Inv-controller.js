@@ -636,4 +636,76 @@ module.exports = {
       });
     }
   },
+  async uploadingData(req, res, skuArr) {
+    try {
+      // Fetch data from the database based on SKU array
+      const data = await INV.find({
+        sku_no: {
+          $in: req.body.sku,
+        },
+      })
+        .select(
+          `
+                _id
+                uuid
+                sku_no
+                class_12
+                class_34
+                date
+                desc
+                desc2
+                loc_qty1
+                retail
+                store_code
+                ven_code
+                vndr_style
+                weight
+                `
+        )
+        .sort({ sku_no: -1 });
+
+      // Append status to each SKU object
+      const result = await Promise.all(
+        data.map(async (skuData) => {
+          const status = await INV.getStatus(skuData.sku_no); // Call the static method
+          return { ...skuData.toObject(), status }; // Include the status in the response
+        })
+      );
+
+      // Map SKUs to unique objects
+      const uniqueObj = req.body.sku
+        .map((sku) => {
+          const filteredBySku = result.filter(
+            (item) => item.sku_no === sku
+          );
+
+          const exactMatch = filteredBySku.find(
+            (item) => item.loc_qty1 === 1
+          );
+          return exactMatch || filteredBySku[0] || null;
+        })
+        .filter(Boolean); // Remove null values
+
+      // Return the response based on context (API or internal call)
+      res.json({
+        soldOut: uniqueObj.filter(
+          (item) => item.status == 'sold out'
+        ),
+        inStock: uniqueObj.filter(
+          (item) => item.status !== 'sold out'
+        ),
+      });
+    } catch (error) {
+      console.error(error);
+
+      if (res) {
+        res.status(500).json({
+          error: 'An error occurred while fetching the SKU data.',
+          details: error.message,
+        });
+      } else {
+        throw error;
+      }
+    }
+  },
 };

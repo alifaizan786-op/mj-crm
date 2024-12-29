@@ -11,6 +11,7 @@ import {
   TableRow,
 } from '@mui/material';
 import React from 'react';
+import Alert from '../../components/Alert';
 import Loader from '../../components/Loader';
 import WebsiteFetch from '../../fetch/WebsiteFetch';
 import Common from '../../layouts/common';
@@ -65,21 +66,25 @@ export default function RecentUploads() {
               alignItems: 'center',
               height: '100%',
             }}>
-            {/* <Typography variant='h5'>
-              Number Of Folder To Upload :{' '}
-              <strong>{data.data ? data.data?.length : 0}</strong>
-            </Typography>
-            <Typography variant='h5'>
-              Number Of SKU To Upload :{' '}
-              <strong>
-                {data.data
-                  ? data.data.reduce(
-                      (total, item) => total + item.SKUCodes?.length,
-                      0
-                    )
-                  : 0}
-              </strong>
-            </Typography> */}
+            <Alert
+              fetch={() => {
+                return WebsiteFetch.getOutOfStockOnline();
+              }}
+              message={
+                'Item are on the website that are not in Stock'
+              }
+            />
+            <Alert
+              fetch={() => {
+                return WebsiteFetch.reportBuilder({
+                  StockQty: [1],
+                  Hidden: [1],
+                });
+              }}
+              message={
+                'Item are on the website that are not in Stock'
+              }
+            />
           </Box>
           <Box
             sx={{
