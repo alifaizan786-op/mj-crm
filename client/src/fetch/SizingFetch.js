@@ -12,6 +12,15 @@ class SizingFetch extends BaseFetch {
     );
     return pendingUploadData;
   }
+
+  async getUploadingData(data) {
+    const uploadingData = await this.request(
+      '/UploadingData',
+      'POST',
+      data
+    );
+    return uploadingData;
+  }
 }
 
 export default new SizingFetch(); // Export as a singleton

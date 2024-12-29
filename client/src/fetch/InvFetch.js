@@ -85,6 +85,16 @@ class InvFetch extends BaseFetch {
 
     return reportBySkuData;
   }
+
+  async getUploadingData(data) {
+    const UploadingData = await this.request(
+      `/reports/UploadingData`,
+      'POST',
+      { sku: data }
+    );
+
+    return UploadingData;
+  }
 }
 
 export default new InvFetch(); // Export as a singleton
