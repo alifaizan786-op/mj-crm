@@ -7,43 +7,66 @@ class WebsiteFetch extends BaseFetch {
   }
 
   async getOneSKUData(sku) {
-    const getOneSku = await this.request(`/sku/${sku}`, 'GET');
+    try {
+      const getOneSku = await this.request(`/sku/${sku}`, 'GET');
 
-    return getOneSku;
+      return getOneSku;
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async generateLongDesc(sku) {
-    const generateLongDescData = await this.request(
-      `/utils/description/${sku}`,
-      'GET'
-    );
+    try {
+      const generateLongDescData = await this.request(
+        `/utils/description/${sku}`,
+        'GET'
+      );
 
-    return generateLongDescData;
+      return generateLongDescData;
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async getOpenToBuyData() {
-    const openToBuy = await this.request(`/reports/opentobuy`, 'GET');
+    try {
+      const openToBuy = await this.request(
+        `/reports/opentobuy`,
+        'GET'
+      );
 
-    return openToBuy;
+      return openToBuy;
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async reportBuilder(data) {
-    const reportBuilderData = await this.request(
-      `/reports/reportBuilder`,
-      'POST',
-      data
-    );
+    try {
+      const reportBuilderData = await this.request(
+        `/reports/reportBuilder`,
+        'POST',
+        data
+      );
 
-    return reportBuilderData;
+      return reportBuilderData;
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async getOpenToBuyDataByClass(majorCode) {
-    const openToBuy = await this.request(
-      `/reports/opentobuy/${majorCode}`,
-      'GET'
-    );
+    try {
+      const openToBuy = await this.request(
+        `/reports/opentobuy/${majorCode}`,
+        'GET'
+      );
 
-    return openToBuy;
+      return openToBuy;
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async getReportBySku(data) {
@@ -52,6 +75,30 @@ class WebsiteFetch extends BaseFetch {
         SKUs: data,
       });
       return reportdata;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async getUploadingReport(data) {
+    try {
+      const uploadingReport = await this.request(
+        '/reports/uploadingReport',
+        'GET'
+      );
+      return uploadingReport;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async getSkuBySearchUploadDate(date) {
+    try {
+      const skuBySearchUploadDateData = await this.request(
+        `/reports/getSkuBySearchDate/${date}`,
+        'GET'
+      );
+      return skuBySearchUploadDateData;
     } catch (error) {
       console.log(error);
     }

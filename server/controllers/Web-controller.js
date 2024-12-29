@@ -125,6 +125,8 @@ LEFT JOIN
     this.getAllFromArr = this.getAllFromArr.bind(this);
     this.reportBuilder = this.reportBuilder.bind(this);
     this.descriptionGenerator = this.descriptionGenerator.bind(this);
+    this.uploadingReport = this.uploadingReport.bind(this);
+    this.getSkuBySearchDate = this.getSkuBySearchDate.bind(this);
   }
 
   async getOneSku(req, res) {
@@ -356,6 +358,36 @@ LEFT JOIN
     } catch (err) {
       console.log(err);
       res.status(500).json({ error: err });
+    }
+  }
+
+  async uploadingReport(req, res) {
+    try {
+      let pool = await this.db;
+
+      let result1 = await pool.request().query(`
+            SELECT AttribField131 AS SearchUploadDate,        
+            COUNT(DISTINCT CASE WHEN StockQty = 1 AND Hidden = 0 AND Purchasable = 1 THEN SKUCode END) AS AvailableSKUCount,
+            COUNT(DISTINCT CASE WHEN StockQty = 0 AND Hidden = 1 AND Purchasable = 1 THEN SKUCode END) AS HiddenSKUCount
+            FROM Styles
+            WHERE LEN(AttribField131) = 7
+            GROUP BY AttribField131
+            ORDER BY CONVERT(DATE, AttribField131, 6) DESC;`);
+
+      res.json(result1.recordset);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async getSkuBySearchDate(req, res) {
+    try {
+      let pool = await this.db;
+      let result1 = await pool.request().query(`
+        Select SKUCode from Styles where AttribField131 = '${req.params.uploadDate}'`);
+      res.json(result1.recordset);
+    } catch (err) {
+      console.log(err);
     }
   }
 }
