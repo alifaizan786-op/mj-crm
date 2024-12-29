@@ -12,6 +12,7 @@ const Web_Routes = require('./Web-routes');
 const Attribute_Routes = require('./Attribute-routes');
 const Multi_Routes = require('./Multi-routes');
 const Image_Routes = require('./Image-routes');
+const Sizing_Routes = require('./Sizing-routes');
 
 // /api/user
 router.use('/user', userRoutes);
@@ -48,5 +49,8 @@ router.use('/multi', Multi_Routes);
 
 // /api/image
 router.use('/image', Image_Routes);
+
+// /api/sizing
+router.use('/sizing', Sizing_Routes);
 
 module.exports = router;
