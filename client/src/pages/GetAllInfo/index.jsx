@@ -39,7 +39,6 @@ export default function GetAllInfo() {
       const getSkuDataFromJS = await InvFetch.reportBySku(
         searchParams.get('sku').split(' ')
       );
-      console.log('getSkuDataFromJS', getSkuDataFromJS);
 
       const webFetchArr = [];
       for (let i = 0; i < getSkuDataFromJS.length; i++) {
@@ -56,7 +55,6 @@ export default function GetAllInfo() {
         webFetchArr
       );
 
-      console.log('getSkuDataFromWeb', getSkuDataFromWeb);
       let masterDataArray = [];
       for (let i = 0; i < getSkuDataFromJS.length; i++) {
         const element = getSkuDataFromJS[i];
@@ -80,7 +78,7 @@ export default function GetAllInfo() {
     }
   };
 
-  console.log(data);
+  
 
   return (
     <Common>
