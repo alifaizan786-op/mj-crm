@@ -49,8 +49,6 @@ export default function UploadingSheet() {
     setUploadingData(mergedArray);
   };
 
-  console.log(uploadingData);
-
   return (
     <Common>
       <Box

@@ -52,8 +52,6 @@ export default function Home() {
 
     const newBookmarks = await UserFetch.getUserBookmarks(userId);
 
-    console.log(newBookmarks.bookmarks);
-
     localStorage.setItem(
       'bookmarks',
       JSON.stringify(newBookmarks.bookmarks)

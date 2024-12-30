@@ -800,13 +800,7 @@ export default function AllInfoCard({ index, setIndex, data }) {
                 key: 'AutoUpdatePrice',
                 formatter: (value) => (value ? 'True' : 'False'),
                 valueCheck: (value) => {
-                  console.log(
-                    [
-                      28, 77, 150, 500, 501, 98, 101, 102, 104, 108,
-                      110,
-                    ].includes(data[index].VJS.class_12),
-                    !value
-                  );
+        
 
                   return valueChecker(
                     null,

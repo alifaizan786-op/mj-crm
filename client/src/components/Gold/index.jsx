@@ -21,7 +21,6 @@ export default function Gold() {
     }
   }
 
-  console.log(gold);
 
   return gold?._id.length > 0 ? (
     <Box

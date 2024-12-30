@@ -27,7 +27,6 @@ const DrawerMenu = ({ menuData }) => {
   React.useEffect(() => {
     let parentMenuArr = [];
 
-    console.log('menuData', menuData);
 
     const levelOne = menuData
       .filter((menu) => menu.menuItem == true)
@@ -35,7 +34,6 @@ const DrawerMenu = ({ menuData }) => {
         (menu) => menu.path.split('/').filter(Boolean).length == 1
       );
 
-    console.log('levelOne', levelOne);
 
     const levelTwo = menuData
       .filter((menu) => menu.menuItem == true)
@@ -49,7 +47,6 @@ const DrawerMenu = ({ menuData }) => {
           ] != ':id'
       );
 
-    console.log('levelTwo', levelTwo);
 
     const levelThree = menuData
       .filter((menu) => menu.menuItem == true)
@@ -63,7 +60,6 @@ const DrawerMenu = ({ menuData }) => {
           ] != ':id'
       );
 
-    console.log('levelThree', levelThree);
 
     const levelFour = menuData
       .filter((menu) => menu.menuItem == true)
@@ -77,7 +73,6 @@ const DrawerMenu = ({ menuData }) => {
           ] != ':id'
       );
 
-    console.log('levelFour', levelFour);
 
     const menuArr = [];
 
@@ -118,7 +113,6 @@ const DrawerMenu = ({ menuData }) => {
       menuArr.push(elementI); // Add Level 1 to the final array
     }
 
-    console.log('menuArr', menuArr);
 
     const sortMenu = (arr) => {
       return arr.sort((a, b) => {
@@ -136,8 +130,7 @@ const DrawerMenu = ({ menuData }) => {
     setMenuItems(sortMenu(menuArr));
     setOpen(initialOpenState); // Set the initialized open state
   }, [menuData]);
-  console.log(menuItem);
-  console.log(open);
+
 
   const renderMenu = (items, level = 0) => {
     return (

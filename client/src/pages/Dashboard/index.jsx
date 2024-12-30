@@ -28,7 +28,6 @@ export default function Dashboard() {
     setQuotes(randomQuotes[0]);
   }
 
-  console.log(isSmallScreen);
 
   return (
     <CommonLayout>

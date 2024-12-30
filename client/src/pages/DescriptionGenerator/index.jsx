@@ -17,7 +17,6 @@ import React from 'react';
 export default function DescriptionGenerator() {
   const [skus, setSku] = React.useState([]);
 
-  console.log(skus);
 
   const [longDescData, setLongDescData] = React.useState([]);
 

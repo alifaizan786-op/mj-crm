@@ -73,7 +73,6 @@ export default function RoutesSettings() {
   };
 
   const handleSaveButton = async () => {
-    console.log('Form State:', formState);
 
     try {
       // Ensure the API call is awaited properly
@@ -87,7 +86,6 @@ export default function RoutesSettings() {
         }
       );
 
-      console.log('Updated Routes:', newRoutes);
 
       // Check if newRoutes is valid and all fields match
 

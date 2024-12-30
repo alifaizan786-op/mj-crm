@@ -24,7 +24,6 @@ export default function Login() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     let login = await UserFetch.loginHandler(formState);
-    console.log(login);
 
     if (login.token) {
       Auth.login(login.token);

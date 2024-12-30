@@ -14,7 +14,6 @@ export default function NewArrivalReport() {
   const [searchParams] = useSearchParams(); // Extract the searchParams object
   const date = searchParams.get('date'); // Retrieve 'date' from query parameters
   const vendor = searchParams.get('vendor'); // Retrieve 'vendor' from query parameters
-  console.log(date, vendor);
 
   const [data, setData] = React.useState({
     loading: true,

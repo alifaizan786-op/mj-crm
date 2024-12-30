@@ -60,8 +60,6 @@ export default function NewArrivals() {
     fetchData();
   }, [days, reportBy]);
 
-  console.log(data);
-
   return (
     <Common>
       <FormGroup

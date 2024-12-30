@@ -52,7 +52,7 @@ export default function ClientInTake() {
     }
   }
 
-  console.log(clientData);
+
 
   const columns = [
     {
@@ -155,7 +155,6 @@ export default function ClientInTake() {
 
   const rows = clientData?.length > 0 ? [...clientData] : [];
 
-  console.log(rows);
 
   return (
     <>

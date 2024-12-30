@@ -27,7 +27,6 @@ export default function Filters({
   hideSubmit,
 }) {
   const handleChange = (event, stateId) => {
-    console.log(stateId, event.target.value);
     // setState({ ...state, stateId: event.target.value });
   };
   return (
@@ -92,7 +91,7 @@ export default function Filters({
       {handleSubmit && (
         <FormControl>
           <Button
-            sx={{ width: 300, marginX: '1rem',  }}
+            sx={{ width: 300, marginX: '1rem' }}
             size='medium'
             variant='outlined'
             onClick={handleSubmit}
@@ -105,7 +104,7 @@ export default function Filters({
       {handleClear && (
         <FormControl>
           <Button
-            sx={{ width: 300, marginX: '1rem',  }}
+            sx={{ width: 300, marginX: '1rem' }}
             size='medium'
             variant='outlined'
             onClick={handleClear}>
@@ -116,7 +115,7 @@ export default function Filters({
       {modalName?.length > 0 && (
         <FormControl>
           <Button
-            sx={{ width: 300, marginX: '1rem',  }}
+            sx={{ width: 300, marginX: '1rem' }}
             size='medium'
             variant='outlined'
             onClick={modalOpen}>
