@@ -14,6 +14,11 @@ router
   .route('/reports/getSkuBySearchDate/:uploadDate')
   .get(Web.getSkuBySearchDate);
 
+// /api/website/reports/multiCode/62-00877-AU-Y-TT
+router
+  .route('/reports/multiCode/:MultiCode')
+  .get(Web.getSkuByMultiCode);
+
 // /api/website/reports/outOfStockOnline
 router.route('/reports/outOfStockOnline').get(Web.outOfStockOnline);
 

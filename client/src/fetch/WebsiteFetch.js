@@ -115,6 +115,18 @@ class WebsiteFetch extends BaseFetch {
       console.log(error);
     }
   }
+
+  async getSkuByMulti(multiCode) {
+    try {
+      const getSkuByMultiData = await this.request(
+        `/reports/multiCode/${multiCode}`,
+        'GET'
+      );
+      return getSkuByMultiData;
+    } catch (error) {
+      console.log(error);
+    }
+  }
 }
 
 export default new WebsiteFetch(); // Export as a singleton

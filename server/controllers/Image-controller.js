@@ -17,7 +17,7 @@ module.exports = {
 
       await downloadImage(imageUrl, imageName);
 
-      res.send(req.params.newImageName);
+      res.send({ newImageName: req.params.newImageName });
     } catch (error) {
       console.error(error); // Log the error for debugging purposes
       res.status(500).send('Unsuccessful');

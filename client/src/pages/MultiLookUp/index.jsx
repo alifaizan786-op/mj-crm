@@ -6,6 +6,7 @@ import { FixedSizeGrid } from 'react-window';
 import Filters from '../../components/Filters';
 import Image from '../../components/Image';
 import Loader from '../../components/Loader';
+import NewMultiModal from '../../components/NewMultiModal';
 import AttributeFetch from '../../fetch/AttributeFetch';
 import MultiFetch from '../../fetch/MultiFetch';
 import Common from '../../layouts/common';
@@ -29,12 +30,20 @@ export default function MultiLookUp() {
     data: [],
   });
   const [attributes, setAttributes] = React.useState([]);
-
   const [filter, setFilter] = React.useState({
     vendorCode: '',
     majorCode: '',
     colorCode: '',
   });
+  const [open, setOpen] = React.useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   async function getData() {
     const data = await MultiFetch.getAllMulti();
@@ -43,6 +52,7 @@ export default function MultiLookUp() {
       data: data,
     });
   }
+
   React.useEffect(() => {
     getData();
   }, []);
@@ -123,49 +133,57 @@ export default function MultiLookUp() {
       <Box
         style={style}
         key={itemIndex}>
-        <Link
-          to={`/WebTools/Multi?MulitCode=${multi.multiCode}`}
-          style={{
+        <Box
+          sx={{
+            width: '20vw',
+            aspectRatio: '1/1',
             display: 'flex',
-            flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
-            textDecoration: 'none',
-            margin: '1rem',
+            flexDirection: 'column',
+            border: '0.01rem solid #ddd',
+            borderRadius: '8px',
           }}>
-          <Box
-            sx={{
-              width: '20vw',
-              aspectRatio: '1/1',
+          <Image
+            initialState={'web'}
+            size={'small'}
+            imageName={multi.image[0]}
+          />
+          <Link
+            to={`/Merchandise/Multi/${multi.multiCode}`}
+            style={{
               display: 'flex',
+              flexDirection: 'column',
               justifyContent: 'center',
               alignItems: 'center',
-              flexDirection: 'column',
-              border: '0.01rem solid #ddd',
-              borderRadius: '8px',
+              textDecoration: 'none',
+              margin: '1rem',
             }}>
-            <Image
-              initialState={'web'}
-              size={'small'}
-              imageName={multi.image[0]}
-            />
             <p style={{ textAlign: 'center', marginTop: '0.5rem' }}>
               Multi Code: <strong>{multi.multiCode}</strong>
             </p>
-          </Box>
-        </Link>
+          </Link>
+        </Box>
       </Box>
     );
   };
 
+  console.log(open);
+
   return (
     <Common>
       <>
+        <NewMultiModal
+          open={open}
+          onClose={handleClose}
+        />
         {attributes.length > 0 && (
           <Filters
             state={getInitialFilters()}
             setState={handleFilterChange}
             handleSubmit={handleSubmit}
+            modalName={'newMulti'}
+            modalOpen={handleClickOpen}
             handleClear={handleClear}
             filters={[
               {

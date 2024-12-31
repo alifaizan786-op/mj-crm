@@ -8,7 +8,7 @@ const {
 // /api/image
 router.route('/').get(resizeImage);
 
-// /api/users
+// /api/image
 router
   .route('/:curImageName/to/:newImageName')
   .get(getAndRenameImage);

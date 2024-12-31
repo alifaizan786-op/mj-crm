@@ -15,15 +15,15 @@ class MultiFetch extends BaseFetch {
   }
 
   async getOneMulti(multiCode) {
-    return await this.request(`/${multiCode}`, 'POST');
+    return await this.request(`/${multiCode}`, 'GET');
   }
 
   async deleteMulti(multiCode) {
     return await this.request(`/${multiCode}`, 'DELETE');
   }
 
-  async updateMulti(multiCode) {
-    return await this.request(`/${multiCode}`, 'PUT');
+  async updateMulti(multiCode, data) {
+    return await this.request(`/${multiCode}`, 'PUT', data);
   }
 
   async getMultiByQuery(query) {
@@ -31,7 +31,13 @@ class MultiFetch extends BaseFetch {
   }
 
   async bulkMultiCode(data) {
-    return await this.request(`/bulkMultiCode`, 'POST', data);
+    return await this.request(`/bulkMultiCode`, 'POST', {
+      multiCode: data,
+    });
+  }
+
+  async nextMulti() {
+    return await this.request(`/nextMulti`, 'GET');
   }
 }
 

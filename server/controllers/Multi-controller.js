@@ -110,8 +110,6 @@ module.exports = {
 
   async bulkMultiCode(req, res) {
     try {
-      console.log(req.body.multiCode);
-
       const result = await Multi.find({
         multiCode: { $in: req.body.multiCode },
       });
@@ -124,6 +122,33 @@ module.exports = {
 
       res.status(200).json(result);
     } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  },
+
+  async nextMultiCode(req, res) {
+    try {
+      const data = await Multi.aggregate([
+        {
+          $project: {
+            secondSet: {
+              $toInt: {
+                $arrayElemAt: [{ $split: ['$multiCode', '-'] }, 1],
+              },
+            },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            maxSecondSet: { $max: '$secondSet' },
+          },
+        },
+      ]);
+
+      res.status(200).json({ nextMulti: data[0].maxSecondSet + 1 });
+    } catch (error) {
       console.error(err);
       res.status(500).json({ error: 'Internal server error' });
     }

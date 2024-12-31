@@ -129,6 +129,7 @@ LEFT JOIN
     this.uploadingReport = this.uploadingReport.bind(this);
     this.getSkuBySearchDate = this.getSkuBySearchDate.bind(this);
     this.outOfStockOnline = this.outOfStockOnline.bind(this);
+    this.getSkuByMultiCode = this.getSkuByMultiCode.bind(this);
   }
 
   async getOneSku(req, res) {
@@ -471,6 +472,20 @@ LEFT JOIN
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: err.message });
+    }
+  }
+
+  async getSkuByMultiCode(req, res) {
+    try {
+      let pool = await this.db;
+      let result1 = await pool.request().query(
+        `${this.mainQuery} WHERE Styles.AttribField141 = '${req.params.MultiCode}'
+                    ORDER BY Styles.SKUCode ASC`
+      );
+
+      res.json(result1.recordset);
+    } catch (error) {
+      console.log(error);
     }
   }
 }
