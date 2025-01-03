@@ -1,6 +1,8 @@
 import React from 'react';
 import Header from '../../components/Header';
 
+
+
 export default function CommonLayout({ children }) {
   React.useEffect(() => {
     if (!document.title || document.title === 'BB') {
