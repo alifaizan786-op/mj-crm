@@ -13,7 +13,6 @@ module.exports = {
       let imageUrl = `https://www.malanijewelers.com/TransactionImages/Styles/Large/${req.params.curImageName}`;
       let imageName = req.params.newImageName;
 
-      console.log(imageUrl, imageName);
 
       await downloadImage(imageUrl, imageName);
 

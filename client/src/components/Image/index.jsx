@@ -8,7 +8,6 @@ const Image = React.memo(
     const [imgsrc, setImgSrc] = useState(initialState || 'js');
     const showArrowComp = showArrow ?? true;
 
-
     const toggleImageType = () => {
       setImgSrc((prev) => (prev === 'js' ? 'web' : 'js'));
     };

@@ -1,4 +1,4 @@
-import { Box } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import React from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import AutoSizer from 'react-virtualized-auto-sizer';
@@ -144,6 +144,30 @@ export default function MultiLookUp() {
             border: '0.01rem solid #ddd',
             borderRadius: '8px',
           }}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'space-evenly',
+              alignItems: 'center',
+              width: '100%',
+            }}>
+            <Typography
+              variant='body1'
+              color='error'>
+              <strong>{multi.AvailableSku}</strong>
+            </Typography>
+
+            <Typography
+              variant='body1'
+              color='green'>
+              <strong> {multi.HiddenSku}</strong>
+            </Typography>
+
+            <Typography variant='body1'>
+              <strong> {multi.totalSku}</strong>
+            </Typography>
+          </Box>
           <Image
             initialState={'web'}
             size={'small'}
@@ -167,8 +191,6 @@ export default function MultiLookUp() {
       </Box>
     );
   };
-
-  console.log(open);
 
   return (
     <Common>
@@ -225,7 +247,7 @@ export default function MultiLookUp() {
           <>
             <Box
               sx={{
-                height: '82vh',
+                height: '78vh',
               }}>
               <AutoSizer>
                 {({ height, width }) => (

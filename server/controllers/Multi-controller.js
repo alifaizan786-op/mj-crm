@@ -44,12 +44,17 @@ module.exports = {
         }
       }
 
+
+  
+
       // Ensure query has at least one valid condition
       if (query.length === 0) {
         return res
           .status(400)
           .json({ message: 'No valid query parameters provided.' });
       }
+
+      console.log({ $and: query });
 
       // Query the database
       const data = await Multi.find({ $and: query }).select(
