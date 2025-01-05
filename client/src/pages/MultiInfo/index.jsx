@@ -1,45 +1,62 @@
 import React from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import Image from '../../components/Image';
 import Loader from '../../components/Loader';
 import MultiCodeInfoCard from '../../components/MultiCodeInfoCard';
+import MultiInfoSection from '../../components/MultiInfoSection';
+import MultiSkuSection from '../../components/MultiSkuSection';
 import MultiFetch from '../../fetch/MultiFetch';
+import SizingFetch from '../../fetch/SizingFetch';
 import WebsiteFetch from '../../fetch/WebsiteFetch';
 
 import {
   Box,
-  Button,
-  FormControlLabel,
   FormGroup,
+  Stack,
   styled,
   Switch,
-  Table,
-  TableBody,
-  TableCell,
-  tableCellClasses,
-  TableContainer,
-  TableHead,
-  TableRow,
+  Typography,
 } from '@mui/material';
 import Common from '../../layouts/common';
 
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  [`&.${tableCellClasses.head}`]: {
-    backgroundColor: theme.palette.primary.main,
-    color: theme.palette.common.white,
+const AntSwitch = styled(Switch)(({ theme }) => ({
+  width: 28,
+  height: 16,
+  padding: 0,
+  display: 'flex',
+  '&:active': {
+    '& .MuiSwitch-thumb': {
+      width: 15,
+    },
+    '& .MuiSwitch-switchBase.Mui-checked': {
+      transform: 'translateX(9px)',
+    },
   },
-  [`&.${tableCellClasses.body}`]: {
-    fontSize: 14,
+  '& .MuiSwitch-switchBase': {
+    padding: 2,
+    '&.Mui-checked': {
+      transform: 'translateX(12px)',
+      color: '#fff',
+      '& + .MuiSwitch-track': {
+        opacity: 1,
+        backgroundColor: theme.palette.primary.light, // Light color when ON
+      },
+    },
   },
-}));
-
-const StyledTableRow = styled(TableRow)(({ theme }) => ({
-  '&:nth-of-type(even)': {
-    backgroundColor: theme.palette.action.hover,
+  '& .MuiSwitch-thumb': {
+    boxShadow: '0 2px 4px 0 rgb(0 35 11 / 20%)',
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    transition: theme.transitions.create(['width'], {
+      duration: 200,
+    }),
   },
-  // hide last border
-  '&:last-child td, &:last-child th': {
-    border: 0,
+  '& .MuiSwitch-track': {
+    borderRadius: 16 / 2,
+    opacity: 1,
+    backgroundColor: theme.palette.primary.main, // Dark color when OFF
+    boxSizing: 'border-box',
   },
 }));
 
@@ -53,10 +70,20 @@ export default function MultiInfo() {
     loading: true,
     data: [],
   });
-  const [open, setOpen] = React.useState(false);
-  const [expand, setExpand] = React.useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const [sizingData, setSizingData] = React.useState({
+    loading: true,
+    data: [],
+  });
+  const [section, setSection] = React.useState('MultiData');
+
+  const [handleEditClick, setHandleEditClick] = React.useState(false);
+
+  function updateHandleEditClick() {
+    setHandleEditClick(true);
+    setTimeout(() => {
+      setHandleEditClick(false);
+    }, 0); // Delay can be adjusted or removed if unnecessary
+  }
 
   React.useEffect(() => {
     async function getData() {
@@ -81,6 +108,14 @@ export default function MultiInfo() {
             (item) => item.Purchasable === true
           ).length,
         },
+      });
+
+      const getSizingData = await SizingFetch.getSkuByMultiCode(
+        MultiCode
+      );
+      setSizingData({
+        loading: false,
+        data: getSizingData,
       });
     }
 
@@ -110,10 +145,6 @@ export default function MultiInfo() {
     updateMultiStats();
   }, [websiteData.data]);
 
-  function copyToClipboard(event) {
-    navigator.clipboard.writeText(event.target.innerText);
-  }
-
   return (
     <Common>
       {multiData.loading && <Loader size={75} />}
@@ -135,6 +166,9 @@ export default function MultiInfo() {
           />
 
           <MultiCodeInfoCard
+            updateHandleEditClick={updateHandleEditClick}
+            setHandleEditClick={setHandleEditClick}
+            handleEditClick={handleEditClick}
             multiCode={multiData.data.multiCode}
             totalSkus={websiteData.data.length}
             hiddenSku={
@@ -149,283 +183,61 @@ export default function MultiInfo() {
           />
         </Box>
       )}
-      {websiteData.loading && <Loader size={75} />}
-      {websiteData.loading == false && multiData.loading == false && (
-        <Box
-          sx={{
-            display: 'flex',
-            width: '100%',
-            justifyContent: 'center',
-            alignItems: 'flex-start',
-            flexDirection: 'column',
-          }}>
-          <FormGroup
+      <FormGroup
+        sx={{
+          width: '100%',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          margin: '0.75rem 0',
+        }}>
+        <Stack
+          direction='row'
+          spacing={2}
+          sx={{ alignItems: 'center' }}>
+          <Typography
             sx={{
-              marginX: '5.5rem',
+              opacity: section == 'MultiData' ? 1 : 0.5,
             }}>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={expand}
-                  onChange={(event) =>
-                    setExpand(event.target.checked)
-                  }
-                />
-              }
-              label='Expand'
-            />
-          </FormGroup>
+            Multi Info
+          </Typography>
+          <AntSwitch
+            checked={section == 'WebsiteData' ? true : false}
+            onChange={() => {
+              section == 'WebsiteData'
+                ? setSection('MultiData')
+                : setSection('WebsiteData');
+            }}
+          />
+          <Typography
+            sx={{
+              opacity: section == 'WebsiteData' ? 1 : 0.5,
+            }}>
+            Website SKU Data
+          </Typography>
+        </Stack>
+      </FormGroup>
 
-          {expand === true ? (
-            <Box
-              sx={{
-                display: 'flex',
-                width: '100%',
-                justifyContent: 'flex-start',
-                alignItems: 'center',
-                flexDirection: 'column',
-                gap: '0.25rem',
-                maxHeight: '30rem',
-                overflowY: 'auto', // Enable vertical scrolling only
-                overflowX: 'hidden', // Prevent horizontal scrolling
-              }}>
-              {websiteData.data.map((item, index) => (
-                <Box
-                  key={index}
-                  sx={{
-                    border: '1px solid black',
-                    width: '90%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-evenly',
-                    alignItems: 'center',
-                    padding: '0.25rem',
-                    opacity:
-                      item.Hidden === true ||
-                      item.Purchasable === false ||
-                      item.StockQty === 0
-                        ? '0.75'
-                        : '1',
-                  }}>
-                  <Box
-                    sx={{
-                      width: '100%',
-                      display: 'flex',
-                      flexDirection: 'row',
-                      justifyContent: 'space-evenly',
-                      alignItems: 'center',
-                      opacity:
-                        item.Hidden === true ||
-                        item.Purchasable === false ||
-                        item.StockQty === 0
-                          ? '0.5'
-                          : '1',
-                    }}>
-                    <Box>
-                      <Image
-                        sku={item.SKUCode}
-                        initialState='web'
-                        size='medium'
-                      />
-                    </Box>
-                    <Box>
-                      <p>
-                        SKU:{' '}
-                        <strong onClick={copyToClipboard}>
-                          {item.SKUCode}
-                        </strong>
-                      </p>
-                      <p>
-                        AutoUpdatePrice:{' '}
-                        <strong>
-                          {item.AutoUpdatePrice ? 'True' : 'False'}
-                        </strong>
-                      </p>
-                      <p>
-                        Hidden:{' '}
-                        <strong>
-                          {item.Hidden ? 'True' : 'False'}
-                        </strong>
-                      </p>
-                      <p>
-                        IsCloseOut:{' '}
-                        <strong>
-                          {item.IsCloseOut ? 'True' : 'False'}
-                        </strong>
-                      </p>
-                      <p>
-                        Purchasable:{' '}
-                        <strong>
-                          {item.Purchasable ? 'True' : 'False'}
-                        </strong>
-                      </p>
-                    </Box>
+      {websiteData.loading && <Loader size={75} />}
 
-                    <Box>
-                      <p>
-                        StockQty: <strong>{item.StockQty}</strong>
-                      </p>
-                      <p>
-                        TagPrice: <strong>{item.TagPrice}</strong>
-                      </p>
-                      <p>
-                        JewelryFor: <strong>{item.JewelryFor}</strong>
-                      </p>
-                      <p>
-                        JewelryType:{' '}
-                        <strong>{item.JewelryType}</strong>
-                      </p>
-                      <p>
-                        DC: <strong>{item.DC}</strong>
-                      </p>
-                    </Box>
-                    <Box>
-                      <p>
-                        RingSize: <strong>{item.RingSize}</strong>
-                      </p>
-                      <p>
-                        BangleSize: <strong>{item.BangleSize}</strong>
-                      </p>
-                      <p>
-                        Length: <strong>{item.Length}</strong>
-                      </p>
-                      <p>
-                        StyleGrossWt:{' '}
-                        <strong>{item.StyleGrossWt}</strong>
-                      </p>
-                      <p>
-                        StyleDesc: <strong>{item.StyleDesc}</strong>
-                      </p>
-                    </Box>
-                  </Box>
+      {websiteData.loading == false &&
+        multiData.loading == false &&
+        section == 'WebsiteData' && (
+          <MultiSkuSection websiteData={websiteData} />
+        )}
 
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                      justifyContent: 'space-evenly',
-                      alignItems: 'center',
-                      width: '100%',
-                    }}>
-                    <Link
-                      to={`https://malanijewelers.com/Views/Product/ProductInfo?value=${item.SKUCode}`}
-                      target='_blank'
-                      rel='noopener noreferrer'>
-                      <Button
-                        size='small'
-                        variant='standard'
-                        sx={{
-                          color: 'primary.main',
-                        }}>
-                        malanijewelers.com
-                      </Button>
-                    </Link>
-                    <Link
-                      to={`/Merchandise/Reports/GetAllInfo?sku=${item.SKUCode}`}
-                      target='_blank'
-                      rel='noopener noreferrer'>
-                      <Button
-                        size='small'
-                        variant='standard'
-                        sx={{
-                          color: 'primary.main',
-                        }}>
-                        get all info
-                      </Button>
-                    </Link>
-                  </Box>
-                </Box>
-              ))}
-            </Box>
-          ) : (
-            <Box
-              sx={{
-                display: 'flex',
-                width: '100%',
-                justifyContent: 'flex-start',
-                alignItems: 'center',
-                flexDirection: 'column',
-                gap: '0.25rem',
-                overflowY: 'auto', // Enable vertical scrolling only
-                overflowX: 'hidden', // Prevent horizontal scrolling
-              }}>
-              <TableContainer
-                sx={{
-                  maxHeight: '30rem',
-                }}>
-                <Table
-                  stickyHeader
-                  size='small'>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell align='center'>SKU</TableCell>
-                      <TableCell align='center'>
-                        AutoUpdatePrice
-                      </TableCell>
-                      <TableCell align='center'>Hidden</TableCell>
-                      <TableCell align='center'>IsCloseOut</TableCell>
-                      <TableCell align='center'>
-                        Purchasable
-                      </TableCell>
-                      <TableCell align='center'>StockQty</TableCell>
-                      <TableCell align='center'>
-                        StyleGrossWt
-                      </TableCell>
-                      <TableCell align='center'>TagPrice</TableCell>
-                      <TableCell align='center'>DC</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {websiteData.data.map((item, index) => (
-                      <StyledTableRow
-                        key={index}
-                        sx={{
-                          '&:last-child td, &:last-child th': {
-                            border: 0,
-                          },
-                          opacity:
-                            item.Hidden === true ||
-                            item.Purchasable === false ||
-                            item.StockQty === 0
-                              ? '0.75'
-                              : '1',
-                        }}>
-                        <StyledTableCell align='center'>
-                          {item.SKUCode}
-                        </StyledTableCell>
-                        <StyledTableCell align='center'>
-                          {item.AutoUpdatePrice ? 'True' : 'False'}
-                        </StyledTableCell>
-                        <StyledTableCell align='center'>
-                          {item.Hidden ? 'True' : 'False'}
-                        </StyledTableCell>
-                        <StyledTableCell align='center'>
-                          {item.IsCloseOut ? 'True' : 'False'}
-                        </StyledTableCell>
-                        <StyledTableCell align='center'>
-                          {item.Purchasable ? 'True' : 'False'}
-                        </StyledTableCell>
-                        <StyledTableCell align='center'>
-                          {item.StockQty}
-                        </StyledTableCell>
-                        <StyledTableCell align='center'>
-                          {item.StyleGrossWt}
-                        </StyledTableCell>
-                        <StyledTableCell align='center'>
-                          {item.TagPrice}
-                        </StyledTableCell>
-                        <StyledTableCell align='center'>
-                          {item.DC}
-                        </StyledTableCell>
-                      </StyledTableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Box>
-          )}
-        </Box>
-      )}
+      {websiteData.loading == false &&
+        multiData.loading == false &&
+        section == 'MultiData' && (
+          <MultiInfoSection
+            websiteData={websiteData}
+            multiData={multiData}
+            sizingData={sizingData}
+            updateHandleEditClick={updateHandleEditClick}
+            setHandleEditClick={setHandleEditClick}
+            handleEditClick={handleEditClick}
+          />
+        )}
     </Common>
   );
 }

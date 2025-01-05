@@ -173,31 +173,48 @@ module.exports = {
     try {
       const threeMonthsAgo = new Date();
       threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
-  
+
       // Fetch relevant Sizing data
       const sizingData = await Sizing.find({
         Date: { $gte: threeMonthsAgo },
       }).select('SKUCode');
-  
+
       const allSkuCodes = sizingData.map(({ SKUCode }) => SKUCode);
-  
+
       // Fetch uploaded data in bulk to reduce individual lookups
       const uploadedData = new Set(
-        (await Web.getAllFromArr(null, null, allSkuCodes)).map(({ SKUCode }) => SKUCode)
+        (await Web.getAllFromArr(null, null, allSkuCodes)).map(
+          ({ SKUCode }) => SKUCode
+        )
       );
-  
+
       // Filter out uploaded SKUs in-memory
-      const notUploadedSkus = allSkuCodes.filter((SKUCode) => !uploadedData.has(SKUCode));
-  
+      const notUploadedSkus = allSkuCodes.filter(
+        (SKUCode) => !uploadedData.has(SKUCode)
+      );
+
       // Fetch in-stock data for not uploaded SKUs
       const inStockData = await INV.find({
         sku_no: { $in: notUploadedSkus },
         loc_qty1: { $gt: 0 },
       });
-  
+
       // Extract and return SKU numbers
       res.json(inStockData.map(({ sku_no }) => sku_no));
     } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  },
+
+  // find entries by MultiCode
+  async getSkuByMultiCode(req, res) {
+    try {
+      const data = await Sizing.find({
+        StyleMultiCode: req.params.multiCode,
+      });
+      res.json(data);
+    } catch (error) {
       console.error(err);
       res.status(500).json({ error: 'Internal Server Error' });
     }

@@ -21,6 +21,13 @@ class SizingFetch extends BaseFetch {
     );
     return uploadingData;
   }
+
+  async getSkuByMultiCode(multCode) {
+    const skuByMultiCodeData = await this.request(
+      `/multiCode/${multCode}`
+    );
+    return skuByMultiCodeData;
+  }
 }
 
 export default new SizingFetch(); // Export as a singleton

@@ -8,7 +8,11 @@ const {
   pendingUpload,
   pendingUploadSku,
   getSkuByDate,
+  getSkuByMultiCode,
 } = require('../../controllers/Sizing-controller');
+
+// /api/sizing/multiCode/400-00497-BLJ-Y-Y
+router.route('/multiCode/:multiCode').get(getSkuByMultiCode);
 
 // /api/sizing/UploadingData
 router.route('/UploadingData').post(findSizing);

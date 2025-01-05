@@ -1,22 +1,21 @@
 'use client';
-import { Typography } from '@mui/material';
-import Paper from '@mui/material/Paper';
-import React from 'react';
-
 import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-import { TextField } from '@mui/material';
+import SystemUpdateAltIcon from '@mui/icons-material/SystemUpdateAlt';
+import { TextField, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import Modal from '@mui/material/Modal';
+import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+import React from 'react';
 import MultiFetch from '../../fetch/MultiFetch';
 import BulkImageRename from '../BulkImageRename';
 // import { deleteMultiCode, updateMultiCode } from '../../utils/get';
@@ -38,6 +37,7 @@ export default function MultiCodeInfoCard({
   totalSkus,
   hiddenSku,
   purchasableSku,
+  updateHandleEditClick,
 }) {
   const [open, setOpen] = React.useState({
     edit: false,
@@ -91,21 +91,33 @@ export default function MultiCodeInfoCard({
                 <Stack
                   direction='column'
                   spacing={1}>
-                  <Button
-                    disabled={totalSkus !== 0}
-                    variant='outlined'
-                    startIcon={<DeleteOutlineOutlinedIcon />}
-                    size='medium'
-                    color='error'
-                    onClick={() => {
-                      setOpen({
-                        delete: true,
-                        rename: false,
-                        edit: false,
-                      });
-                    }}>
-                    Delete
-                  </Button>
+                  {totalSkus === 0 ? (
+                    <Button
+                      variant='outlined'
+                      startIcon={<DeleteOutlineOutlinedIcon />}
+                      size='medium'
+                      color='error'
+                      onClick={() => {
+                        setOpen({
+                          delete: true,
+                          rename: false,
+                          edit: false,
+                        });
+                      }}>
+                      Delete
+                    </Button>
+                  ) : (
+                    <Button
+                      variant='outlined'
+                      startIcon={<SystemUpdateAltIcon />}
+                      size='medium'
+                      onClick={() => {
+                        updateHandleEditClick();
+                      }}>
+                      Update Info
+                    </Button>
+                  )}
+
                   <Button
                     variant='outlined'
                     startIcon={<EditOutlinedIcon />}
