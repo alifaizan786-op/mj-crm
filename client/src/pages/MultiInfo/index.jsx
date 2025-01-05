@@ -60,11 +60,6 @@ export default function MultiInfo() {
 
   React.useEffect(() => {
     async function getData() {
-      const getMultiData = await MultiFetch.getOneMulti(MultiCode);
-      setMultiData({
-        loading: false,
-        data: getMultiData,
-      });
       const getWebsiteData = await WebsiteFetch.getSkuByMulti(
         MultiCode
       );
@@ -72,10 +67,48 @@ export default function MultiInfo() {
         loading: false,
         data: getWebsiteData,
       });
+
+      const getMultiData = await MultiFetch.getOneMulti(MultiCode);
+      setMultiData({
+        loading: false,
+        data: {
+          ...getMultiData,
+          totalSku: websiteData.data.length,
+          HiddenSku: websiteData.data.filter(
+            (item) => item.Hidden === true
+          ).length,
+          AvailableSku: websiteData.data.filter(
+            (item) => item.Purchasable === true
+          ).length,
+        },
+      });
     }
 
     getData();
   }, []);
+
+  React.useEffect(() => {
+    async function updateMultiStats() {
+      try {
+        const updateMultiCode = await MultiFetch.updateMulti(
+          MultiCode,
+          {
+            totalSku: websiteData.data.length,
+            HiddenSku: websiteData.data.filter(
+              (item) => item.Hidden === true
+            ).length,
+            AvailableSku: websiteData.data.filter(
+              (item) => item.Purchasable === true
+            ).length,
+          }
+        );
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    updateMultiStats();
+  }, [websiteData.data]);
 
   function copyToClipboard(event) {
     navigator.clipboard.writeText(event.target.innerText);

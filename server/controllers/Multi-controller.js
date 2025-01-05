@@ -4,7 +4,9 @@ module.exports = {
   // Get All Sku
   async getAllMulti(req, res) {
     try {
-      const data = await Multi.find({ isDeleted: null })
+      const data = await Multi.find({
+        $or: [{ isDeleted: null }, { isDeleted: false }],
+      })
         .select('-__v -_id')
         .sort({ _id: -1 });
       res.json(data);
@@ -30,7 +32,6 @@ module.exports = {
     try {
       // Validate and build the query dynamically
       let query = [];
-      console.log(req.query);
 
       for (let key in req.query) {
         const value = req.query[key];
@@ -44,9 +45,6 @@ module.exports = {
         }
       }
 
-
-  
-
       // Ensure query has at least one valid condition
       if (query.length === 0) {
         return res
@@ -54,7 +52,8 @@ module.exports = {
           .json({ message: 'No valid query parameters provided.' });
       }
 
-      console.log({ $and: query });
+      // Add condition to exclude deleted items
+      query.push({ isDeleted: { $ne: true } });
 
       // Query the database
       const data = await Multi.find({ $and: query }).select(
