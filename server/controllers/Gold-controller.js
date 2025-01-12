@@ -85,9 +85,7 @@ const getGoldPriceHandler = async (req, res) => {
       res.json(goldPriceFromDB);
     } else {
       const goldPriceFromAPI = await getGoldPrice();
-      console.log('goldPriceFromAPI', goldPriceFromAPI);
       await saveGoldPriceToDatabase(todayString, goldPriceFromAPI);
-      res.json({ date: todayString, prices: goldPriceFromAPI });
     }
   } catch (error) {
     console.error(error);
