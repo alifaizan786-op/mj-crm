@@ -17,7 +17,6 @@ import React from 'react';
 export default function DescriptionGenerator() {
   const [skus, setSku] = React.useState([]);
 
-
   const [longDescData, setLongDescData] = React.useState([]);
 
   const [percentage, setPercentage] = React.useState(0);
@@ -62,24 +61,55 @@ export default function DescriptionGenerator() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    for (let i = 0; i < skus.length; i++) {
-      try {
-        const response = await WebsiteFetch.generateLongDesc(skus[i]);
+    const uniqueSkus = [...new Set(skus)]; // Deduplicate SKUs
 
-        setLongDescData((longDescData) => [
-          ...longDescData,
+    for (let i = 0; i < uniqueSkus.length; i++) {
+      const currentSku = uniqueSkus[i];
+
+      // Check if SKU is already processed
+      if (longDescData.some((item) => item.sku === currentSku)) {
+        console.log(`SKU ${currentSku} already processed. Skipping.`);
+        continue;
+      }
+
+      try {
+        const response = await WebsiteFetch.generateLongDesc(
+          currentSku
+        );
+
+        // Check if response contains the expected data
+        if (!response || !response.desc) {
+          console.warn(
+            `No description returned for SKU ${currentSku}`
+          );
+          continue;
+        }
+
+        setLongDescData((prevData) => [
+          ...prevData,
           {
-            _id: i,
-            sku: skus[i],
-            majorCode: skus[i].split('-')[0],
+            _id: prevData.length, // Use current length as ID
+            sku: currentSku,
+            majorCode: currentSku.split('-')[0],
             longDesc: response.desc.replace(/\n/g, ' '),
           },
         ]);
 
-        let calc = (i / skus.length) * 100;
+        const calc = ((i + 1) / uniqueSkus.length) * 100; // Update percentage
         setPercentage(calc);
       } catch (error) {
-        console.error(`Error processing SKU ${skus[i]}:`, error);
+        console.error(`Error processing SKU ${currentSku}:`, error);
+
+        // Optionally, add an entry indicating the error
+        setLongDescData((prevData) => [
+          ...prevData,
+          {
+            _id: prevData.length,
+            sku: currentSku,
+            majorCode: currentSku.split('-')[0],
+            longDesc: 'Error fetching description.',
+          },
+        ]);
       }
     }
   };

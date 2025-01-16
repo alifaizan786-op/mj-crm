@@ -288,70 +288,80 @@ LEFT JOIN
 
   async descriptionGenerator(req, res) {
     try {
-      let pool = await this.db;
+      const pool = await this.db;
 
-      let result1 = await pool.request().query(`${this.mainQuery}
-                where SKUCode = '${req.params.sku}'`);
+      const result1 = await pool
+        .request()
+        .query(
+          `${this.mainQuery} where SKUCode = '${req.params.sku}'`
+        );
 
-      delete result1.recordset[0].Code;
-      delete result1.recordset[0].StyleEntryDate;
-      delete result1.recordset[0].ClassCode;
-      delete result1.recordset[0].VendStyleCode;
-      delete result1.recordset[0].TagPrice;
-      delete result1.recordset[0].IsCloseOut;
-      delete result1.recordset[0].IsNewArrived;
-      delete result1.recordset[0].IsHotSeller;
-      delete result1.recordset[0].StoreCode;
-      delete result1.recordset[0].ShowPriceFallFlag;
-      delete result1.recordset[0].ShowPriceFallFlag;
-      delete result1.recordset[0].Purchasable;
-      delete result1.recordset[0].StyleUploadDate;
-      delete result1.recordset[0].Hidden;
-      delete result1.recordset[0].AutoUpdatePrice;
-      delete result1.recordset[0].ShowRetailPrice;
-      delete result1.recordset[0].DC;
-      delete result1.recordset[0].SearchUploadDate;
-      delete result1.recordset[0]['Cert#2'];
-      delete result1.recordset[0].Vendor;
-      delete result1.recordset[0].Minorcode;
-      delete result1.recordset[0].SKUCode;
-      delete result1.recordset[0].CustPrice;
+      if (!result1.recordset || result1.recordset.length === 0) {
+        return res
+          .status(404)
+          .json({ error: 'No record found for the given SKUCode.' });
+      }
+
+      const record = result1.recordset[0];
+
+      const keysToDelete = [
+        'Code',
+        'StyleEntryDate',
+        'ClassCode',
+        'VendStyleCode',
+        'TagPrice',
+        'IsCloseOut',
+        'IsNewArrived',
+        'IsHotSeller',
+        'StoreCode',
+        'ShowPriceFallFlag',
+        'Purchasable',
+        'StyleUploadDate',
+        'Hidden',
+        'AutoUpdatePrice',
+        'ShowRetailPrice',
+        'DC',
+        'SearchUploadDate',
+        'Cert#2',
+        'Vendor',
+        'Minorcode',
+        'SKUCode',
+        'CustPrice',
+      ];
+
+      keysToDelete.forEach((key) => delete record[key]);
+
+      // Remove null values
+      const validData = Object.entries(record).filter(
+        ([key, value]) => value !== null
+      );
+      if (!validData.length) {
+        return res
+          .status(400)
+          .json({
+            error: 'No valid data found for the given SKUCode.',
+          });
+      }
 
       let prompt = `Use the following info to write a product description, 
       Make sure the description contains all dimensions and is search engine 
       optimized and mention that this product is by "Malani Jeweler"
+
+      Don't mention quantity
       \n\n1000 chars max\n\n\n`;
 
-      // Remove properties with null values
-      result1.recordset.forEach((record) => {
-        for (const key in record) {
-          if (record[key] !== null) {
-            prompt += `${key.replace(
-              /([a-z0-9])([A-Z])/g,
-              '$1 $2'
-            )}: ${record[key]}\n`;
-          }
-        }
+      validData.forEach(([key, value]) => {
+        prompt += `${key.replace(
+          /([a-z0-9])([A-Z])/g,
+          '$1 $2'
+        )}: ${value}\n`;
       });
 
       const response = await openai.chat.completions.create({
         model: 'gpt-4o',
-        messages: [
-          {
-            role: 'user',
-            content: [
-              {
-                type: 'text',
-                text: prompt,
-              },
-            ],
-          },
-        ],
-        response_format: {
-          type: 'text',
-        },
+        messages: [{ role: 'user', content: prompt }],
         temperature: 1,
-        max_completion_tokens: 2048,
+        max_tokens: 2048,
         top_p: 1,
         frequency_penalty: 0,
         presence_penalty: 0,
@@ -359,8 +369,8 @@ LEFT JOIN
 
       res.json({ desc: response.choices[0].message.content });
     } catch (err) {
-      console.log(err);
-      res.status(500).json({ error: err });
+      console.error(err);
+      res.status(500).json({ error: err.message });
     }
   }
 
