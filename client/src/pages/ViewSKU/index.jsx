@@ -20,8 +20,8 @@ import { useSearchParams } from 'react-router-dom';
 import Loader from '../../components/Loader';
 import AttributeFetch from '../../fetch/AttributeFetch';
 import InvFetch from '../../fetch/InvFetch';
+import MultiFetch from '../../fetch/MultiFetch';
 import SizingFetch from '../../fetch/SizingFetch';
-import WebsiteFetch from '../../fetch/WebsiteFetch';
 import Common from '../../layouts/common';
 import USDollar from '../../utils/USDollar';
 
@@ -107,13 +107,22 @@ export default function ViewSKU() {
 
   React.useEffect(() => {
     async function getData() {
-      const SKU = searchParams.get('sku').split(' ');
+      const SKU = searchParams.get('sku');
+      if (!SKU) {
+        console.error('SKU parameter is missing');
+        return;
+      }
+
+      const SKUsArray = SKU.split(' ');
+
       try {
         const getAttributes = await AttributeFetch.getAllAttributes();
         if (getAttributes) {
           setAttribute(getAttributes);
         }
-        const getVjsData = await InvFetch.reportBySku([SKU[index]]);
+        const getVjsData = await InvFetch.reportBySku([
+          SKUsArray[index],
+        ]);
         if (getVjsData) {
           setVJSData({
             loading: false,
@@ -121,7 +130,7 @@ export default function ViewSKU() {
           });
         }
         const getSizingData = await SizingFetch.getUploadingData([
-          SKU[index],
+          SKUsArray[index],
         ]);
         setSizingData({
           loading: false,
@@ -132,44 +141,11 @@ export default function ViewSKU() {
                 Color: '',
                 'Jewelry For': '',
                 'Jewelry Type': '',
-                'Number of Pcs': '',
-                Length: '',
-                Width: '',
-                'Chain included in the price': '',
-                'Chain Length': '',
-                'Pendant Length': '',
-                'Pendant Width': '',
-                'Earrings Length': '',
-                'Earrings Width': '',
-                'Earring Post Type': '',
-                'Ring Size': '',
-                'Ring Design Height': '',
-                'Ring Width': '',
-                'Ring Type': '',
-                'Bangle Size': '',
-                'Bangle/Bracelet Size Adjustable up-to': '',
-                'Bangle Inner Diameter': '',
-                'Bangle Width': '',
-                'Bangle Design Height': '',
-                'Bangle/Bracelet Type': '',
-                'Diamond Type': '',
-                'Diamond Total Weight': '',
-                'Diamond Total Pcs': '',
-                'Diamond Clarity': '',
-                'Diamond Color': '',
-                'Center Diamond Weight': '',
-                IsGIACertified: '',
-                'Certificate#': '',
-                'Nose Pin Type': '',
-                'Changeable Stones Included': '',
-                'Gemstones Weight': '',
-                'Chain Length(#28-40 and 360-365)': '',
-                StyleMultiCode: '',
-                Disclaimer: '',
+                // ...rest of the default values
               },
         });
       } catch (error) {
-        console.log(error);
+        console.error(error);
       }
     }
 
@@ -212,16 +188,57 @@ export default function ViewSKU() {
     ) {
       alert('Multi Code Is Missing');
     } else {
+      const SKU = searchParams.get('sku');
+      if (!SKU) {
+        console.error('SKU parameter is missing');
+        return;
+      }
+
+      const SKUsArray = SKU.split(' ');
       try {
-        const webDataFromMulti = await WebsiteFetch.getSkuByMulti(
+        const multiDataFromMulti = await MultiFetch.getOneMulti(
           sizingData.data.StyleMultiCode
         );
-        console.log(sizingData.data.StyleMultiCode, webDataFromMulti);
+
+        setSizingData({
+          loading: false,
+          data: {
+            ...sizingData.data,
+            ...multiDataFromMulti,
+            Category: multiDataFromMulti.CategoryHierarchy?.split(
+              '->'
+            )[0]
+              ? multiDataFromMulti.CategoryHierarchy.split('->')[0]
+              : '',
+            SubCategory:
+              multiDataFromMulti.CategoryHierarchy?.trim() || '',
+          },
+        });
+
+        const updateSizingData = await SizingFetch.updateSizing(
+          SKUsArray[index],
+          {
+            ...sizingData.data,
+            ...multiDataFromMulti,
+            SKUCode: SKUsArray[index],
+            Category: multiDataFromMulti.CategoryHierarchy?.split(
+              '->'
+            )[0]
+              ? multiDataFromMulti.CategoryHierarchy.split('->')[0]
+              : '',
+            SubCategory:
+              multiDataFromMulti.CategoryHierarchy?.trim() || '',
+          }
+        );
+
+        console.log(updateSizingData);
       } catch (error) {
         console.log(error);
       }
     }
   };
+
+  console.log(sizingData);
 
   return (
     <Common>
@@ -362,7 +379,7 @@ export default function ViewSKU() {
               )[0]?.options || [],
           },
           {
-            value: sizingData.data['Sub Category'],
+            value: sizingData.data['SubCategory'],
             label: 'Sub Category',
             color: colorIndigo,
             color: colorIndigo,
@@ -424,6 +441,16 @@ export default function ViewSKU() {
           {
             value: sizingData.data['Width'],
             label: 'Width',
+            color: colorIndigo,
+          },
+          {
+            value: sizingData.data['StyleDesc'],
+            label: 'Style Desc',
+            color: colorIndigo,
+          },
+          {
+            value: sizingData.data['StyleLongDesc'],
+            label: 'Style Long Desc',
             color: colorIndigo,
           },
           {
@@ -781,19 +808,18 @@ function CellContent({
             size='small'
             disablePortal
             options={options}
-            onChange={(event, value) => {
+            value={value || ''} // Fallback to an empty string
+            onChange={(event, newValue) => {
               setState({
-                laoding: false,
+                loading: false,
                 data: {
                   ...state.data,
-                  [label.split(' ')
-                    ? label.split(' ').join('')
-                    : label]: value,
+                  [label.replace(/\s/g, '')]: newValue || '', // Replace spaces in label
                 },
               });
             }}
-            getOptionLabel={(option) => String(option)}
-            value={value}
+            getOptionLabel={(option) => String(option || '')} // Handle undefined options
+            isOptionEqualToValue={(option, value) => option === value} // Ensure equality check
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -808,10 +834,16 @@ function CellContent({
           <TextField
             size='small'
             label={label}
-            onChange={(event, value) => {
-              setState({ ...state, [label.spit('').join()]: value });
+            value={value || ''} // Ensure value is always a string
+            onChange={(event) => {
+              setState({
+                loading: false,
+                data: {
+                  ...state.data,
+                  [label.replace(/\s/g, '')]: event.target.value,
+                },
+              });
             }}
-            value={value}
           />
         </FormControl>
       )}

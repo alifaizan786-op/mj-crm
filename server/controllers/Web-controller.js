@@ -18,9 +18,9 @@ class Web {
     Styles.SubCatCode,
      CONCAT(
         CASE WHEN CSC3.CatSubCat IS NOT NULL THEN CSC3.CatSubCat ELSE '' END,
-        CASE WHEN CSC3.CatSubCat IS NOT NULL THEN ' > ' ELSE '' END,
+        CASE WHEN CSC3.CatSubCat IS NOT NULL THEN '->' ELSE '' END,
         CASE WHEN CSC2.CatSubCat IS NOT NULL THEN CSC2.CatSubCat ELSE '' END,
-        CASE WHEN CSC2.CatSubCat IS NOT NULL AND CatSubCats.CatSubCat IS NOT NULL THEN ' > ' ELSE '' END,
+        CASE WHEN CSC2.CatSubCat IS NOT NULL AND CatSubCats.CatSubCat IS NOT NULL THEN '->' ELSE '' END,
         COALESCE(CatSubCats.CatSubCat, '')
     ) AS CategoryHierarchy, -- Directly added to SELECT
     GoldKarat.LongData AS GoldKarat,

@@ -28,6 +28,15 @@ class SizingFetch extends BaseFetch {
     );
     return skuByMultiCodeData;
   }
+
+  async updateSizing(SKUCode, data) {
+    const updateSizingData = await this.request(
+      `/updateSku/${SKUCode}`,
+      'PUT',
+      data
+    );
+    return updateSizingData;
+  }
 }
 
 export default new SizingFetch(); // Export as a singleton

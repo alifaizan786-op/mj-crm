@@ -14,6 +14,37 @@ module.exports = {
     }
   },
 
+  // Update sizing
+  async updateSizing(req, res) {
+    try {
+      // Ensure req.body is not empty to avoid invalid updates
+      if (!req.body || Object.keys(req.body).length === 0) {
+        return res
+          .status(400)
+          .json({ message: 'Invalid request body' });
+      }
+
+      // Find, update, or insert the sizing document
+      const data = await Sizing.findOneAndUpdate(
+        { SKUCode: req.params.SKUCode },
+        req.body,
+        {
+          new: true, // Return the updated document
+          upsert: true, // Create a new document if no match is found
+          runValidators: true, // Validate schema on update
+        }
+      );
+
+      // Return the updated or newly created document
+      res.json(data);
+    } catch (err) {
+      console.error('Error updating sizing:', err);
+      res
+        .status(500)
+        .json({ message: 'An error occurred', error: err.message });
+    }
+  },
+
   // bulk insert
   async bulkInsertSizing(req, res) {
     try {
