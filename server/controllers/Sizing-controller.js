@@ -250,6 +250,20 @@ module.exports = {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   },
+
+  // Get Video Data
+  async getVideosData(req, res) {
+    try {
+      const data = await Sizing.find({ video: { $exists: true } })
+        .select('Date SKUCode video Classcode')
+        .sort({ Date: -1 });
+
+      res.json(data);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json(err);
+    }
+  },
 };
 
 function dateFormatter(date) {

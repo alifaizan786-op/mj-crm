@@ -2,7 +2,7 @@
   "publicRoutes": [
     {
       "name": "login",
-      "path": "/login",
+      "path": "/*",
       "element": "Login"
     },
     {

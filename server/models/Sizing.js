@@ -15,9 +15,31 @@ const sizing = new Schema(
     SKUCode: {
       type: String,
     },
+    video: {
+      type: String,
+      required: true,
+      get: function (val) {
+        const baseUrl = 'https://mjplusweb.com/V360';
+        const formattedValue = val.replace('-', '-');
+        return {
+          html: `${baseUrl}/${formattedValue}/${formattedValue}.html?d=${formattedValue}&btn=0&sv=0&z=0&sm=0&zoomslide=0`,
+          image: `${baseUrl}/${formattedValue}/still.jpg`,
+          video: `${baseUrl}/${formattedValue}/video.mp4`,
+        };
+      },
+    },
   },
-  { strict: false }
+  {
+    toObject: { getters: true, virtuals: true }, // Enable getters when converting to objects
+    toJSON: { getters: true, virtuals: true }, // Enable getters when converting to JSON
+    strict: false,
+  }
 );
+
+// Adding a virtual field SKUBase that returns SKUCode.split("-")[0]
+sizing.virtual('Classcode').get(function () {
+  return this.SKUCode ? this.SKUCode.split('-')[0] : null;
+});
 
 const Sizing = model('Sizing', sizing, 'Sizing');
 

@@ -37,6 +37,11 @@ class SizingFetch extends BaseFetch {
     );
     return updateSizingData;
   }
+
+  async getVideoData() {
+    const videoData = await this.request(`/videos`, 'GET');
+    return videoData;
+  }
 }
 
 export default new SizingFetch(); // Export as a singleton

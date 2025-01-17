@@ -10,6 +10,7 @@ const {
   getSkuByDate,
   updateSizing,
   getSkuByMultiCode,
+  getVideosData
 } = require('../../controllers/Sizing-controller');
 
 // /api/sizing/101-04875
@@ -17,6 +18,9 @@ router.route('/updateSku/:SKUCode').put(updateSizing);
 
 // /api/sizing/multiCode/400-00497-BLJ-Y-Y
 router.route('/multiCode/:multiCode').get(getSkuByMultiCode);
+
+// /api/sizing/videos
+router.route('/videos').get(getVideosData);
 
 // /api/sizing/UploadingData
 router.route('/UploadingData').post(findSizing);

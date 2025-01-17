@@ -120,6 +120,7 @@ export default function NewUser({
         'Finance',
         'Photography',
         'Marketing',
+        'Client Services',
       ],
       label: 'Department',
       name: 'department',
@@ -140,7 +141,7 @@ export default function NewUser({
     },
     {
       inputType: 'select',
-      selectitemsArr: ['Georgia', 'Texas', 'Florida'],
+      selectitemsArr: ['Georgia', 'Texas', 'Florida', 'India'],
       label: 'Region',
       name: 'region',
       labelId: 'regionLabel',
