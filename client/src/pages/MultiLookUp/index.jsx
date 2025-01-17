@@ -1,12 +1,11 @@
 import { Box, Typography } from '@mui/material';
 import React from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import AutoSizer from 'react-virtualized-auto-sizer';
-import { FixedSizeGrid } from 'react-window';
 import Filters from '../../components/Filters';
 import Image from '../../components/Image';
 import Loader from '../../components/Loader';
 import NewMultiModal from '../../components/NewMultiModal';
+import VirtualList from '../../components/VirtualList';
 import AttributeFetch from '../../fetch/AttributeFetch';
 import MultiFetch from '../../fetch/MultiFetch';
 import Common from '../../layouts/common';
@@ -123,16 +122,15 @@ export default function MultiLookUp() {
   const COLUMN_COUNT = 4; // Adjust based on your design
 
   // Render each item in the grid
-  const Cell = ({ columnIndex, rowIndex, style }) => {
-    const itemIndex = rowIndex * COLUMN_COUNT + columnIndex;
-    const multi = allMulti.data[itemIndex];
+  const CellContent = ({ index, styles }) => {
+    const multi = allMulti.data[index];
 
     if (!multi) return null; // Guard for empty cells
 
     return (
       <Box
-        style={style}
-        key={itemIndex}>
+        style={styles}
+        key={multi._id}>
         <Box
           sx={{
             width: '20vw',
@@ -245,30 +243,12 @@ export default function MultiLookUp() {
           <Loader size={75} />
         ) : (
           <>
-            <Box
-              sx={{
-                height: '78vh',
-              }}>
-              <AutoSizer>
-                {({ height, width }) => (
-                  <div>
-                    <FixedSizeGrid
-                      columnCount={COLUMN_COUNT}
-                      rowCount={Math.ceil(
-                        allMulti.data.length / COLUMN_COUNT
-                      )}
-                      columnWidth={width / COLUMN_COUNT - 5} // Use numeric width
-                      rowHeight={400} // Use numeric height
-                      height={height - 20}
-                      width={width}
-                      overscanRowCount={50} // Render 2 extra rows outside the viewport
-                    >
-                      {Cell}
-                    </FixedSizeGrid>
-                  </div>
-                )}
-              </AutoSizer>
-            </Box>
+
+            <VirtualList
+              CellContent={CellContent}
+              height={'78vh'}
+              dataLength={allMulti.data.length}
+            />
           </>
         )}
       </>

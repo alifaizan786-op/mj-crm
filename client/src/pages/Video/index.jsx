@@ -73,22 +73,8 @@ export default function Video() {
     getData();
   }, []);
 
-  function calculateStyling() {
-    let windowWidthTotal = window.innerWidth;
 
-    let NoOfColumns = Math.floor(windowWidthTotal / 400);
-
-    return {
-      windowWidthTotal,
-      NoOfColumns,
-    };
-  }
-
-  const gridStyling = calculateStyling();
-
-  const COLUMN_COUNT = gridStyling.NoOfColumns; // Number of columns
-  const ROW_GAP = 30; // Gap between rows in pixels
-  const COLUMN_GAP = 45; // Gap between columns in pixels
+  
 
   const handleSubmit = () => {
     const filteredData = videoData.data.filter((item) => {
