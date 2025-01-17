@@ -119,7 +119,6 @@ export default function MultiLookUp() {
     return filters;
   };
 
-  const COLUMN_COUNT = 4; // Adjust based on your design
 
   // Render each item in the grid
   const CellContent = ({ index, styles }) => {

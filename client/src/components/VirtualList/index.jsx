@@ -13,9 +13,13 @@ export default function VirtualList({
 
     let NoOfColumns = Math.floor(windowWidthTotal / 400);
 
+    let columngap =
+      (windowWidthTotal - NoOfColumns * 400) / (NoOfColumns + 1);
+
     return {
       windowWidthTotal,
       NoOfColumns,
+      columngap,
     };
   }
 
@@ -23,7 +27,7 @@ export default function VirtualList({
 
   const COLUMN_COUNT = gridStyling.NoOfColumns; // Number of columns
   const ROW_GAP = 30; // Gap between rows in pixels
-  const COLUMN_GAP = 45; // Gap between columns in pixels
+  const COLUMN_GAP = gridStyling.columngap; // Gap between columns in pixels
 
   return (
     <Box
@@ -36,7 +40,7 @@ export default function VirtualList({
           <FixedSizeGrid
             columnCount={COLUMN_COUNT}
             rowCount={Math.ceil(dataLength / COLUMN_COUNT)}
-            columnWidth={width / COLUMN_COUNT - 40}
+            columnWidth={400}
             rowHeight={400}
             height={height}
             width={width}
@@ -47,16 +51,12 @@ export default function VirtualList({
               // Calculate custom styles
               const styles = {
                 ...style,
-                left:
-                  columnIndex === 0
-                    ? style.left + COLUMN_GAP
-                    : Number(style.left) + columnIndex * COLUMN_GAP,
+                left: style.left + COLUMN_GAP * (columnIndex + 1),
                 top:
                   rowIndex === 0
                     ? style.top
                     : Number(style.top) + rowIndex * ROW_GAP,
               };
-
               return (
                 <CellContent
                   index={index}

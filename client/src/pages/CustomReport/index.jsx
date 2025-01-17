@@ -9,12 +9,12 @@ import Filters from '../../components/Filters';
 import Image from '../../components/Image';
 import Loader from '../../components/Loader';
 import ReportSelector from '../../components/ReportSelector';
+import VirtualList from '../../components/VirtualList';
 import AttributeFetch from '../../fetch/AttributeFetch';
 import InvFetch from '../../fetch/InvFetch';
 import WebsiteFetch from '../../fetch/WebsiteFetch';
 import Common from '../../layouts/common';
 import USDollar from '../../utils/USDollar';
-
 const style = {
   position: 'absolute',
   top: '50%',
@@ -125,8 +125,154 @@ export default function CustomReport() {
     return filters;
   };
 
-  // Function to load more items when the 50th (or subsequent trigger items) is visible
+  const VjsCellContent = ({ index, styles }) => {
+    const item = data.data[index];
 
+    if (!item) return null; // Guard for empty cells
+
+    return (
+      <Box
+        key={item.sku_no}
+        style={styles}
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          flexDirection: 'column',
+        }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-evenly',
+            alignItems: 'center',
+            flexDirection: 'column',
+            width: '85%',
+          }}>
+          <Box
+            sx={{
+              display: 'flex',
+              width: '100%',
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}>
+            <CircleIcon
+              fontSize='small'
+              color={
+                item.onlineStockQty == 1 &&
+                item.onlinePurchasable == 1 &&
+                item.onlineHidden == 0
+                  ? 'success'
+                  : 'error'
+              }
+            />
+            <IconButton
+              onClick={() => {
+                setSelection([...selection, item]);
+              }}>
+              <FavoriteIcon
+                color={
+                  selection.filter(
+                    (sku) => sku.sku_no === item.sku_no
+                  ).length > 0
+                    ? 'error'
+                    : ''
+                }
+              />
+            </IconButton>
+          </Box>
+          <Image
+            sku={item.sku_no}
+            size='small'
+          />
+          <strong>
+            {item.sku_no} | {USDollar.format(item.retail)} |{' '}
+            {item.ven_code}
+          </strong>
+          <strong>{item.desc}</strong>
+          <strong>
+            {item.store_code} |{' '}
+            {new Date(item.date).toLocaleDateString()}
+          </strong>
+        </Box>
+      </Box>
+    );
+  };
+
+  const WebCellContent = ({ index, styles }) => {
+    const item = data.data[index];
+
+    if (!item) return null; // Guard for empty cells
+
+    return (
+      <Box
+        key={item.SKUCode}
+        style={styles}
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          flexDirection: 'column',
+          border: '1px solid black',
+        }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-evenly',
+            alignItems: 'center',
+            flexDirection: 'column',
+            width: '85%',
+          }}>
+          <Box
+            sx={{
+              display: 'flex',
+              width: '100%',
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}>
+            <CircleIcon
+              fontSize='small'
+              color={
+                item.StockQty == 1 &&
+                item.Purchasable == 1 &&
+                item.Hidden == 0
+                  ? 'success'
+                  : 'error'
+              }
+            />
+            <IconButton
+              onClick={() => {
+                setSelection([...selection, item]);
+              }}>
+              <FavoriteIcon
+                color={
+                  selection.filter(
+                    (sku) => sku.SKUCode === item.SKUCode
+                  ).length > 0
+                    ? 'error'
+                    : ''
+                }
+              />
+            </IconButton>
+          </Box>
+          <Image
+            sku={item.SKUCode}
+            size='small'
+            initialState={'web'}
+          />
+          <strong>{item.SKUCode}</strong>
+          <strong>
+            {USDollar.format(item.CustPrice)} |{' '}
+            {USDollar.format(item.TagPrice)}
+          </strong>
+          <strong>{item.StyleGrossWt} G</strong>
+        </Box>
+      </Box>
+    );
+  };
+
+  // Function to load more items when the 50th (or subsequent trigger items) is visible
 
   return (
     <Common>
@@ -339,37 +485,24 @@ export default function CustomReport() {
           {/* Shows loading bar when data is being fetched from backend */}
           {data.loading && <Loader size='75' />}
           {/* Displays Web Data In Tile Form, and alows user to edit the filters */}
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-evenly',
-              alignItems: 'center',
-              flexWrap: 'wrap',
-              width: '100%',
-            }}>
-            {/* First Tile */}
+          <Box>
+            {/* Legend */}
             <Box
               sx={{
-                boxShadow: '3px 2px 10px #cbcbcb',
-                margin: '0.5rem',
-                padding: '1rem',
-                width: '350px',
-                height: '350px',
-                borderRadius: 5,
                 display: 'flex',
                 justifyContent: 'space-evenly',
                 alignItems: 'center',
-                flexDirection: 'column',
+                margin: 1,
+                flexDirection: 'row',
               }}>
-              {/* VJS Legend */}
-
               <Box
                 sx={{
-                  width: '70%',
                   display: 'flex',
                   justifyContent: 'space-evenly',
                   alignItems: 'center',
                   margin: 1,
+                  flexDirection: 'row',
+                  width: '15%',
                 }}>
                 <CircleIcon
                   fontSize='small'
@@ -379,14 +512,14 @@ export default function CustomReport() {
                   ? 'Means SKU is Instock'
                   : 'Means SKU is Online'}
               </Box>
-              {/* Web Legend */}
               <Box
                 sx={{
-                  width: '70%',
                   display: 'flex',
                   justifyContent: 'space-evenly',
                   alignItems: 'center',
                   margin: 1,
+                  flexDirection: 'row',
+                  width: '15%',
                 }}>
                 <CircleIcon
                   fontSize='small'
@@ -396,153 +529,36 @@ export default function CustomReport() {
                   ? 'Means SKU is Not Instock'
                   : 'Means SKU is Not Online'}
               </Box>
-              <Filters
-                state={getInitialFilters()}
-                setState={handleFilterChange}
-                handleSubmit={handleSubmit}
-                handleClear={handleClear}
-                data={data.data}
-                selection={selection}
-                modalOpen={handleOpen}
-                modalName={'Adjust Filters'}
-                orientation={'column'}
-              />
             </Box>
-
-            {data.data?.length > 0 &&
-              data.data.map((item) =>
-                type == 'web' ? (
-                  // Create Web Tiles
-                  <Box
-                    key={item.SKUCode}
-                    sx={{
-                      boxShadow: '1px 1px 0px #cbcbcb',
-                      margin: '0.5rem',
-                      padding: '1rem',
-                      width: '350px',
-                      height: '350px',
-                      borderRadius: 5,
-                      display: 'flex',
-                      justifyContent: 'space-evenly',
-                      alignItems: 'center',
-                      flexDirection: 'column',
-                    }}>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        width: '100%',
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                      }}>
-                      <CircleIcon
-                        fontSize='small'
-                        color={
-                          item.StockQty == 1 &&
-                          item.Purchasable == 1 &&
-                          item.Hidden == 0
-                            ? 'success'
-                            : 'error'
-                        }
-                      />
-                      <IconButton
-                        onClick={() => {
-                          setSelection([...selection, item]);
-                        }}>
-                        <FavoriteIcon
-                          color={
-                            selection.filter(
-                              (sku) => sku.SKUCode === item.SKUCode
-                            ).length > 0
-                              ? 'error'
-                              : ''
-                          }
-                        />
-                      </IconButton>
-                    </Box>
-                    <Image
-                      sku={item.SKUCode}
-                      size='small'
-                      initialState={'web'}
-                    />
-                    <strong>{item.SKUCode}</strong>
-                    <strong>
-                      {USDollar.format(item.CustPrice)} |{' '}
-                      {USDollar.format(item.TagPrice)}
-                    </strong>
-                    <strong>{item.StyleGrossWt} G</strong>
-                  </Box>
-                ) : (
-                  // Create VJS Tile
-                  <Box
-                    key={item.sku_no}
-                    sx={{
-                      boxShadow: '1px 1px 0px #cbcbcb',
-                      margin: '0.5rem',
-                      padding: '1rem',
-                      width: '350px',
-                      height: '350px',
-                      borderRadius: 5,
-                      display: 'flex',
-                      justifyContent: 'space-evenly',
-                      alignItems: 'center',
-                      flexDirection: 'column',
-                    }}>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        width: '100%',
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                      }}>
-                      <CircleIcon
-                        fontSize='small'
-                        color={
-                          item.onlineStockQty == 1 &&
-                          item.onlinePurchasable == 1 &&
-                          item.onlineHidden == 0
-                            ? 'success'
-                            : 'error'
-                        }
-                      />
-                      <IconButton
-                        onClick={() => {
-                          setSelection([...selection, item]);
-                        }}>
-                        <FavoriteIcon
-                          color={
-                            selection.filter(
-                              (sku) => sku.sku_no === item.sku_no
-                            ).length > 0
-                              ? 'error'
-                              : ''
-                          }
-                        />
-                      </IconButton>
-                    </Box>
-                    <Image
-                      sku={item.sku_no}
-                      size='small'
-                    />
-                    <strong>
-                      {item.sku_no} | {USDollar.format(item.retail)} |{' '}
-                      {item.ven_code}
-                    </strong>
-                    <strong>{item.desc}</strong>
-                    <strong>
-                      {item.store_code} |{' '}
-                      {new Date(item.date).toLocaleDateString()}
-                    </strong>
-                    {/* <strong>
-                    {USDollar.format(item.CustPrice)} |{' '}
-                    {USDollar.format(item.TagPrice)}
-                  </strong>
-                   */}
-                  </Box>
-                )
-              )}
+            {/* Options */}
+            <Filters
+              state={getInitialFilters()}
+              setState={handleFilterChange}
+              // handleSubmit={handleSubmit}
+              handleClear={handleClear}
+              data={data.data}
+              selection={selection}
+              modalOpen={handleOpen}
+              modalName={'Adjust Filters'}
+              orientation={'row'}
+            />
           </Box>
+          {/* Vitual List */}
+          {data.data?.length > 0 && type == 'web' ? (
+            // Create Web Tiles
+            <VirtualList
+              CellContent={WebCellContent}
+              height={'81.5vh'}
+              dataLength={data.data.length}
+            />
+          ) : (
+            // Create VJS Tile
+            <VirtualList
+              CellContent={VjsCellContent}
+              height={'81.5vh'}
+              dataLength={data.data.length}
+            />
+          )}
         </Box>
       ) : (
         <ReportSelector />
