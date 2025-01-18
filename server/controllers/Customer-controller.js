@@ -88,39 +88,49 @@ module.exports = {
       // Extract the query from the request body
       const rawQuery = req.body.query || {};
 
-      // Build the general $and query
-      const andConditions = Object.entries(rawQuery)
-        .filter(
-          ([key, value]) =>
-            value &&
-            !['home', 'work', 'mobile', 'store_code'].includes(key) // Exclude phone-related fields and store_code
+      // Extract contact numbers
+      const contactNumber = new Set(
+        [rawQuery.home, rawQuery.work, rawQuery.mobile].filter(
+          (item) => item
         )
-        .map(([key, value]) => ({
-          [key]: value, // Case-insensitive regex
-        }));
+      );
 
-      // Handle phone fields with $or logic
-      const phoneFields = ['home', 'work', 'mobile'];
-      const orConditions = phoneFields
-        .map((field) =>
-          rawQuery[field]
-            ? { [field]: new RegExp(rawQuery[field], 'i') }
-            : null
-        )
-        .filter(Boolean); // Remove null values
+      const phoneQuery =
+        contactNumber.size > 0
+          ? {
+              $or: [
+                { home: { $in: [...contactNumber] } },
+                { work: { $in: [...contactNumber] } },
+                { mobile: { $in: [...contactNumber] } },
+              ],
+            }
+          : null;
 
-      // Handle store_code as $or if it exists
-      if (rawQuery.store_code && Array.isArray(rawQuery.store_code)) {
-        orConditions.push({
-          store_code: { $in: rawQuery.store_code }, // $in matches any value in the array
-        });
-      }
+      // Handle store query
+      const storeQuery =
+        rawQuery.store_code && rawQuery.store_code.length > 0
+          ? { store_code: { $in: rawQuery.store_code } }
+          : null;
 
-      // Combine the $and and $or conditions
+      // Remove processed fields
+      delete rawQuery.home;
+      delete rawQuery.work;
+      delete rawQuery.mobile;
+      delete rawQuery.store_code;
+
+      // Construct base query
+      const baseQuery = Object.entries(rawQuery)
+        .filter(([key, value]) => value) // Filter out falsy values
+        .map(([key, value]) => ({ [key]: value }));
+
+      // Combine all conditions into $and
+      const queryConditions = [];
+      if (baseQuery.length > 0) queryConditions.push(...baseQuery);
+      if (phoneQuery) queryConditions.push(phoneQuery);
+      if (storeQuery) queryConditions.push(storeQuery);
+
       const query =
-        orConditions.length > 0
-          ? { $and: [...andConditions, { $or: orConditions }] }
-          : { $and: andConditions };
+        queryConditions.length > 0 ? { $and: queryConditions } : {};
 
       // Determine fields to select
       const fields =

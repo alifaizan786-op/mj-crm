@@ -13,6 +13,7 @@ import {
   GridToolbarExport,
 } from '@mui/x-data-grid';
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Loader from '../../components/Loader';
 import CustomerFetch from '../../fetch/CustomerFetch';
 import Common from '../../layouts/common';
@@ -63,6 +64,14 @@ export default function ClientLookUp() {
       width: 100,
       valueGetter: (params) => {
         return `${params.row.store_code}-${params.row.customer}`;
+      },
+      renderCell: (params) => {
+        return (
+          <Link
+            to={`/Client/${params.row.store_code}-${params.row.customer}`}>
+            {params.row.store_code}-{params.row.customer}
+          </Link>
+        );
       },
     },
     {
