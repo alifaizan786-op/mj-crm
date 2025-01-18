@@ -85,37 +85,55 @@ module.exports = {
 
   async searchCustomer(req, res) {
     try {
-      const { query } = req.body;
+      // Extract the query from the request body
+      const rawQuery = req.body.query || {};
 
-      if (!query || query.trim() === '') {
-        return res
-          .status(400)
-          .json({ error: 'Search query is required.' });
+      // Build the general $and query
+      const andConditions = Object.entries(rawQuery)
+        .filter(
+          ([key, value]) =>
+            value &&
+            !['home', 'work', 'mobile', 'store_code'].includes(key) // Exclude phone-related fields and store_code
+        )
+        .map(([key, value]) => ({
+          [key]: value, // Case-insensitive regex
+        }));
+
+      // Handle phone fields with $or logic
+      const phoneFields = ['home', 'work', 'mobile'];
+      const orConditions = phoneFields
+        .map((field) =>
+          rawQuery[field]
+            ? { [field]: new RegExp(rawQuery[field], 'i') }
+            : null
+        )
+        .filter(Boolean); // Remove null values
+
+      // Handle store_code as $or if it exists
+      if (rawQuery.store_code && Array.isArray(rawQuery.store_code)) {
+        orConditions.push({
+          store_code: { $in: rawQuery.store_code }, // $in matches any value in the array
+        });
       }
 
-      const regex = new RegExp(query, 'i'); // Case-insensitive regex for the search
-      const searchConditions = [
-        { last: { $regex: regex } },
-        { first: { $regex: regex } },
-        { customer: { $regex: regex } },
-        { title1: { $regex: regex } },
-        { address: { $regex: regex } },
-        { address2: { $regex: regex } },
-        { city: { $regex: regex } },
-        { state: { $regex: regex } },
-        { zip: { $regex: regex } },
-        { country: { $regex: regex } },
-        { home: { $regex: regex } },
-        { work: { $regex: regex } },
-        { mobile: { $regex: regex } },
-        { spouse: { $regex: regex } },
-        { email: { $regex: regex } },
-        { emailspous: { $regex: regex } },
-        { store_code: { $regex: regex } },
-      ];
+      // Combine the $and and $or conditions
+      const query =
+        orConditions.length > 0
+          ? { $and: [...andConditions, { $or: orConditions }] }
+          : { $and: andConditions };
 
-      const results = await CUSTOMER.find({ $or: searchConditions });
+      // Determine fields to select
+      const fields =
+        req.body.fields && req.body.fields.length > 0
+          ? req.body.fields.join(' ')
+          : null; // Null means select all fields
 
+      // Execute the query
+      const results = fields
+        ? await CUSTOMER.find(query).select(fields)
+        : await CUSTOMER.find(query);
+
+      // Handle no matching results
       if (results.length === 0) {
         return res
           .status(404)
@@ -128,6 +146,7 @@ module.exports = {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   },
+
   async filterCustomer(req, res) {
     try {
       const {
@@ -144,10 +163,15 @@ module.exports = {
       const query = {};
 
       // Filter by ytd_purch (min and max range)
-      if (ytd_purch?.min !== undefined || ytd_purch?.max !== undefined) {
+      if (
+        ytd_purch?.min !== undefined ||
+        ytd_purch?.max !== undefined
+      ) {
         query.ytd_purch = {};
-        if (ytd_purch.min !== undefined) query.ytd_purch.$gte = ytd_purch.min;
-        if (ytd_purch.max !== undefined) query.ytd_purch.$lte = ytd_purch.max;
+        if (ytd_purch.min !== undefined)
+          query.ytd_purch.$gte = ytd_purch.min;
+        if (ytd_purch.max !== undefined)
+          query.ytd_purch.$lte = ytd_purch.max;
       }
 
       // Filter by store_code (array of values)
@@ -166,38 +190,54 @@ module.exports = {
       }
 
       // Filter by py_purch (min and max range)
-      if (py_purch?.min !== undefined || py_purch?.max !== undefined) {
+      if (
+        py_purch?.min !== undefined ||
+        py_purch?.max !== undefined
+      ) {
         query.py_purch = {};
-        if (py_purch.min !== undefined) query.py_purch.$gte = py_purch.min;
-        if (py_purch.max !== undefined) query.py_purch.$lte = py_purch.max;
+        if (py_purch.min !== undefined)
+          query.py_purch.$gte = py_purch.min;
+        if (py_purch.max !== undefined)
+          query.py_purch.$lte = py_purch.max;
       }
 
       // Filter by purchvisit (min and max range)
-      if (purchvisit?.min !== undefined || purchvisit?.max !== undefined) {
+      if (
+        purchvisit?.min !== undefined ||
+        purchvisit?.max !== undefined
+      ) {
         query.purchvisit = {};
-        if (purchvisit.min !== undefined) query.purchvisit.$gte = purchvisit.min;
-        if (purchvisit.max !== undefined) query.purchvisit.$lte = purchvisit.max;
+        if (purchvisit.min !== undefined)
+          query.purchvisit.$gte = purchvisit.min;
+        if (purchvisit.max !== undefined)
+          query.purchvisit.$lte = purchvisit.max;
       }
 
       // Filter by last_purch (date range)
       if (last_purch?.min || last_purch?.max) {
         query.last_purch = {};
-        if (last_purch.min) query.last_purch.$gte = new Date(last_purch.min);
-        if (last_purch.max) query.last_purch.$lte = new Date(last_purch.max);
+        if (last_purch.min)
+          query.last_purch.$gte = new Date(last_purch.min);
+        if (last_purch.max)
+          query.last_purch.$lte = new Date(last_purch.max);
       }
 
       // Filter by date_added (date range)
       if (date_added?.min || date_added?.max) {
         query.date_added = {};
-        if (date_added.min) query.date_added.$gte = new Date(date_added.min);
-        if (date_added.max) query.date_added.$lte = new Date(date_added.max);
+        if (date_added.min)
+          query.date_added.$gte = new Date(date_added.min);
+        if (date_added.max)
+          query.date_added.$lte = new Date(date_added.max);
       }
 
       // Query the database with the constructed filters
       const results = await CUSTOMER.find(query);
 
       if (!results.length) {
-        return res.status(404).json({ message: 'No matching records found.' });
+        return res
+          .status(404)
+          .json({ message: 'No matching records found.' });
       }
 
       res.status(200).json(results);

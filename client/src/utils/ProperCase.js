@@ -1,3 +1,4 @@
 export default function properCase(val) {
-  return String(val).charAt(0).toUpperCase() + String(val).slice(1);
+  if (!val) return ''; // Handle null, undefined, or empty string
+  return val.charAt(0).toUpperCase() + val.slice(1).toLowerCase();
 }

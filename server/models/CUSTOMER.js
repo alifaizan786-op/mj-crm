@@ -73,7 +73,10 @@ const CustomerSchema = new Schema(
     spousering: { type: String },
     store_code: { type: String },
   },
-  { optimisticConcurrency: true }
+  {
+    optimisticConcurrency: true,
+    collation: { locale: 'en', strength: 2 },
+  }
 );
 
 const CUSTOMER = model('CUSTOMER', CustomerSchema, 'CUSTOMER');
