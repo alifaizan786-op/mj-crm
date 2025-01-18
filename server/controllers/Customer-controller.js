@@ -21,10 +21,14 @@ module.exports = {
     }
   },
 
-  async getCustomerById(req, res) {
+  async getByCustomerId(req, res) {
     try {
       const { id } = req.params;
-      const customer = await CUSTOMER.findById(id);
+
+      const customer = await CUSTOMER.find({
+        store_code: id.split('-')[0],
+        customer: id.split('-')[1],
+      });
 
       if (!customer) {
         return res.status(404).json({ error: 'Customer Not Found' });

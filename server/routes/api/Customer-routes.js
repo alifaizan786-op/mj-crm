@@ -2,7 +2,7 @@ const router = require('express').Router();
 const {
   createCustomer,
   getAllCustomers,
-  getCustomerById,
+  getByCustomerId,
   updateCustomerById,
   deleteCustomerById,
   searchCustomer,
@@ -21,7 +21,7 @@ router.route('/').get(getAllCustomers).post(createCustomer);
 // /api/customer/:id
 router
   .route('/:id')
-  .get(getCustomerById)
+  .get(getByCustomerId)
   .put(updateCustomerById)
   .delete(deleteCustomerById);
 
