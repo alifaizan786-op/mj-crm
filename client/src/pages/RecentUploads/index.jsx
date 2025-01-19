@@ -112,6 +112,9 @@ export default function RecentUploads() {
                     <StyledTableCell align='center'>
                       <strong>Get All Info</strong>
                     </StyledTableCell>
+                    <StyledTableCell align='center'>
+                      <strong>MalaniJewelers.com</strong>
+                    </StyledTableCell>
                   </StyledTableRow>
                 </TableHead>
                 <TableBody
@@ -156,6 +159,24 @@ export default function RecentUploads() {
                               });
                             }}>
                             Proof Read
+                          </Button>
+                        </StyledTableCell>
+                        <StyledTableCell align='center'>
+                          <Button
+                            size='small'
+                            onClick={() => {
+                              WebsiteFetch.getSkuBySearchUploadDate(
+                                row.SearchUploadDate
+                              ).then((data) => {
+                                let dataArr = data.map(
+                                  (item) => item.SKUCode
+                                );
+                                let link = `https://www.malanijewelers.com/Views/Product/ProductList?search=${row.SearchUploadDate}`;
+
+                                window.open(link, '_blank');
+                              });
+                            }}>
+                            MalaniJewelers.com
                           </Button>
                         </StyledTableCell>
                       </StyledTableRow>
