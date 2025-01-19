@@ -34,49 +34,54 @@ export default function GetAllInfo() {
       loading: true,
       data: [],
     });
-
+  
     try {
       const getSkuDataFromJS = await InvFetch.reportBySku(
         searchParams.get('sku').split(' ')
       );
-
-      const webFetchArr = [];
-      for (let i = 0; i < getSkuDataFromJS.length; i++) {
-        const element = getSkuDataFromJS[i];
-        if (
-          element.onlinePurchasable !== null ||
-          element.onlineHidden !== null ||
-          element.onlineStockQty !== null
-        ) {
-          webFetchArr.push(element.sku_no);
-        }
-      }
-      const getSkuDataFromWeb = await WebsiteFetch.getReportBySku(
-        webFetchArr
-      );
-
-      let masterDataArray = [];
-      for (let i = 0; i < getSkuDataFromJS.length; i++) {
-        const element = getSkuDataFromJS[i];
-        const webObj = getSkuDataFromWeb.filter(
-          (item) => item.SKUCode == element.sku_no
+  
+      const webFetchArr = getSkuDataFromJS
+        .filter(
+          (element) =>
+            element.onlinePurchasable !== null ||
+            element.onlineHidden !== null ||
+            element.onlineStockQty !== null
+        )
+        .map((element) => element.sku_no);
+  
+      const getSkuDataFromWeb = webFetchArr.length
+        ? await WebsiteFetch.getReportBySku(webFetchArr)
+        : [];
+  
+      let masterDataArray = getSkuDataFromJS.map((element) => {
+        const webObj = getSkuDataFromWeb.find(
+          (item) => item.SKUCode === element.sku_no
         );
-        let tempObj = {
+  
+        return {
           VJS: {
             ...element,
           },
-          WEB: webObj.length > 0 ? webObj[0] : {},
+          WEB: webObj || {},  // Ensure WEB exists even if empty
         };
-        masterDataArray.push(tempObj);
-      }
+      });
+  
       setData({
         loading: false,
         data: masterDataArray,
       });
     } catch (error) {
       console.log(error);
+      setData({
+        loading: false,
+        data: [],
+      });
     }
   };
+  
+
+  console.log(data);
+  
 
   
 
