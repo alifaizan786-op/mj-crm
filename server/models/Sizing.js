@@ -19,13 +19,15 @@ const sizing = new Schema(
       type: String,
       required: true,
       get: function (val) {
-        const baseUrl = 'https://mjplusweb.com/V360';
-        const formattedValue = val.replace('-', '-');
-        return {
-          html: `${baseUrl}/${formattedValue}/${formattedValue}.html?d=${formattedValue}&btn=0&sv=0&z=0&sm=0&zoomslide=0`,
-          image: `${baseUrl}/${formattedValue}/still.jpg`,
-          video: `${baseUrl}/${formattedValue}/video.mp4`,
-        };
+        if (val) {
+          const baseUrl = 'https://mjplusweb.com/V360';
+          const formattedValue = val.replace('-', '-');
+          return {
+            html: `${baseUrl}/${formattedValue}/${formattedValue}.html?d=${formattedValue}&btn=0&sv=0&z=0&sm=0&zoomslide=0`,
+            image: `${baseUrl}/${formattedValue}/still.jpg`,
+            video: `${baseUrl}/${formattedValue}/video.mp4`,
+          };
+        }
       },
     },
   },
