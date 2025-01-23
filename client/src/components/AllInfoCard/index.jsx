@@ -163,7 +163,7 @@ export default function AllInfoCard({ index, setIndex, data }) {
           <TableContainer>
             <Table
               size='small'
-              sx={{ minWidth: 850 }}>
+              sx={{ maxWidth: 850 }}>
               <TableHead>
                 <CustomTableRow>
                   <CustomTableCell></CustomTableCell>
@@ -532,6 +532,11 @@ export default function AllInfoCard({ index, setIndex, data }) {
                     </>
                   )}
                 </CustomTableRow>
+                <CustomTableRow>
+                  <CustomTableCell colSpan={3}>
+                    {data[index].WEB.StyleLongDesc}
+                  </CustomTableCell>
+                </CustomTableRow>
               </TableBody>
             </Table>
           </TableContainer>
@@ -800,8 +805,6 @@ export default function AllInfoCard({ index, setIndex, data }) {
                 key: 'AutoUpdatePrice',
                 formatter: (value) => (value ? 'True' : 'False'),
                 valueCheck: (value) => {
-        
-
                   return valueChecker(
                     null,
                     null,
