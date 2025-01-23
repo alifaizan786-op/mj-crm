@@ -104,17 +104,17 @@ class Web {
     Color.LongData AS Color
 FROM 
     Styles
-INNER JOIN 
+LEFT JOIN 
     CatSubCats ON Styles.SubCatCode = CatSubCats.Code -- Level 1
 LEFT JOIN 
     CatSubCats AS CSC2 ON CatSubCats.ParentCode = CSC2.Code -- Level 2
 LEFT JOIN 
     CatSubCats AS CSC3 ON CSC2.ParentCode = CSC3.Code -- Level 3
-INNER JOIN 
+LEFT JOIN 
     Vendors ON Styles.VendCode = Vendors.Code
-INNER JOIN 
+LEFT JOIN 
     ClassCodes ON Styles.ClassCode = ClassCodes.Code
-INNER JOIN 
+LEFT JOIN 
     CommonMastersData AS GoldKarat ON Styles.GoldKt = GoldKarat.Code
 LEFT JOIN 
     CommonMastersData AS Color ON Styles.Color = Color.Code`;
@@ -296,6 +296,9 @@ LEFT JOIN
           `${this.mainQuery} where SKUCode = '${req.params.sku}'`
         );
 
+
+
+        
       if (!result1.recordset || result1.recordset.length === 0) {
         return res
           .status(404)
@@ -336,11 +339,9 @@ LEFT JOIN
         ([key, value]) => value !== null
       );
       if (!validData.length) {
-        return res
-          .status(400)
-          .json({
-            error: 'No valid data found for the given SKUCode.',
-          });
+        return res.status(400).json({
+          error: 'No valid data found for the given SKUCode.',
+        });
       }
 
       let prompt = `Use the following info to write a product description, 
