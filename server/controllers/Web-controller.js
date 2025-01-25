@@ -296,9 +296,6 @@ LEFT JOIN
           `${this.mainQuery} where SKUCode = '${req.params.sku}'`
         );
 
-
-
-        
       if (!result1.recordset || result1.recordset.length === 0) {
         return res
           .status(404)
@@ -380,13 +377,14 @@ LEFT JOIN
       let pool = await this.db;
 
       let result1 = await pool.request().query(`
-            SELECT AttribField131 AS SearchUploadDate,        
-            COUNT(DISTINCT CASE WHEN StockQty = 1 AND Hidden = 0 AND Purchasable = 1 THEN SKUCode END) AS AvailableSKUCount,
-            COUNT(DISTINCT CASE WHEN StockQty = 0 AND Hidden = 1 AND Purchasable = 1 THEN SKUCode END) AS HiddenSKUCount
-            FROM Styles
-            WHERE LEN(AttribField131) = 7
-            GROUP BY AttribField131
-            ORDER BY CONVERT(DATE, AttribField131, 6) DESC;`);
+            SELECT  TOP ${req.params.limit || 100}
+              AttribField131 AS SearchUploadDate,        
+                COUNT(DISTINCT CASE WHEN StockQty = 1 AND Hidden = 0 AND Purchasable = 1 THEN SKUCode END) AS AvailableSKUCount,
+                COUNT(DISTINCT CASE WHEN StockQty = 0 AND Hidden = 1 AND Purchasable = 1 THEN SKUCode END) AS HiddenSKUCount
+                FROM Styles
+                WHERE LEN(AttribField131) = 7
+                GROUP BY AttribField131
+                ORDER BY CONVERT(DATE, AttribField131, 6) DESC;`);
 
       res.json(result1.recordset);
     } catch (err) {
