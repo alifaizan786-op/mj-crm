@@ -2,9 +2,34 @@ import { useEffect, useState } from 'react';
 import ImageFetch from '../../fetch/ImageFetch';
 import MultiFetch from '../../fetch/MultiFetch';
 
-const BulkRenamerProcessor = ({ data, submit }) => {
+// Sample "data" array:
+// [
+//   {
+//     ID: '1',
+//     SKUCode: '441-02861',
+//     MultiStyleCode: '441-00770-GS-Y-Y',
+//   },
+//   {
+//     ID: '2',
+//     SKUCode: '440-02897',
+//     MultiStyleCode: '440-00755-GS-Y-Y',
+//   },
+// ];
+
+const BulkRenamerProcessor = ({
+  data,
+  setData,
+  submit,
+  setSubmit,
+  download,
+  setDownload,
+  loading,
+  setLoading,
+}) => {
   const [processedData, setProcessedData] = useState([]);
   const [downloadImages, setDownloadImages] = useState([]);
+  const [allMultiData, setAllMultiData] = useState([]);
+  const [imageData, setImageData] = useState([]);
 
   useEffect(() => {
     if (submit && data.length > 0) {
@@ -12,68 +37,77 @@ const BulkRenamerProcessor = ({ data, submit }) => {
     }
   }, [submit]);
 
+  useEffect(() => {
+    if (download && downloadImages.length > 0) {
+      handleDownload();
+    }
+  }, [download]);
+
   const processBulkRename = async () => {
+    setLoading(true);
     const multiCodeMap = new Map();
+    const allMultiCodes = [
+      ...new Set(data.map((item) => item.MultiStyleCode)),
+    ];
 
-    // Fetch all multiCode data
-    for (const item of data) {
-      try {
-        const multiCodeData = await MultiFetch.bulkMultiCode([
-          item.multiCode,
-        ]);
+    try {
+      const multiCodeData = await MultiFetch.bulkMultiCode(
+        allMultiCodes
+      );
+      setAllMultiData(multiCodeData);
+      for (const item of multiCodeData) {
+        const masterImage = item.image[0];
+        const allImageArr = [
+          masterImage,
+          isImageAvailable(masterImage, '_1'),
+          isImageAvailable(masterImage, '_2'),
+          isImageAvailable(masterImage, '_3'),
+        ].filter(Boolean);
 
-        if (multiCodeData.length > 0) {
-          const masterImage = multiCodeData[0].image[0];
-          const allImageArr = [
-            masterImage,
-            isImageAvailable(masterImage, '_1'),
-            isImageAvailable(masterImage, '_2'),
-            isImageAvailable(masterImage, '_3'),
-          ].filter(Boolean);
-
-          multiCodeMap.set(item.multiCode, allImageArr);
-        }
-      } catch (error) {
-        console.error(
-          `Error fetching multiCode data for ${item.multiCode}:`,
-          error
-        );
+        multiCodeMap.set(item.multiCode, allImageArr);
       }
+
+      setImageData(multiCodeMap);
+
+      setSubmit(false);
+    } catch (error) {
+      console.log(error);
     }
 
     // Process renaming for each multiCode
     const updatedData = [];
     for (const item of data) {
-      const allImageArr = multiCodeMap.get(item.multiCode);
+      const allImageArr = multiCodeMap.get(item.MultiStyleCode);
       if (allImageArr) {
-        for (const sku of item.SKU) {
-          for (const image of allImageArr) {
-            await renamer(image, sku);
-            updatedData.push({
-              multiCode: item.multiCode,
-              sku,
-              status: 'processed',
-            });
-          }
+        for (const image of allImageArr) {
+          await renamer(image, item.SKUCode);
+          updatedData.push({
+            multiCode: item.multiCode,
+            SKUCode: item.SKUCode,
+            Image: image,
+            status: 'processed',
+            ...item,
+          });
         }
       }
     }
 
+    setData(updatedData);
+    setLoading(false);
     setProcessedData(updatedData);
+  };
 
-    console.log(processedData);
-    console.log(downloadImages);
-
+  const handleDownload = async () => {
     for (let i = 0; i < downloadImages.length; i++) {
       const element = downloadImages[i];
       try {
         let link = `/api/image/${element}`;
-        console.log(link);
         window.open(link, '_blank');
       } catch (error) {
         console.log(error);
       }
     }
+    setDownload(false);
   };
 
   const renamer = async (imageName, renameTo) => {
