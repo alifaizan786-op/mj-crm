@@ -594,41 +594,45 @@ module.exports = {
         })
       );
 
-      const uniqueObj = req.body.sku.map((sku) => {
-        let objectForSku = result.filter(
-          (item) => item.sku_no == sku && item.loc_qty1 == 1
-        );
+      const uniqueObj = req.body.sku
+        .map((sku) => {
+          let objectForSku = result.filter(
+            (item) => item.sku_no == sku && item.loc_qty1 == 1
+          );
 
-        return objectForSku.length > 0
-          ? objectForSku[0]
-          : result.filter((item) => item.sku_no == sku)[0];
-      });
+          return objectForSku.length > 0
+            ? objectForSku[0]
+            : result.find((item) => item.sku_no == sku) || null;
+        })
+        .filter(Boolean);
 
       // Extract SKU numbers
       const skuNumbers = uniqueObj.map((item) => item.sku_no);
 
-      // Fetch online status for the SKUs
-      const onlineStatuses = await Web.getAllFromArr(
-        null,
-        null,
-        skuNumbers
-      );
-
-      // Prepare the response data
-      const resultData = uniqueObj.map((item) => {
-        const onlineStatus = onlineStatuses.find(
-          (obj) => obj.SKUCode === item.sku_no
+      if (skuNumbers.length > 0) {
+        // Fetch online status for the SKUs
+        const onlineStatuses = await Web.getAllFromArr(
+          null,
+          null,
+          skuNumbers
         );
+        // Prepare the response data
+        const resultData = uniqueObj.map((item) => {
+          const onlineStatus = onlineStatuses.find(
+            (obj) => obj.SKUCode === item.sku_no
+          );
 
-        return {
-          ...item,
-          onlinePurchasable: onlineStatus?.Purchasable ?? null,
-          onlineHidden: onlineStatus?.Hidden ?? null,
-          onlineStockQty: onlineStatus?.StockQty ?? null,
-        };
-      });
-
-      res.json(resultData);
+          return {
+            ...item,
+            onlinePurchasable: onlineStatus?.Purchasable ?? null,
+            onlineHidden: onlineStatus?.Hidden ?? null,
+            onlineStockQty: onlineStatus?.StockQty ?? null,
+          };
+        });
+        res.json(resultData);
+      } else {
+        res.json(uniqueObj);
+      }
     } catch (error) {
       console.error(error);
       res.status(500).json({
@@ -636,7 +640,7 @@ module.exports = {
       });
     }
   },
-  async uploadingData(req, res, skuArr) {
+  async uploadingData(req, res) {
     try {
       // Fetch data from the database based on SKU array
       const data = await INV.find({
@@ -706,6 +710,66 @@ module.exports = {
       } else {
         throw error;
       }
+    }
+  },
+  async outOfStockItemsOnline(req, res) {
+    try {
+      // Fetch website live data with specific conditions
+      const websiteLiveData = await Web.getLiveSku();
+
+      const websiteLiveSkuCodes = websiteLiveData.map(
+        (item) => item.SKUCode
+      );
+
+
+      // Query inventory with SKU codes and exclude items where loc_qty1 is 1
+      const vjsDataBySku = await INV.find({
+        sku_no: { $in: websiteLiveSkuCodes },
+      })
+        .select(`sku_no loc_qty1`)
+        .lean();
+
+      const vjsDataUniqueObj = websiteLiveSkuCodes
+        .map((sku) => {
+          const filteredBySku = vjsDataBySku.filter(
+            (item) => item.sku_no === sku
+          );
+
+          const exactMatch = filteredBySku.find(
+            (item) => item.loc_qty1 === 1
+          );
+          return exactMatch || filteredBySku[0] || null;
+        })
+        .filter(Boolean); // Remove null values
+
+      const getStatus = await Promise.all(
+        vjsDataUniqueObj
+          .filter((item) => item.loc_qty1 !== 1)
+          .map(async (item) => {
+            const status = await INV.getStatus(item.sku_no);
+            return item.toObject
+              ? { ...item.toObject(), status }
+              : { ...item, status };
+          })
+      );
+
+      const availableSkus = new Set([
+        ...getStatus
+          .filter((item) => item.status !== 'sold out')
+          .map((item) => item.sku_no),
+        ...vjsDataUniqueObj
+          .filter((item) => item.loc_qty1 == 1)
+          .map((item) => item.sku_no),
+      ]);
+
+      const result = websiteLiveSkuCodes.filter(
+        (sku) => !availableSkus.has(sku)
+      );
+
+      res.json(result);
+    } catch (error) {
+      console.error('Error in outOfStockItemsOnline:', error);
+      res.status(500).json({ error: 'Internal server error' });
     }
   },
 };

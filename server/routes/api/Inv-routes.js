@@ -8,6 +8,7 @@ const {
   newArrivalsByDate,
   newArrivalsByVendor,
   newArrivalsByDayVendor,
+  outOfStockItemsOnline,
   reportBySku,
   uploadingData,
 } = require('../../controllers/Inv-controller');
@@ -39,6 +40,9 @@ router
 
 // /api/inventory/reports/opentobuy/ATL
 router.route('/reports/opentobuy/:store').get(openToBuy);
+
+// /api/inventory/reports/outOfStockOnline
+router.route('/reports/outOfStockOnline/').get(outOfStockItemsOnline);
 
 // /api/inventory/reports/BySku
 router.route('/reports/BySku/').post(reportBySku);
