@@ -15,5 +15,6 @@
   "license": "ISC",
   "dependencies": {
     "concurrently": "^8.2.2"
+
   }
 }
