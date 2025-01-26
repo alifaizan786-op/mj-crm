@@ -147,7 +147,7 @@ export default function AllInfoCard({ index, setIndex, data }) {
             alignItems: 'center',
           }}>
           <Image
-            sku={data[index].WEB.SKUCode}
+            sku={data[index].VJS.sku_no}
             boxSize={450}
             initialState={'js'}
             showArrow={false}

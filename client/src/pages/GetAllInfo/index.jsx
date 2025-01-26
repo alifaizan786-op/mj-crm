@@ -1,4 +1,4 @@
-import { Box, Button, TextField } from '@mui/material';
+import { Box, Button, TextField, Typography } from '@mui/material';
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import AllInfoCard from '../../components/AllInfoCard';
@@ -13,6 +13,9 @@ export default function GetAllInfo() {
     data: [],
   });
   const [index, setIndex] = React.useState(0);
+  const [message, setMessage] = React.useState(
+    <Typography>Enter Sku's and click submit</Typography>
+  );
   const [searchParams, setSearchParams] = useSearchParams();
 
   const handleChange = (event) => {
@@ -30,16 +33,17 @@ export default function GetAllInfo() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setMessage(<Loader />);
     setData({
       loading: true,
       data: [],
     });
-  
+
     try {
       const getSkuDataFromJS = await InvFetch.reportBySku(
         searchParams.get('sku').split(' ')
       );
-  
+
       const webFetchArr = getSkuDataFromJS
         .filter(
           (element) =>
@@ -48,24 +52,28 @@ export default function GetAllInfo() {
             element.onlineStockQty !== null
         )
         .map((element) => element.sku_no);
-  
+
       const getSkuDataFromWeb = webFetchArr.length
         ? await WebsiteFetch.getReportBySku(webFetchArr)
         : [];
-  
+
       let masterDataArray = getSkuDataFromJS.map((element) => {
         const webObj = getSkuDataFromWeb.find(
           (item) => item.SKUCode === element.sku_no
         );
-  
+
         return {
           VJS: {
             ...element,
           },
-          WEB: webObj || {},  // Ensure WEB exists even if empty
+          WEB: webObj || {}, // Ensure WEB exists even if empty
         };
       });
-  
+
+      if (masterDataArray.length === 0) {
+        setMessage(<Typography>No data found</Typography>);
+      }
+
       setData({
         loading: false,
         data: masterDataArray,
@@ -78,12 +86,8 @@ export default function GetAllInfo() {
       });
     }
   };
-  
 
   console.log(data);
-  
-
-  
 
   return (
     <Common>
@@ -119,7 +123,7 @@ export default function GetAllInfo() {
         </Button>
       </Box>
       {data.data.length == 0 ? (
-        "Enter Sku's and click submit"
+        message
       ) : data.loading ? (
         <Loader size={75} />
       ) : (

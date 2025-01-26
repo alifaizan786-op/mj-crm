@@ -127,6 +127,18 @@ class WebsiteFetch extends BaseFetch {
       console.log(error);
     }
   }
+
+  async hiddenButInstock() {
+    try {
+      const getHiddenButInstock = await this.request(
+        `/reports/hiddenButInstock`,
+        'GET'
+      );
+      return getHiddenButInstock;
+    } catch (error) {
+      console.log(error);
+    }
+  }
 }
 
 export default new WebsiteFetch(); // Export as a singleton

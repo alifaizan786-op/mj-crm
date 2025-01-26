@@ -95,6 +95,15 @@ class InvFetch extends BaseFetch {
 
     return UploadingData;
   }
+
+  async getOutOfStockOnline(){
+    const outOfStockOnline = await this.request(
+      `/reports/outOfStockOnline`,
+      'GET'
+    );
+
+    return outOfStockOnline;
+  }
 }
 
 export default new InvFetch(); // Export as a singleton

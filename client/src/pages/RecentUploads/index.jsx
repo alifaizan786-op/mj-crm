@@ -13,6 +13,7 @@ import {
 import React from 'react';
 import Alert from '../../components/Alert';
 import Loader from '../../components/Loader';
+import InvFetch from '../../fetch/InvFetch';
 import WebsiteFetch from '../../fetch/WebsiteFetch';
 import Common from '../../layouts/common';
 
@@ -68,22 +69,19 @@ export default function RecentUploads() {
             }}>
             <Alert
               fetch={() => {
-                return WebsiteFetch.getOutOfStockOnline();
+                return WebsiteFetch.hiddenButInstock();
               }}
               message={
-                'Item are on the website that are not in Stock'
+                ' Item are on the website that are hidden, but in stock'
               }
+              altMessage={'No Items are hidden but in stock'}
             />
             <Alert
-              fetch={() => {
-                return WebsiteFetch.reportBuilder({
-                  StockQty: [1],
-                  Hidden: [1],
-                });
-              }}
+              fetch={() => InvFetch.getOutOfStockOnline()}
               message={
-                'Item are on the website that are not in Stock'
+                ' Item are on the website that are not in Stock'
               }
+              altMessage={'No Items are out of stock'}
             />
           </Box>
           <Box
@@ -94,7 +92,7 @@ export default function RecentUploads() {
               alignItems: 'center',
               marginY: '0.4rem',
             }}>
-            <TableContainer sx={{ maxHeight: 833 }}>
+            <TableContainer sx={{ maxHeight: 765 }}>
               <Table
                 stickyHeader
                 size='small'>
@@ -117,11 +115,7 @@ export default function RecentUploads() {
                     </StyledTableCell>
                   </StyledTableRow>
                 </TableHead>
-                <TableBody
-                  sx={{
-                    maxHeight: '90%',
-                    overflow: 'auto',
-                  }}>
+                <TableBody>
                   {data.data?.length > 0 &&
                     data.data.map((row, index) => (
                       <StyledTableRow
