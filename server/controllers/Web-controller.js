@@ -128,8 +128,8 @@ LEFT JOIN
     this.descriptionGenerator = this.descriptionGenerator.bind(this);
     this.uploadingReport = this.uploadingReport.bind(this);
     this.getSkuBySearchDate = this.getSkuBySearchDate.bind(this);
-    this.outOfStockOnline = this.outOfStockOnline.bind(this);
     this.getSkuByMultiCode = this.getSkuByMultiCode.bind(this);
+    this.hiddenButInstock = this.hiddenButInstock.bind(this);
   }
 
   async getOneSku(req, res) {
@@ -271,18 +271,49 @@ LEFT JOIN
     }
   }
 
-  async reportBuilder(req, res) {
+  async reportBuilder(req = null, res = null, filters = {}) {
+    let queryFilters;
+
+    if (req && req.body) {
+      queryFilters = req.body;
+    } else {
+      queryFilters = filters;
+    }
+
+    if (!queryFilters || Object.keys(queryFilters).length === 0) {
+      if (res) {
+        return res
+          .status(400)
+          .json({ error: 'Invalid query parameters' });
+      } else {
+        throw new Error(
+          'Query filters must be provided and non-empty'
+        );
+      }
+    }
+
     try {
       let pool = await this.db;
+      let queryString = `${this.mainQuery} ${generateMSSQLQuery(
+        queryFilters
+      )}`;
 
-      let result1 = await pool
-        .request()
-        .query(`${this.mainQuery} ${generateMSSQLQuery(req.body)}`);
+      let result = await pool.request().query(queryString);
 
-      res.json(result1.recordset);
+      if (res) {
+        return res.json(result.recordset);
+      } else {
+        return result.recordset; // Return the result for internal use
+      }
     } catch (err) {
-      console.log(err);
-      res.status(500).json({ error: err });
+      console.error('Error in reportBuilder:', err);
+      if (res) {
+        return res
+          .status(500)
+          .json({ error: 'Internal Server Error' });
+      } else {
+        throw err;
+      }
     }
   }
 
@@ -403,17 +434,51 @@ LEFT JOIN
     }
   }
 
-  async outOfStockOnline(req, res) {
+  async getSkuByMultiCode(req, res) {
+    try {
+      let pool = await this.db;
+      let result1 = await pool.request().query(
+        `${this.mainQuery} WHERE Styles.AttribField141 = '${req.params.MultiCode}'
+                    ORDER BY Styles.SKUCode ASC`
+      );
+
+      res.json(result1.recordset);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async getLiveSku() {
     try {
       let pool = await this.db;
 
       let result1 = await pool.request().query(
-        `SELECT SKUCode FROM Styles ${generateMSSQLQuery({
-          StockQty: ['1'],
-          Purchasable: ['1'],
-          Hidden: ['0'],
-          custPrice: { min: 0, max: 999999 },
-        })}`
+        `SELECT Styles.code,
+             Styles.SKUCode
+          FROM   Styles
+          WHERE  ( Purchasable = '1' )
+                AND ( StockQty = '1' )
+                AND ( Hidden = '0' )
+                AND ( isDeleted IS NULL ) `
+      );
+
+      return result1.recordset;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async hiddenButInstock(req, res) {
+    try {
+      let pool = await this.db;
+
+      let result1 = await pool.request().query(
+        `SELECT Styles.code,
+             Styles.SKUCode
+          FROM   Styles
+          WHERE  ( StockQty = '1' )
+                AND ( Hidden = '1' )
+               AND ( isDeleted IS NULL )`
       );
 
       // Fetch data from MongoDB based on SKU array
@@ -473,26 +538,14 @@ LEFT JOIN
         })
       );
 
-      res.json(
-        soldOutStatuses
-          .filter((item) => item.status == 'sold out')
-          .map((item) => item.sku_no)
-      );
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: err.message });
-    }
-  }
-
-  async getSkuByMultiCode(req, res) {
-    try {
-      let pool = await this.db;
-      let result1 = await pool.request().query(
-        `${this.mainQuery} WHERE Styles.AttribField141 = '${req.params.MultiCode}'
-                    ORDER BY Styles.SKUCode ASC`
-      );
-
-      res.json(result1.recordset);
+      res.json([
+        ...soldOutStatuses
+          .filter((item) => item.status !== 'sold out')
+          .map((item) => item.sku_no),
+        ...data
+          .filter((item) => item.loc_qty1 !== 0)
+          .map((item) => item.sku_no),
+      ]);
     } catch (error) {
       console.log(error);
     }

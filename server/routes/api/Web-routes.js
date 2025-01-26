@@ -19,8 +19,8 @@ router
   .route('/reports/multiCode/:MultiCode')
   .get(Web.getSkuByMultiCode);
 
-// /api/website/reports/outOfStockOnline
-router.route('/reports/outOfStockOnline').get(Web.outOfStockOnline);
+// /api/website/reports/hiddenButInstock
+router.route('/reports/hiddenButInstock').get(Web.hiddenButInstock);
 
 // /api/website/reports/reportBuilder
 router.route('/reports/reportBuilder').post(Web.reportBuilder);
