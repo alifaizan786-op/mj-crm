@@ -117,6 +117,8 @@ export default function MultiInfoSection({
       getMajorityValues(MultiMasterData)
     );
 
+    window.location.reload();
+
     setExtendedMultiInfo(updateMultCode);
   };
 
