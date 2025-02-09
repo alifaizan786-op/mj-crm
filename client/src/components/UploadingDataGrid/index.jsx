@@ -582,13 +582,13 @@ export default function UploadingDataGrid({
       headerName: 'DC',
       width: 100,
       valueGetter: (params) => {
-        if (params.row.DATE) {
-          return (
-            (new Date().getMonth() + 1).toString().padStart(2, '0') +
-            params.row.MFG_CODE +
-            (new Date(params.row.DATE).getYear() - 100)
-          );
-        }
+        return (
+          (new Date(params.row.date).getMonth() + 1)
+            .toString()
+            .padStart(2, '0') +
+          params.row.ven_code +
+          (new Date(params.row.date).getYear() - 100)
+        );
       },
     },
     {
@@ -606,6 +606,12 @@ export default function UploadingDataGrid({
     {
       field: 'MultiStyleCode',
       headerName: 'MultiStyleCode',
+      width: 100,
+      valueGetter: (params) => params.row.StyleMultiCode,
+    },
+    {
+      field: 'MultiSkuCode',
+      headerName: 'MultiSkuCode',
       width: 100,
       valueGetter: (params) => params.row.StyleMultiCode,
     },

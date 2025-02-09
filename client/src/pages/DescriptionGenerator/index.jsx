@@ -23,17 +23,12 @@ export default function DescriptionGenerator() {
 
   let columns = [
     {
-      field: 'majorCode',
-      headerName: 'Major Code',
+      field: 'SKUCode',
+      headerName: 'SKUCode',
       width: 125,
     },
     {
-      field: 'sku',
-      headerName: 'SKU Code',
-      width: 125,
-    },
-    {
-      field: 'longDesc',
+      field: 'desc',
       headerName: 'Long Description',
       width: 3000,
     },
@@ -63,54 +58,16 @@ export default function DescriptionGenerator() {
     event.preventDefault();
     const uniqueSkus = [...new Set(skus)]; // Deduplicate SKUs
 
-    for (let i = 0; i < uniqueSkus.length; i++) {
-      const currentSku = uniqueSkus[i];
+    try {
+      const response = await WebsiteFetch.generateLongDesc(
+        uniqueSkus
+      ); // Send batch request
 
-      // Check if SKU is already processed
-      if (longDescData.some((item) => item.sku === currentSku)) {
-        console.log(`SKU ${currentSku} already processed. Skipping.`);
-        continue;
-      }
+      setLongDescData(response); // Single state update
 
-      try {
-        const response = await WebsiteFetch.generateLongDesc(
-          currentSku
-        );
-
-        // Check if response contains the expected data
-        if (!response || !response.desc) {
-          console.warn(
-            `No description returned for SKU ${currentSku}`
-          );
-          continue;
-        }
-
-        setLongDescData((prevData) => [
-          ...prevData,
-          {
-            _id: prevData.length, // Use current length as ID
-            sku: currentSku,
-            majorCode: currentSku.split('-')[0],
-            longDesc: response.desc.replace(/\n/g, ' '),
-          },
-        ]);
-
-        const calc = ((i + 1) / uniqueSkus.length) * 100; // Update percentage
-        setPercentage(calc);
-      } catch (error) {
-        console.error(`Error processing SKU ${currentSku}:`, error);
-
-        // Optionally, add an entry indicating the error
-        setLongDescData((prevData) => [
-          ...prevData,
-          {
-            _id: prevData.length,
-            sku: currentSku,
-            majorCode: currentSku.split('-')[0],
-            longDesc: 'Error fetching description.',
-          },
-        ]);
-      }
+      setPercentage(100); // Since batch processing completes in one go
+    } catch (error) {
+      console.error('Error processing SKUs:', error);
     }
   };
 
@@ -137,7 +94,7 @@ export default function DescriptionGenerator() {
           onChange={(event) => {
             setSku(event.target.value.split(' '));
           }}
-          value={skus}
+          value={skus.join(' ')}
           // Set the input value from searchParams
         />
         <Button
@@ -170,7 +127,7 @@ export default function DescriptionGenerator() {
           LoadingOverlay: LinearProgress,
         }}
         disableColumnMenu
-        getRowId={(row) => row._id}
+        getRowId={(row) => row.SKUCode}
       />
     </Common>
   );

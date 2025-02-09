@@ -319,13 +319,94 @@ LEFT JOIN
 
   async descriptionGenerator(req, res) {
     try {
+      if (
+        !req.body.SKUArr ||
+        !Array.isArray(req.body.SKUArr) ||
+        req.body.SKUArr.length === 0
+      ) {
+        return res.status(400).json({ error: 'Invalid SKU array.' });
+      }
+
       const pool = await this.db;
 
-      const result1 = await pool
-        .request()
-        .query(
-          `${this.mainQuery} where SKUCode = '${req.params.sku}'`
-        );
+      // Direct string concatenation for SKUCode filter
+      let tempString = `SELECT 
+            Styles.SKUCode,
+            Styles.StyleDesc,
+            CONCAT(
+                CASE WHEN CSC3.CatSubCat IS NOT NULL THEN CSC3.CatSubCat ELSE '' END,
+                CASE WHEN CSC3.CatSubCat IS NOT NULL THEN '->' ELSE '' END,
+                CASE WHEN CSC2.CatSubCat IS NOT NULL THEN CSC2.CatSubCat ELSE '' END,
+                CASE WHEN CSC2.CatSubCat IS NOT NULL AND CatSubCats.CatSubCat IS NOT NULL THEN '->' ELSE '' END,
+                COALESCE(CatSubCats.CatSubCat, '')
+            ) AS CategoryHierarchy,
+            GoldKarat.LongData AS GoldKarat,
+            Styles.AttribField84 AS Finish,
+            Styles.AttribField85 AS NumberOfPcs,
+            Styles.AttribField86 AS JewelryFor,
+            Styles.AttribField115 AS JewelryType,
+            CatSubCats.CatSubCat AS Category,
+            Styles.AttribField87 AS CenterDiamondWeight,
+            Styles.AttribField88 AS DiamondTotalWeight,
+            Styles.AttribField89 AS DiamondTotalPcs,
+            Styles.AttribField90 AS DiamondClarity,
+            Styles.AttribField91 AS DiamondColor,
+            Styles.AttribField92 AS Length,
+            Styles.AttribField93 AS Width,
+            Styles.AttribField83 AS PendantLength,
+            Styles.AttribField94 AS PendantWidth,
+            Styles.AttribField95 AS EarringLength,
+            Styles.AttribField96 AS EarringWidth,
+            Styles.AttribField105 AS EarringPostType,
+            Styles.StyleGrossWt,
+            Styles.IsGIACertified,
+            Styles.AttribField97 AS RingSize,
+            Styles.AttribField98 AS RingDesignHeight,
+            Styles.AttribField99 AS RingWidth,
+            Styles.AttribField100 AS BangleSize,
+            Styles.AttribField101 AS BangleInnerDiameter,
+            Styles.AttribField102 AS BangleWidth,
+            Styles.AttribField103 AS BangleDesignHeight,
+            Styles.AttribField104 AS ChainIncludedInPrice,
+            Styles.AttribField106 AS BangleBraceletType,
+            Styles.AttribField107 AS NosePinType,
+            Styles.AttribField108 AS RingType,
+            Styles.AttribField109 AS WatchDisclaimer,
+            Styles.AttribField110 AS ChangeableStoneIncluded,
+            Styles.AttribField111 AS BangleBraceletSizeAdjustableUpTo,
+            Styles.AttribField112 AS DiamondType,
+            Styles.AttribField113 AS GemstoneType,
+            Styles.AttribField114 AS GemstoneWeight,
+            Styles.AttribField117 AS ChainLength,
+            Styles.AttribField118 AS CertNo,
+            Styles.AttribField119 AS Cert,
+            Styles.AttribField122 AS KW1,
+            Styles.AttribField123 AS KW2,
+            Styles.AttribField124 AS KW3,
+            Styles.AttribField125 AS KW4,
+            Styles.AttribField126 AS KW5,
+            Styles.AttribField127 AS KW6,
+            Styles.AttribField128 AS KW7,
+            Styles.AttribField129 AS KW18,
+            Styles.AttribField132 AS Cert2, 
+            Styles.AttribField133 AS Cert3,
+            Styles.AttribField134 AS Cert4, 
+            Color.LongData AS Color
+        FROM Styles
+        LEFT JOIN CatSubCats ON Styles.SubCatCode = CatSubCats.Code 
+        LEFT JOIN CatSubCats AS CSC2 ON CatSubCats.ParentCode = CSC2.Code 
+        LEFT JOIN CatSubCats AS CSC3 ON CSC2.ParentCode = CSC3.Code
+        LEFT JOIN CommonMastersData AS GoldKarat ON Styles.GoldKt = GoldKarat.Code
+        LEFT JOIN CommonMastersData AS Color ON Styles.Color = Color.Code WHERE `;
+
+      req.body.SKUArr.forEach((element, index) => {
+        tempString +=
+          index === req.body.SKUArr.length - 1
+            ? `SKUCode = '${element}'`
+            : `SKUCode = '${element}' OR `;
+      });
+
+      const result1 = await pool.request().query(tempString);
 
       if (!result1.recordset || result1.recordset.length === 0) {
         return res
@@ -333,70 +414,52 @@ LEFT JOIN
           .json({ error: 'No record found for the given SKUCode.' });
       }
 
-      const record = result1.recordset[0];
+      const records = result1.recordset.map((element) => {
+        // Remove `null` values in JavaScript instead of using COALESCE in SQL
+        const validData = Object.fromEntries(
+          Object.entries(element).filter(
+            ([_, value]) => value !== null
+          )
+        );
 
-      const keysToDelete = [
-        'Code',
-        'StyleEntryDate',
-        'ClassCode',
-        'VendStyleCode',
-        'TagPrice',
-        'IsCloseOut',
-        'IsNewArrived',
-        'IsHotSeller',
-        'StoreCode',
-        'ShowPriceFallFlag',
-        'Purchasable',
-        'StyleUploadDate',
-        'Hidden',
-        'AutoUpdatePrice',
-        'ShowRetailPrice',
-        'DC',
-        'SearchUploadDate',
-        'Cert#2',
-        'Vendor',
-        'Minorcode',
-        'SKUCode',
-        'CustPrice',
-      ];
+        let prompt = `
+            You are a content writer for "Malani Jeweler".
+            Try not to use a lot of adjectives, be precise.
+            Use the following information to write a product description.
+            Make sure the description contains all dimensions and is search engine
+            optimized, and mention that this product is by "Malani Jeweler".
+            Don't use negative statements like "does not include", "not included", or "not available".
+            Don't mention quantity.
+            \n\n1000 chars max\n\n\n`;
 
-      keysToDelete.forEach((key) => delete record[key]);
-
-      // Remove null values
-      const validData = Object.entries(record).filter(
-        ([key, value]) => value !== null
-      );
-      if (!validData.length) {
-        return res.status(400).json({
-          error: 'No valid data found for the given SKUCode.',
+        Object.entries(validData).forEach(([key, value]) => {
+          prompt += `${key.replace(
+            /([a-z0-9])([A-Z])/g,
+            '$1 $2'
+          )}: ${value}\n`;
         });
-      }
 
-      let prompt = `Use the following info to write a product description, 
-      Make sure the description contains all dimensions and is search engine 
-      optimized and mention that this product is by "Malani Jeweler"
-
-      Don't mention quantity
-      \n\n1000 chars max\n\n\n`;
-
-      validData.forEach(([key, value]) => {
-        prompt += `${key.replace(
-          /([a-z0-9])([A-Z])/g,
-          '$1 $2'
-        )}: ${value}\n`;
+        return { ...validData, prompt };
       });
 
-      const response = await openai.chat.completions.create({
-        model: 'gpt-4o',
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 1,
-        max_tokens: 2048,
-        top_p: 1,
-        frequency_penalty: 0,
-        presence_penalty: 0,
-      });
+      // Await all OpenAI API calls
+      await Promise.all(
+        records.map(async (element) => {
+          const response = await openai.chat.completions.create({
+            model: 'gpt-4o',
+            messages: [{ role: 'user', content: element.prompt }],
+            temperature: 1,
+            max_tokens: 2048,
+            top_p: 1,
+            frequency_penalty: 0,
+            presence_penalty: 0,
+          });
 
-      res.json({ desc: response.choices[0].message.content });
+          element.desc = response.choices[0].message.content.replace(/\n/g, ' ');
+        })
+      );
+
+      res.json(records);
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: err.message });
