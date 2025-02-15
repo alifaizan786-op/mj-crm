@@ -19,8 +19,11 @@ class WebsiteFetch extends BaseFetch {
   async generateLongDesc(sku) {
     try {
       const generateLongDescData = await this.request(
-        `/utils/description/${sku}`,
-        'GET'
+        `/utils/description/`,
+        'POST',
+        {
+          SKUArr: sku,
+        }
       );
 
       return generateLongDescData;
@@ -135,6 +138,19 @@ class WebsiteFetch extends BaseFetch {
         'GET'
       );
       return getHiddenButInstock;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async clientSearch(data) {
+    try {
+      const getClientByInfo = await this.request(
+        `/client`,
+        'POST',
+        data
+      );
+      return getClientByInfo;
     } catch (error) {
       console.log(error);
     }
