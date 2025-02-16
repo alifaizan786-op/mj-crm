@@ -36,7 +36,7 @@ export default function CustomAlert({ fetch, message, altMessage }) {
               <>
                 <IconButton
                   onClick={() => {
-                    let link = `/Merchandise/Reports/GetAllInfo?sku=${data.join(
+                    let link = `/Merchandise/Reports/GetAllInfo?sku=${data.data.join(
                       '+'
                     )}`;
                     window.open(link, '_blank');
