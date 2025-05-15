@@ -11,7 +11,8 @@ const openai = new OpenAI({
 class Web {
   constructor() {
     this.db = sql.connect(MalaniWEB);
-    this.mainQuery = `SELECT 
+    this.mainQuery = `
+    SELECT 
     Styles.Code,
     Styles.SKUCode,
     Styles.StyleDesc,
@@ -130,6 +131,43 @@ LEFT JOIN
     this.getSkuBySearchDate = this.getSkuBySearchDate.bind(this);
     this.getSkuByMultiCode = this.getSkuByMultiCode.bind(this);
     this.hiddenButInstock = this.hiddenButInstock.bind(this);
+    this.clientSearch = this.clientSearch.bind(this);
+  }
+
+  async clientSearch(req, res) {
+    try {
+      let pool = await this.db;
+
+      let result1 = await pool.request()
+        .query(`Select ${req.body.column.join(
+        ', '
+      )} from Customers Where (FirstName = '${
+        req.body.query.FirstName
+      }' OR LastName = '${req.body.query.LastName}') AND
+      (
+          '${
+            req.body.query.Phone
+          }' IN (MobilePhone, WorkPhone, HomePhone, Phone)
+          OR EMail = '${req.body.query.email}'
+      )`);
+
+      console.log(`Select ${req.body.column.join(
+        ', '
+      )} from Customers Where (FirstName = '${
+        req.body.query.FirstName
+      }' OR LastName = '${req.body.query.LastName}') AND 
+    (
+        '${
+          req.body.query.Phone
+        }' IN (MobilePhone, WorkPhone, HomePhone, Phone)
+        OR EMail = '${req.body.query.email}'
+    )`);
+
+      res.json(result1.recordset);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ error: err });
+    }
   }
 
   async getOneSku(req, res) {
@@ -455,7 +493,10 @@ LEFT JOIN
             presence_penalty: 0,
           });
 
-          element.desc = response.choices[0].message.content.replace(/\n/g, ' ');
+          element.desc = response.choices[0].message.content.replace(
+            /\n/g,
+            ' '
+          );
         })
       );
 

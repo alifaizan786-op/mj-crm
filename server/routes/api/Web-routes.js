@@ -6,18 +6,17 @@ const Web = require('../../controllers/Web-controller');
 // /api/website/utils/description/
 router.route('/utils/description/').post(Web.descriptionGenerator);
 
+// /api/website/client/
+router.route('/client/').post(Web.clientSearch);
+
 // /api/website/sku/47-04971
 router.route('/sku/:sku').get(Web.getOneSku);
 
-// /api/website/reports/getSkuBySearchDate/10Jan25
-router
-  .route('/reports/getSkuBySearchDate/:uploadDate')
-  .get(Web.getSkuBySearchDate);
-
 // /api/website/reports/multiCode/62-00877-AU-Y-TT
-router
-  .route('/reports/multiCode/:MultiCode')
-  .get(Web.getSkuByMultiCode);
+router.route('/reports/multiCode/:MultiCode').get(Web.getSkuByMultiCode);
+
+// /api/website/reports/getSkuBySearchDate/10Jan25
+router.route('/reports/getSkuBySearchDate/:uploadDate').get(Web.getSkuBySearchDate);
 
 // /api/website/reports/hiddenButInstock
 router.route('/reports/hiddenButInstock').get(Web.hiddenButInstock);

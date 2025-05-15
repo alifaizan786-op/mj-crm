@@ -17,6 +17,7 @@ const UserRoutes = require('./UserRoutes');
 const UserLogs = require('./UserLog');
 const Quotes = require('./Quotes');
 const Attributes = require('./Attributes');
+const CustomerExtended = require('./CustomerExtended')
 
 module.exports = {
   // Models For Data From VJS
@@ -35,4 +36,5 @@ module.exports = {
   UserLogs,
   Quotes,
   Attributes,
+  CustomerExtended
 };

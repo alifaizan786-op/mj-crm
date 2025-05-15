@@ -33,6 +33,7 @@ export default function ClientLookUp() {
     zip: '',
     store_code: ['AI', 'ATL'],
   });
+  
   const [clientData, setClientData] = React.useState({
     loading: true,
     data: [],

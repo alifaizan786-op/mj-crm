@@ -1,7 +1,9 @@
 import { Box } from '@mui/material';
 import React from 'react';
 import { useParams } from 'react-router-dom';
+import ClientJourney from '../../components/ClientJourney';
 import ClientProfileHeader from '../../components/ClientProfileHeader';
+import ClientSubProfiles from '../../components/ClientSubProfiles';
 import CustomerFetch from '../../fetch/CustomerFetch';
 import Common from '../../layouts/common';
 
@@ -45,7 +47,6 @@ export default function ClientProfile() {
     getData();
   }, []);
 
-  console.log(data);
 
   return (
     <Common>
@@ -59,6 +60,14 @@ export default function ClientProfile() {
           overflow: 'hidden', // Prevent accidental scrollbars
         }}>
         <ClientProfileHeader data={data} />
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-evenly',
+          }}>
+          <ClientJourney data={data} />
+          <ClientSubProfiles data={data} />
+        </Box>
       </Box>
     </Common>
   );

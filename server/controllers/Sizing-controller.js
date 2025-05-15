@@ -146,6 +146,15 @@ module.exports = {
         Date: { $gte: oneYearAgo },
       }).select('Date SKUCode');
 
+      // Define the fixed date range for 2024
+      // const startDate = new Date('2018-01-01T00:00:00Z');
+      // const endDate = new Date('2018-12-31T23:59:59Z');
+
+      // // Fetch relevant Sizing data for 2024
+      // const sizingData = await Sizing.find({
+      //   Date: { $gte: startDate, $lte: endDate },
+      // }).select('Date SKUCode');
+
       const allSkuCodes = sizingData.map(({ SKUCode }) => SKUCode);
 
       // Fetch uploaded data in bulk to reduce individual lookups
@@ -262,6 +271,90 @@ module.exports = {
     } catch (err) {
       console.error(err);
       res.status(500).json(err);
+    }
+  },
+
+  // Remove exact duplicate documents
+  async removeDuplicates(req, res) {
+    try {
+      // Find all exact duplicates based on the entire document
+      const uniqueDocs = await Sizing.aggregate([
+        {
+          $group: {
+            _id: {
+              Date: '$Date',
+              Initial: '$Initial',
+              SKUCode: '$SKUCode',
+              Note: '$Note',
+              GoldKT: '$GoldKT',
+              Color: '$Color',
+              'Jewelry For': '$Jewelry For',
+              'Jewelry Type': '$Jewelry Type',
+              Finishing: '$Finishing',
+              'Number of Pcs': '$Number of Pcs',
+              Length: '$Length',
+              Width: '$Width',
+              'Chain included in the price':
+                '$Chain included in the price',
+              'Chain Length': '$Chain Length',
+              'Pendant Length': '$Pendant Length',
+              'Pendant Width': '$Pendant Width',
+              'Earrings Length': '$Earrings Length',
+              'Earrings Width': '$Earrings Width',
+              'Earring Post Type': '$Earring Post Type',
+              'Ring Size': '$Ring Size',
+              'Ring Design Height': '$Ring Design Height',
+              'Ring Width': '$Ring Width',
+              'Ring Type': '$Ring Type',
+              'Bangle Size': '$Bangle Size',
+              'Bangle/Bracelet Size Adjustable up-to':
+                '$Bangle/Bracelet Size Adjustable up-to',
+              'Bangle Inner Diameter': '$Bangle Inner Diameter',
+              'Bangle Width': '$Bangle Width',
+              'Bangle Design Height': '$Bangle Design Height',
+              'Bangle/Bracelet Type': '$Bangle/Bracelet Type',
+              'Diamond Type': '$Diamond Type',
+              'Diamond Total Weight': '$Diamond Total Weight',
+              'Diamond Total Pcs': '$Diamond Total Pcs',
+              'Diamond Clarity': '$Diamond Clarity',
+              'Diamond Color': '$Diamond Color',
+              'Center Diamond Weight': '$Center Diamond Weight',
+              IsGIACertified: '$IsGIACertified',
+              'Certificate#': '$Certificate#',
+              Certification: '$Certification',
+              'Nose Pin Type': '$Nose Pin Type',
+              'Changeable Stones Included':
+                '$Changeable Stones Included',
+              'Gemstones Weight': '$Gemstones Weight',
+              'Chain Length(#28-40 and 360-365)':
+                '$Chain Length(#28-40 and 360-365)',
+              StyleMultiCode: '$StyleMultiCode',
+              Disclaimer: '$Disclaimer',
+            },
+            docs: { $push: '$_id' },
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $match: { count: { $gt: 1 } },
+        },
+      ]);
+
+      // Loop through each group of duplicates and remove the extra documents
+      for (const group of uniqueDocs) {
+        group.docs.slice(1).forEach(async (docId) => {
+          // Delete all but the first document (preserving one document in each group)
+          await Sizing.deleteOne({ _id: docId });
+        });
+      }
+
+      res.json({ message: 'Exact duplicates removed successfully' });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({
+        error: 'Error removing duplicates',
+        details: err.message,
+      });
     }
   },
 };

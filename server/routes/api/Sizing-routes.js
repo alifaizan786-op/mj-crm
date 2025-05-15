@@ -10,8 +10,12 @@ const {
   getSkuByDate,
   updateSizing,
   getSkuByMultiCode,
-  getVideosData
+  getVideosData,
+  removeDuplicates,
 } = require('../../controllers/Sizing-controller');
+
+// /api/sizing/removeDuplicates
+router.route('/removeDuplicates').post(removeDuplicates);
 
 // /api/sizing/101-04875
 router.route('/updateSku/:SKUCode').put(updateSizing);
