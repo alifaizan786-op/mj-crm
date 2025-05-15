@@ -1,4 +1,5 @@
 const { Schema, model } = require('mongoose');
+const PricingPolicy = require('./PricingPolicy');
 
 const goldWebSchema = new Schema({
   date: {
@@ -41,6 +42,47 @@ goldWebSchema.pre('save', function (next) {
   this.Base18KtRate = +(baseRatePerGram * (18 / 24)).toFixed(2);
 
   next();
+});
+
+// After saving GoldWeb -> update all PricingPolicy of type 'PerGram'
+goldWebSchema.post('save', async function () {
+  const latestGoldRate = this;
+
+  // Update all PricingPolicies with Type 'PerGram'
+  const pricingPolicies = await PricingPolicy.find({
+    Type: 'PerGram',
+  });
+
+  const bulkOps = pricingPolicies.map((policy) => {
+    const MarginPergram = +(
+      policy.BaseMargin - policy.DiscountOnMargin
+    ).toFixed(2);
+
+    return {
+      updateOne: {
+        filter: { _id: policy._id },
+        update: {
+          MarginPergram: MarginPergram,
+          Base22KtRate: +(
+            latestGoldRate.Base22KtRate + MarginPergram
+          ).toFixed(2),
+          Base21KtRate: +(
+            latestGoldRate.Base21KtRate + MarginPergram
+          ).toFixed(2),
+          Base18KtRate: +(
+            latestGoldRate.Base18KtRate + MarginPergram
+          ).toFixed(2),
+        },
+      },
+    };
+  });
+
+  if (bulkOps.length > 0) {
+    await PricingPolicy.bulkWrite(bulkOps);
+    console.log(
+      `Updated ${bulkOps.length} PricingPolicy documents after GoldWeb update.`
+    );
+  }
 });
 
 const GoldWeb = model('GoldWeb', goldWebSchema, 'GoldWeb');
