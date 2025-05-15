@@ -17,24 +17,33 @@ const UserRoutes = require('./UserRoutes');
 const UserLogs = require('./UserLog');
 const Quotes = require('./Quotes');
 const Attributes = require('./Attributes');
-const CustomerExtended = require('./CustomerExtended')
+const CustomerExtended = require('./CustomerExtended');
+
+// Models For MalaniJewelers 3.0
+const GoldWeb = require('./GoldWeb');
 
 module.exports = {
   // Models For Data From VJS
   INV,
   SARECORD,
   CUSTOMER,
+
   // Models For Web
   Sizing,
   Multi,
+
   // Models For In Showroom Data
   Gold,
   ClientForm,
+
   //Models For App
   User,
   UserRoutes,
   UserLogs,
   Quotes,
   Attributes,
-  CustomerExtended
+  CustomerExtended,
+
+  // Models For MalaniJewelers 3.0
+  GoldWeb,
 };
