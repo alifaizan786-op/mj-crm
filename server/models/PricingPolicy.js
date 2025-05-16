@@ -1,5 +1,4 @@
 const { Schema, model } = require('mongoose');
-const GoldWeb = require('./GoldWeb'); // Make sure path is correct
 
 const PricingPolicySchema = new Schema({
   Classcode: { type: Number, required: true },
@@ -26,13 +25,10 @@ const PricingPolicySchema = new Schema({
   UpdateDate: { type: Date, default: Date.now },
 });
 
-// Single pre-save hook to handle everything
 PricingPolicySchema.pre('save', async function (next) {
-  // Always update UpdateDate
   this.UpdateDate = Date.now();
 
   if (this.Type === 'PerGram') {
-    // Calculate MarginPergram
     if (
       typeof this.BaseMargin === 'number' &&
       typeof this.DiscountOnMargin === 'number'
@@ -42,7 +38,9 @@ PricingPolicySchema.pre('save', async function (next) {
       ).toFixed(2);
     }
 
-    // Get latest GoldWeb rates
+    // Require inside the hook to break circular dependency
+    const GoldWeb = require('./GoldWeb');
+
     const latestGoldRate = await GoldWeb.findOne()
       .sort({ date: -1 })
       .lean();

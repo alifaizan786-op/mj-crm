@@ -1,23 +1,10 @@
 const router = require('express').Router();
 const {
-  getPricingPolicy,
-  createPricingPolicy,
-  getByClassCode,
-  updateById,
-  deleteById,
-} = require('../../controllers/PricingPolicy-controller');
+  getGoldWeb,
+  createGoldWeb,
+} = require('../../controllers/GoldWeb-controller');
 
-// /api/pricingpolicy
-router.route('/').get(getPricingPolicy).post(createPricingPolicy);
-
-// /api/pricingpolicy/classcode/:classcode
-router.route('/classcode/:classcode').get(getByClassCode);
-
-// /api/pricingpolicy/:id
-router
-  .route('/:id')
-  .put(updateById)
-  .patch(updateById)
-  .delete(deleteById);
+// /api/goldweb
+router.route('/').get(getGoldWeb).post(createGoldWeb);
 
 module.exports = router;
