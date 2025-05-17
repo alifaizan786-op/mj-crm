@@ -16,6 +16,7 @@ const Sizing_Routes = require('./Sizing-routes');
 const WebUtil_Routes = require('./WebUtil-routes');
 const GoldWeb_Routes = require('./GoldWeb-routes');
 const PricingPolicy_Routes = require('./PricingPolicy-routes');
+const WebInv_Routes = require('./WebInv-routes');
 
 // /api/user
 router.use('/user', userRoutes);
@@ -62,7 +63,10 @@ router.use('/webUtil', WebUtil_Routes);
 // /api/goldweb
 router.use('/goldweb', GoldWeb_Routes);
 
-// /api/PricingPolicy   
+// /api/PricingPolicy
 router.use('/PricingPolicy', PricingPolicy_Routes);
+
+// /api/webInv
+router.use('/webInv', WebInv_Routes);
 
 module.exports = router;
