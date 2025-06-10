@@ -1,4 +1,4 @@
-const { Schema, model } = require('mongoose');
+const { Schema, model } = require("mongoose");
 
 const PricingPolicySchema = new Schema({
   Classcode: { type: Number, required: true },
@@ -6,7 +6,7 @@ const PricingPolicySchema = new Schema({
   Type: {
     type: String,
     required: true,
-    enum: ['Discount', 'PerGram'],
+    enum: ["Discount", "PerGram"],
   },
   Vendor: { type: String },
   FromMonths: { type: Number, required: true },
@@ -19,31 +19,29 @@ const PricingPolicySchema = new Schema({
   Base18KtRate: { type: Number },
   UpdatedBy: {
     type: Schema.Types.ObjectId,
-    ref: 'User',
+    ref: "User",
     required: true,
   },
   UpdateDate: { type: Date, default: Date.now },
 });
 
-PricingPolicySchema.pre('save', async function (next) {
+PricingPolicySchema.pre("save", async function (next) {
   this.UpdateDate = Date.now();
 
-  if (this.Type === 'PerGram') {
+  if (this.Type === "PerGram") {
     if (
-      typeof this.BaseMargin === 'number' &&
-      typeof this.DiscountOnMargin === 'number'
+      typeof this.BaseMargin === "number" &&
+      typeof this.DiscountOnMargin === "number"
     ) {
-      this.MarginPergram = +(
-        this.BaseMargin - this.DiscountOnMargin
-      ).toFixed(2);
+      this.MarginPergram = +(this.BaseMargin - this.DiscountOnMargin).toFixed(
+        2
+      );
     }
 
     // Require inside the hook to break circular dependency
-    const GoldWeb = require('./GoldWeb');
+    const GoldWeb = require("./GoldWeb");
 
-    const latestGoldRate = await GoldWeb.findOne()
-      .sort({ date: -1 })
-      .lean();
+    const latestGoldRate = await GoldWeb.findOne().sort({ date: -1 }).lean();
 
     if (latestGoldRate) {
       this.Base22KtRate = +(
@@ -62,9 +60,9 @@ PricingPolicySchema.pre('save', async function (next) {
 });
 
 const PricingPolicy = model(
-  'PricingPolicy',
+  "PricingPolicy",
   PricingPolicySchema,
-  'PricingPolicy'
+  "PricingPolicy"
 );
 
 module.exports = PricingPolicy;
