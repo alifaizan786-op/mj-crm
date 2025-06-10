@@ -114,6 +114,12 @@ module.exports = {
         ToMonths: { $gte: productAgeMonths },
       });
 
+      console.log({
+        Classcode: classcode,
+        FromMonths: { $lte: productAgeMonths },
+        ToMonths: { $gte: productAgeMonths },
+      });
+
       let matchedPolicy =
         policies.find((p) => p.Vendor === vendor) ||
         policies.find((p) => !p.Vendor);
@@ -127,15 +133,15 @@ module.exports = {
       let calculatedPrice = 0;
 
       if (matchedPolicy.Type === 'PerGram') {
-        if (goldKt === '22 Kt') {
+        if (goldKt === '22KT') {
           calculatedPrice = Math.round(
             matchedPolicy.Base22KtRate * grossWeight
           );
-        } else if (goldKt === '21 Kt') {
+        } else if (goldKt === '21KT') {
           calculatedPrice = Math.round(
             matchedPolicy.Base21KtRate * grossWeight
           );
-        } else if (goldKt === '18 Kt') {
+        } else if (goldKt === '18KT') {
           calculatedPrice = Math.round(
             matchedPolicy.Base18KtRate * grossWeight
           );
@@ -190,7 +196,7 @@ module.exports = {
 
       res.status(200).json({
         message: `SKU ${sku} updated successfully`,
-        newPrice: calculatedPrice,
+        newPrice: calculatedPrice.toString(),
       });
     } catch (error) {
       console.error(

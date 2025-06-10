@@ -23,6 +23,16 @@ const CustomTableRow = styled(TableRow)(({ theme }) => ({
   height: '30px', // Set a fixed height
 }));
 
+function formatSkuToImage(sku) {
+  if (sku.length === 7) {
+    return `00${sku.split('-').join('')}`;
+  } else if (sku.length === 8) {
+    return `0${sku.split('-').join('')}`;
+  } else {
+    return `${sku.split('-').join('')}`;
+  }
+}
+
 function valueChecker(valueOne, valueTwo, type, customCondition) {
   // Handle traditional three-parameter checks
   if (type === 'contains') {
@@ -535,6 +545,19 @@ export default function AllInfoCard({ index, setIndex, data }) {
                 <CustomTableRow>
                   <CustomTableCell colSpan={3}>
                     {data[index].WEB.StyleLongDesc}
+                  </CustomTableCell>
+                </CustomTableRow>
+                <CustomTableRow>
+                  <CustomTableCell>
+                    <a
+                      href={` https://drive.google.com/drive/u/0/search?q=${formatSkuToImage(
+                        data[index].VJS.sku_no
+                      )}`}
+                      target='_blank'
+                      rel='noopener noreferrer'>
+                      Drive:{' '}
+                      {formatSkuToImage(data[index].VJS.sku_no)}
+                    </a>
                   </CustomTableCell>
                 </CustomTableRow>
               </TableBody>

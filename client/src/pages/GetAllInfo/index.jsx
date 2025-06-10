@@ -122,6 +122,7 @@ export default function GetAllInfo() {
           Submit
         </Button>
       </Box>
+      {index}/{data.data.length - 1}
       {data.data.length == 0 ? (
         message
       ) : data.loading ? (
