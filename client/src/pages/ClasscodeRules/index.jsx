@@ -18,8 +18,7 @@ export default function ClasscodeRules() {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [filteredRows, setFilteredRows] = React.useState([]);
 
-  console.log(searchQuery);
-  console.log(filteredRows);
+
   function CustomToolbar() {
     return (
       <GridToolbarContainer

@@ -5,42 +5,41 @@ import {
   Modal,
   TextField,
   Typography,
-} from '@mui/material';
-import { useSnackbar } from 'notistack';
-import React from 'react';
-import Filters from '../../components/Filters';
-import AttributeFetch from '../../fetch/AttributeFetch';
-import MultiFetch from '../../fetch/MultiFetch';
+} from "@mui/material";
+import { useSnackbar } from "notistack";
+import React from "react";
+import Filters from "../../components/Filters";
+import AttributeFetch from "../../fetch/AttributeFetch";
+import MultiFetch from "../../fetch/MultiFetch";
 
 const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
   width: 1000,
-  bgcolor: 'background.paper',
+  bgcolor: "background.paper",
   boxShadow: 24,
   borderRadius: 5,
 };
 
 export default function NewMultiModal({ open, onClose }) {
   const [formState, setFormState] = React.useState({
-    vendorCode: '',
-    majorCode: '',
-    colorCode: '',
-    finishCode: '',
-    image: '',
+    vendorCode: "",
+    majorCode: "",
+    colorCode: "",
+    finishCode: "",
+    image: "",
   });
   const { enqueueSnackbar } = useSnackbar();
 
-  const [nextMulti, setNextMulti] = React.useState('00000');
+  const [nextMulti, setNextMulti] = React.useState("00000");
   const [attributes, setAttributes] = React.useState([]);
 
   React.useEffect(() => {
     async function getData() {
       try {
-        const allAttributeData =
-          await AttributeFetch.getAllAttributes();
+        const allAttributeData = await AttributeFetch.getAllAttributes();
         setAttributes(allAttributeData);
 
         const nextMultData = await MultiFetch.nextMulti();
@@ -66,81 +65,81 @@ export default function NewMultiModal({ open, onClose }) {
   };
 
   function multiCodeGen() {
-    const uuid = `${nextMulti}`.padStart(5, '0');
-    let colorCode = '';
-    let finishCode = '';
+    const uuid = `${nextMulti}`.padStart(5, "0");
+    let colorCode = "";
+    let finishCode = "";
 
     switch (formState.colorCode) {
-      case 'Yellow':
-        colorCode = 'Y';
+      case "Yellow":
+        colorCode = "Y";
         break;
-      case 'White':
-        colorCode = 'W';
+      case "White":
+        colorCode = "W";
         break;
-      case 'Rose':
-        colorCode = 'R';
+      case "Rose":
+        colorCode = "R";
         break;
-      case 'Yellow and White':
-        colorCode = 'YW';
+      case "Yellow and White":
+        colorCode = "YW";
         break;
-      case 'Yellow and Rose':
-        colorCode = 'YR';
+      case "Yellow and Rose":
+        colorCode = "YR";
         break;
-      case 'White and Rose':
-        colorCode = 'WR';
+      case "White and Rose":
+        colorCode = "WR";
         break;
-      case 'Yellow and White and Rose':
-        colorCode = 'YWR';
+      case "Yellow and White and Rose":
+        colorCode = "YWR";
         break;
-      case 'Two-tone':
-        colorCode = 'TT';
+      case "Two-tone":
+        colorCode = "TT";
         break;
-      case 'Three-tone':
-        colorCode = '3T';
+      case "Three-tone":
+        colorCode = "3T";
         break;
-      case 'Antique':
-        colorCode = 'ATQ';
+      case "Antique":
+        colorCode = "ATQ";
         break;
       default:
-        colorCode = 'NA';
+        colorCode = "NA";
     }
 
     switch (formState.finishCode) {
-      case 'Yellow':
-        finishCode = 'Y';
+      case "Yellow":
+        finishCode = "Y";
         break;
-      case 'White':
-        finishCode = 'W';
+      case "White":
+        finishCode = "W";
         break;
-      case 'Rose':
-        finishCode = 'R';
+      case "Rose":
+        finishCode = "R";
         break;
-      case 'Yellow and White':
-        finishCode = 'YW';
+      case "Yellow and White":
+        finishCode = "YW";
         break;
-      case 'Yellow and Rose':
-        finishCode = 'YR';
+      case "Yellow and Rose":
+        finishCode = "YR";
         break;
-      case 'White and Rose':
-        finishCode = 'WR';
+      case "White and Rose":
+        finishCode = "WR";
         break;
-      case 'Yellow and White and Rose':
-        finishCode = 'YWR';
+      case "Yellow and White and Rose":
+        finishCode = "YWR";
         break;
-      case 'Antique':
-        finishCode = 'ATQ';
+      case "Antique":
+        finishCode = "ATQ";
         break;
-      case 'Minakari':
-        finishCode = 'MNC';
+      case "Minakari":
+        finishCode = "MNC";
         break;
-      case 'Three tone':
-        finishCode = '3T';
+      case "Three tone":
+        finishCode = "3T";
         break;
-      case 'Two tone':
-        finishCode = 'TT';
+      case "Two tone":
+        finishCode = "TT";
         break;
       default:
-        finishCode = 'NA';
+        finishCode = "NA";
     }
     return `${formState.majorCode}-${uuid}-${formState.vendorCode}-${colorCode}-${finishCode}`;
     // setMultiCode(multiCodeGen);
@@ -167,35 +166,35 @@ export default function NewMultiModal({ open, onClose }) {
           image: formState.image,
         });
 
-        enqueueSnackbar('Multi Code Created Successfully  ', {
-          variant: 'success',
+        enqueueSnackbar("Multi Code Created Successfully  ", {
+          variant: "success",
         });
         window.location.reload();
         onClose();
       }, 1000);
     } catch (error) {
       enqueueSnackbar(error, {
-        variant: 'error',
+        variant: "error",
       });
     }
   };
 
   return (
-    <Modal
-      open={open}
-      onClose={onClose}>
+    <Modal open={open} onClose={onClose}>
       <Box sx={style}>
         <Box
           sx={{
-            width: '100%',
-            bgcolor: 'primary.light',
+            width: "100%",
+            bgcolor: "primary.light",
             borderRadius: 5,
-          }}>
+          }}
+        >
           <Typography
-            variant='h5'
-            component='h2'
-            textAlign='center'
-            sx={{ p: 0.5, color: 'primary.main' }}>
+            variant="h5"
+            component="h2"
+            textAlign="center"
+            sx={{ p: 0.5, color: "primary.main" }}
+          >
             New Multi Code
           </Typography>
         </Box>
@@ -203,28 +202,29 @@ export default function NewMultiModal({ open, onClose }) {
           {formState.image && (
             <img
               src={`https://www.malanijewelers.com/TransactionImages/Styles/small/${formState.image}`}
-              width='300'
+              width="300"
             />
           )}
           <Box
             sx={{
-              display: 'flex',
-              justifyContent: 'space-evenly',
-              alignItems: 'center',
-              flexWrap: 'wrap',
-              width: '100%',
-              height: '100%',
-              marginY: '10px',
-              minHeight: '2rem',
-              flexDirection: 'column',
-            }}>
+              display: "flex",
+              justifyContent: "space-evenly",
+              alignItems: "center",
+              flexWrap: "wrap",
+              width: "100%",
+              height: "100%",
+              marginY: "10px",
+              minHeight: "2rem",
+              flexDirection: "column",
+            }}
+          >
             <FormControl>
               <TextField
                 required
                 disabled
-                sx={{ width: 300, marginX: '1rem', marginY: '1rem' }}
-                size='small'
-                name='multiCode'
+                sx={{ width: 300, marginX: "1rem", marginY: "1rem" }}
+                size="small"
+                name="multiCode"
                 value={formState.multiCode}
               />
             </FormControl>
@@ -232,10 +232,10 @@ export default function NewMultiModal({ open, onClose }) {
             <FormControl>
               <TextField
                 required
-                label='Image'
-                sx={{ width: 300, marginX: '1rem', marginY: '1rem' }}
-                size='small'
-                name='image'
+                label="Image"
+                sx={{ width: 300, marginX: "1rem", marginY: "1rem" }}
+                size="small"
+                name="image"
                 value={formState.image}
                 onChange={handleChange}
               />
@@ -246,43 +246,43 @@ export default function NewMultiModal({ open, onClose }) {
                 state={formState}
                 setState={setFormState}
                 handleSubmit={handleSubmit}
-                orientation={'column'}
+                orientation={"column"}
                 filters={[
                   {
-                    name: 'majorCode',
+                    name: "majorCode",
                     options: attributes.filter(
-                      (item) => item.title === 'Classcodes'
+                      (item) => item.title === "Classcodes"
                     )[0]?.options,
-                    label: 'majorCode',
-                    stateId: 'majorCode',
-                    type: 'autocomplete',
+                    label: "majorCode",
+                    stateId: "majorCode",
+                    type: "autocomplete",
                   },
                   {
-                    name: 'vendorCode',
+                    name: "vendorCode",
                     options: attributes.filter(
-                      (item) => item.title === 'Vendors'
+                      (item) => item.title === "Vendors"
                     )[0]?.options,
-                    label: 'vendorCode',
-                    stateId: 'vendorCode',
-                    type: 'autocomplete',
+                    label: "vendorCode",
+                    stateId: "vendorCode",
+                    type: "autocomplete",
                   },
                   {
-                    name: 'colorCode',
+                    name: "colorCode",
                     options: attributes.filter(
-                      (item) => item.title === 'JewelryColor'
+                      (item) => item.title === "JewelryColor"
                     )[0]?.options,
-                    label: 'colorCode',
-                    stateId: 'colorCode',
-                    type: 'autocomplete',
+                    label: "colorCode",
+                    stateId: "colorCode",
+                    type: "autocomplete",
                   },
                   {
-                    name: 'finishCode',
+                    name: "finishCode",
                     options: attributes.filter(
-                      (item) => item.title === 'Finishing'
+                      (item) => item.title === "Finishing"
                     )[0]?.options,
-                    label: 'finishCode',
-                    stateId: 'finishCode',
-                    type: 'autocomplete',
+                    label: "finishCode",
+                    stateId: "finishCode",
+                    type: "autocomplete",
                   },
                 ]}
               />

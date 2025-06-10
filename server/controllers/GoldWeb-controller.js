@@ -1,16 +1,15 @@
-const { GoldWeb } = require('../models/');
+const { GoldWeb } = require("../models/");
 
 module.exports = {
   async getGoldWeb(req, res) {
     try {
       const goldWebData = await GoldWeb.find()
         .sort({ date: -1 })
-        .limit(1)
-        .populate('UpdatedBy', 'employeeId')
+        .populate("UpdatedBy", "employeeId");
       res.status(200).json(goldWebData);
     } catch (error) {
-      console.error('Error fetching GoldWeb data:', error);
-      res.status(500).json({ message: 'Internal server error' });
+      console.error("Error fetching GoldWeb data:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
   },
 
@@ -23,8 +22,8 @@ module.exports = {
       });
       res.status(201).json(newGoldWeb);
     } catch (error) {
-      console.error('Error creating GoldWeb data:', error);
-      res.status(500).json({ message: 'Internal server error' });
+      console.error("Error creating GoldWeb data:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
   },
 };
