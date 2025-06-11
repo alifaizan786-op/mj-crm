@@ -18,16 +18,16 @@ app.use(express.json());
 app.use(routes);
 
 // To serve the client folder
-app.use(express.static(path.join(__dirname, '../client/build')));
+app.use(express.static(path.join(__dirname, './public/')));
 
 // To serve the client folder locally
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/build/index.html'));
+  res.sendFile(path.join(__dirname, './public/index.html'));
 });
 
 // To serve the client folder
 app.get('/*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/build/index.html'));
+  res.sendFile(path.join(__dirname, './public/index.html'));
 });
 
 MalaniCRM.once('open', () => {
