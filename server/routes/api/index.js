@@ -18,6 +18,7 @@ const GoldWeb_Routes = require('./GoldWeb-routes');
 const PricingPolicy_Routes = require('./PricingPolicy-routes');
 const WebInv_Routes = require('./WebInv-routes');
 const Proxy_Routes = require('./Proxy-routes');
+const WebChangeLog_Routes = require('./WebChangeLog-routes');
 
 // /api/user
 router.use('/user', userRoutes);
@@ -72,5 +73,8 @@ router.use('/webInv', WebInv_Routes);
 
 // /api/proxy
 router.use('/proxy', Proxy_Routes);
+
+// /api/webchangelog
+router.use('/webchangelog', WebChangeLog_Routes);
 
 module.exports = router;

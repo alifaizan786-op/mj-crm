@@ -22,6 +22,8 @@ const CustomerExtended = require('./CustomerExtended');
 // Models For MalaniJewelers 3.0
 const GoldWeb = require('./GoldWeb');
 const PricingPolicy = require('./PricingPolicy');
+const WebInv = require('./WebInv');
+const WebChangeLog = require('./WebChangeLog');
 
 module.exports = {
   // Models For Data From VJS
@@ -47,5 +49,7 @@ module.exports = {
 
   // Models For MalaniJewelers 3.0
   GoldWeb,
-  PricingPolicy
+  PricingPolicy,
+  WebInv,
+  WebChangeLog
 };

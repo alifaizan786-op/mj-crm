@@ -5,7 +5,7 @@ const secret = process.env.SECRET;
 const expiration = '8h';
 
 module.exports = {
-  authMiddleware: function ({ req }) {
+  authMiddleware: function (req, res, next) {
     let token =
       req.body.token || req.query.token || req.headers.authorization;
 
@@ -14,20 +14,22 @@ module.exports = {
     }
 
     if (!token) {
-      return req;
+      return res.status(400).json({ message: 'No token provided!' });
     }
 
     try {
       const { data } = jwt.verify(token, secret, {
         maxAge: expiration,
       });
-      req.user = data;
-    } catch {
-      // console.log('Invalid token');
-    }
 
-    return req;
+      req.user = data;
+      next();
+    } catch {
+      console.log('Invalid token');
+      return res.status(401).json({ message: 'Invalid token!' }); // Add this line
+    }
   },
+
   signToken: function ({
     _id,
     firstName,

@@ -3,6 +3,7 @@ const {
   getGoldPrice,
   addToWishList,
   removeFromWishlist,
+  proxyUpdateViewCount,
 } = require('../../controllers/Proxy-controller');
 
 // Inline middleware to verify allowed domains
@@ -30,19 +31,35 @@ const verifyDomain = (req, res, next) => {
   next();
 };
 
-// Route with domain verification middleware
 router.route('/goldPrice').get(
   // verifyDomain,
   getGoldPrice
 );
 
+// /api/proxy/wishlist/add
+// {
+//     "customerId":"gid://shopify/Customer/9058296299803",
+//     "productId":"gid://shopify/Product/9891531227419"
+// }
 router.route('/wishlist/add').post(
   // verifyDomain,
   addToWishList
 );
+
+// /api/proxy/wishlist/remove
+// {
+//     "customerId":"gid://shopify/Customer/9058296299803",
+//     "productId":"gid://shopify/Product/9891531227419"
+// }
 router.route('/wishlist/remove').post(
   // verifyDomain,
   removeFromWishlist
+);
+
+// /api/proxy/product/view_count/9891560292635
+router.route('/product/view_count/:productId').post(
+  // verifyDomain,
+  proxyUpdateViewCount
 );
 
 module.exports = router;

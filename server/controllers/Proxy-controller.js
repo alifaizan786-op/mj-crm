@@ -230,4 +230,101 @@ module.exports = {
         .json({ error: 'Failed to update wishlist' });
     }
   },
+
+  async proxyUpdateViewCount(req, res) {
+    const productId = req.params.productId;
+
+    if (!productId) {
+      return res.status(400).send('Missing product ID');
+    }
+
+    try {
+      // Step 1: Get existing metafield
+      const getMetafieldsQuery = `
+        query {
+          product(id: "gid://shopify/Product/${productId}") {
+            metafield(namespace: "sku", key: "view_count") {
+              id
+              value
+              type
+            }
+          }
+        }
+      `;
+
+      const getResponse = await axios.post(
+        SHOPIFY_API_URL,
+        { query: getMetafieldsQuery },
+        {
+          headers: {
+            'X-Shopify-Access-Token': ADMIN_TOKEN,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      const metafield = getResponse.data.data.product.metafield;
+      const currentCount = metafield
+        ? parseInt(metafield.value, 10)
+        : 0;
+      const metafieldId = metafield?.id;
+
+      // Step 2: Update or create metafield with +1
+      const newCount = currentCount + 1;
+
+      const mutation = `
+          mutation metafieldsSet($metafields: [MetafieldsSetInput!]!) {
+            metafieldsSet(metafields: $metafields) {
+              metafields {
+                key
+                namespace
+                value
+                type
+              }
+              userErrors {
+                field
+                message
+              }
+            }
+          }
+        `;
+
+      const variables = {
+        metafields: [
+          {
+            ownerId: `gid://shopify/Product/${productId}`,
+            namespace: 'sku',
+            key: 'view_count',
+            type: 'number_integer',
+            value: `${newCount}`,
+          },
+        ],
+      };
+
+      const updateResponse = await axios.post(
+        SHOPIFY_API_URL,
+        {
+          query: mutation,
+          variables,
+        },
+        {
+          headers: {
+            'X-Shopify-Access-Token': ADMIN_TOKEN,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      const result = updateResponse.data?.data?.metafieldsSet;
+
+      if (result?.userErrors?.length) {
+        return res.status(400).json({ error: result.userErrors });
+      }
+
+      return res.status(200).json({ updated: result.metafields });
+    } catch (error) {
+      console.error('View count update error:', error.message);
+      return res.status(500).send('Server error');
+    }
+  },
 };
