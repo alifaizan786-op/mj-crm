@@ -13,6 +13,11 @@ class WebInv extends BaseFetch {
     );
     return updatePrices;
   }
+
+  async webInvSync() {
+    const sync = await this.request('/sync', 'POST');
+    return sync;
+  }
 }
 
 export default new WebInv(); // Export as a singleton
