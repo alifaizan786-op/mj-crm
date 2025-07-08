@@ -4,7 +4,112 @@ const SHOP = process.env.Shopify_Shop_Name;
 const ADMIN_TOKEN = process.env.Shopify_Admin_Api_Access_Token;
 const SHOPIFY_API_URL = `https://${SHOP}.myshopify.com/admin/api/2023-10/graphql.json`;
 
+const restInstance = axios.create({
+  baseURL: `https://${SHOP}.myshopify.com/admin/api/2023-10`,
+  headers: {
+    'X-Shopify-Access-Token': ADMIN_TOKEN,
+    'Content-Type': 'application/json',
+  },
+});
+
+const graphQlInstance = axios.create({
+  baseURL: `https://${SHOP}.myshopify.com/admin/api/2023-10/graphql.json`,
+  headers: {
+    'X-Shopify-Access-Token': ADMIN_TOKEN,
+    'Content-Type': 'application/json',
+  },
+});
+
 module.exports = {
+  async getClientCoupons(req, res) {
+    try {
+      const now = new Date();
+
+      const {
+        data: { price_rules },
+      } = await restInstance.get('/price_rules.json');
+
+      const results = await Promise.all(
+        price_rules.map(async (rule) => {
+          if (rule.customer_selection !== 'all') return [];
+
+          const { data } = await restInstance.get(
+            `/price_rules/${rule.id}/discount_codes.json`
+          );
+
+          // Attempt to resolve first collection handle (if exists)
+          let cta_link = '/';
+          let subheadingTarget = 'sitewide';
+
+          if (rule.entitled_collection_ids?.length > 0) {
+            const firstCollectionId = rule.entitled_collection_ids[0];
+
+            try {
+              // Try smart collection first
+              const smart = await restInstance.get(
+                `/smart_collections/${firstCollectionId}.json`
+              );
+              cta_link = `/collections/${smart.data.smart_collection.handle}`;
+              subheadingTarget = 'on selected collections';
+            } catch {
+              try {
+                // Then try custom collection
+                const custom = await restInstance.get(
+                  `/custom_collections/${firstCollectionId}.json`
+                );
+                cta_link = `/collections/${custom.data.custom_collection.handle}`;
+                subheadingTarget = 'on selected collections';
+              } catch {
+                // fallback
+                cta_link = '/';
+                subheadingTarget = 'sitewide';
+              }
+            }
+          }
+
+          return data.discount_codes.map((code) => {
+            const isPercentage = rule.value_type === 'percentage';
+            const value = Math.abs(rule.value);
+            const formattedDiscount = isPercentage
+              ? `${value}% Off`
+              : `$${value} Off`;
+
+            const endsAt = new Date(rule.ends_at);
+            const isActive =
+              new Date(rule.starts_at) <= now && endsAt >= now;
+
+            return {
+              code: code.code,
+              heading: formattedDiscount,
+              subheading: `${rule.title} – ${
+                rule.target_type === 'shipping_line'
+                  ? 'on shipping'
+                  : 'on products'
+              } ${subheadingTarget}. Valid until ${endsAt.toLocaleDateString()}.`,
+              starts_at: rule.starts_at,
+              ends_at: rule.ends_at,
+              usage_limit: rule.usage_limit,
+              status: isActive ? 'enabled' : 'expired',
+              cta_link,
+            };
+          });
+        })
+      );
+
+      const publicCoupons = results
+        .flat()
+        .filter((c) => c.status === 'enabled');
+      res.json(publicCoupons);
+    } catch (error) {
+      console.error(
+        'Error fetching enriched public coupons:',
+        error.response?.data || error.message
+      );
+      res
+        .status(500)
+        .json({ error: 'Failed to fetch public discount codes' });
+    }
+  },
   async getGoldPrice(req, res) {
     try {
       res.json({
@@ -230,7 +335,6 @@ module.exports = {
         .json({ error: 'Failed to update wishlist' });
     }
   },
-
   async proxyUpdateViewCount(req, res) {
     const productId = req.params.productId;
 

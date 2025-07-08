@@ -4,6 +4,7 @@ const {
   addToWishList,
   removeFromWishlist,
   proxyUpdateViewCount,
+  getClientCoupons,
 } = require('../../controllers/Proxy-controller');
 
 // Inline middleware to verify allowed domains
@@ -61,5 +62,8 @@ router.route('/product/view_count/:productId').post(
   // verifyDomain,
   proxyUpdateViewCount
 );
+
+// /api/proxy/client/coupons
+router.route('/client/coupons').get(getClientCoupons);
 
 module.exports = router;
