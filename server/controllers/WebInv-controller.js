@@ -1077,6 +1077,91 @@ module.exports = {
     }
   },
 
+  async refreshNewArrivals(req, res) {
+    const log = createLogger('refreshNewArrivals');
+
+    try {
+      const today = new Date();
+      if (today.getDay() === 1) {
+        await log('⏭ Skipped: Today is Monday.');
+        return res.status(200).send('Skipped: Today is Monday.');
+      }
+
+      await log('🚀 RefreshNewArrivals job started');
+
+      const recentVariants = [];
+
+      await runBulkJob({
+        graphqlQuery: `
+            {
+              productVariants {
+                edges {
+                  node {
+                    id
+                    metafield(namespace: "variant", key: "upload_date") {
+                      value
+                    }
+                  }
+                }
+              }
+            }
+          `,
+        onEachRecord: async (variant) => {
+          const uploadDate = variant.metafield?.value;
+          const variantId = variant.id;
+
+          if (!uploadDate) return;
+
+          const daysAgo = Math.floor(
+            (Date.now() - new Date(uploadDate).getTime()) / 86400000
+          );
+
+          if (daysAgo >= 0 && daysAgo <= 30) {
+            recentVariants.push({
+              id: variantId,
+              upload_date: uploadDate,
+            });
+          }
+        },
+        jobName: 'refreshNewArrivals',
+      });
+
+      // ✅ Sort and tag 30 most recent
+      recentVariants.sort(
+        (a, b) => new Date(b.upload_date) - new Date(a.upload_date)
+      );
+
+      const top30 = recentVariants.slice(0, 50);
+
+      await log(
+        `📊 Found ${recentVariants.length} variants in last 30 days. Tagging top ${top30.length}.`
+      );
+
+      for (const variant of top30) {
+        await updateField({
+          parent: 'Variant',
+          fieldType: 'Metafield',
+          parentId: variant.id,
+          namespace: 'variant',
+          key: 'new_arrival',
+          type: 'boolean',
+          value: true,
+        });
+        await log(
+          `✅ Tagged: ${variant.id} — ${variant.upload_date}`
+        );
+      }
+
+      await log(
+        '🟡 Bulk job started. Waiting for completion in background.'
+      );
+      return res.status(202).send('Bulk job triggered.');
+    } catch (error) {
+      await log(`❌ Error: ${error.message}`);
+      return res.status(500).send('Internal server error.');
+    }
+  },
+  
   async PricingWebhook(req, res) {
     try {
       const product = req.body;

@@ -4,7 +4,9 @@ const {
   updateSkuPriceByRule,
   syncWebInvFromShopify,
   updatePricesByClasscode,
-
+  getSkuListing,
+  getSkuDetails,
+  updateSkuDetails,
   PricingWebhook,
   refreshNewArrivals,
 } = require('../../controllers/WebInv-controller');
@@ -15,7 +17,6 @@ router.post('/PricingWebhook', PricingWebhook);
 
 // /api/webInv/refreshNewArrivals
 router.post('/refreshNewArrivals', refreshNewArrivals);
-
 
 // /api/webInv/update-sku-price
 router.post(
@@ -34,5 +35,14 @@ router.post(
   updatePricesByClasscode
 );
 
+// /api/webInv/
+router.get('/', authMiddleware, getSkuListing);
+
+// ✅ Dynamic route comes LAST
+// /api/webInv/:sku
+router
+  .route('/:sku')
+  .get(authMiddleware, getSkuDetails)
+  .put(authMiddleware, updateSkuDetails);
 
 module.exports = router;
