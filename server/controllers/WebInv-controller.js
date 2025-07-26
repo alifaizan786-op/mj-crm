@@ -5,11 +5,20 @@ const {
   WebChangeLog,
 } = require('../models');
 const axios = require('axios');
+const { runBulkJob } = require('../utils/bulkRunner');
+const { updateField } = require('../utils/updateField');
+const { createLogger } = require('../utils/logger');
 
 const SHOPIFY_ADMIN_API_ACCESS_TOKEN =
   process.env.Shopify_Admin_Api_Access_Token;
+
 const SHOPIFY_SHOP_NAME = process.env.Shopify_Shop_Name;
+
 const SHOPIFY_GRAPHQL_URL = `https://${SHOPIFY_SHOP_NAME}.myshopify.com/admin/api/2024-04/graphql.json`;
+
+function getTodayDate() {
+  return new Date().toISOString().slice(0, 10);
+}
 
 module.exports = {
   async updateSkuPriceByRule(req, res) {
@@ -20,22 +29,22 @@ module.exports = {
 
       // 1. Find variant using GraphQL by SKU (correct query using variable)
       const query = `
-        query getVariantBySKU($skuQuery: String!) {
-          productVariants(first: 1, query: $skuQuery) {
-            edges {
-              node {
+      query getVariantBySKU($skuQuery: String!) {
+        productVariants(first: 1, query: $skuQuery) {
+          edges {
+            node {
+              id
+              sku
+              price
+              product {
                 id
-                sku
-                price
-                product {
-                  id
-                  title
-                }
+                title
               }
             }
           }
         }
-      `;
+      }
+    `;
 
       const variantResp = await axios({
         url: SHOPIFY_GRAPHQL_URL,
@@ -61,9 +70,13 @@ module.exports = {
         'gid://shopify/Product/',
         ''
       );
+      const variantId = variant.id.replace(
+        'gid://shopify/ProductVariant/',
+        ''
+      );
 
-      // 2. Fetch product-level metafields (REST call is still fine here)
-      const metafieldsResp = await axios({
+      // 2. Fetch product-level metafields (only classcode and goldKt)
+      const productMetafieldsResp = await axios({
         url: `https://${SHOPIFY_SHOP_NAME}.myshopify.com/admin/api/2024-04/products/${productId}/metafields.json`,
         method: 'GET',
         headers: {
@@ -72,22 +85,71 @@ module.exports = {
         },
       });
 
-      const metafields = metafieldsResp.data.metafields;
+      // 3. Fetch variant-level metafields (entryDate, vendor, grossWeight, tag_price, autoUpdate)
+      const variantMetafieldsResp = await axios({
+        url: `https://${SHOPIFY_SHOP_NAME}.myshopify.com/admin/api/2024-04/variants/${variantId}/metafields.json`,
+        method: 'GET',
+        headers: {
+          'X-Shopify-Access-Token': SHOPIFY_ADMIN_API_ACCESS_TOKEN,
+          'Content-Type': 'application/json',
+        },
+      });
 
-      const getValue = (namespace, key) =>
-        metafields.find(
+      const productMetafields = productMetafieldsResp.data.metafields;
+      const variantMetafields = variantMetafieldsResp.data.metafields;
+
+      // Helper functions to get values from different metafield sources
+      const getProductValue = (namespace, key) =>
+        productMetafields.find(
           (m) => m.namespace === namespace && m.key === key
         )?.value || null;
 
-      const classcode = +getValue('sku', 'classcode');
-      const vendor = getValue('sku', 'vendor');
-      const grossWeight = +getValue('sku', 'grossWeight');
-      const entryDate = getValue('sku', 'entryDate');
-      const tag_price = parseInt(
-        JSON.parse(getValue('sku', 'tag_price')).amount
+      const getVariantValue = (namespace, key) =>
+        variantMetafields.find(
+          (m) => m.namespace === namespace && m.key === key
+        )?.value || null;
+
+      // Get product metafields (classcode and goldKt)
+      const classcode = +getProductValue('sku', 'classcode');
+      const goldKt = getProductValue('sku', 'gold_karat');
+
+      // Get variant metafields (all others)
+      const entryDate = getVariantValue('variant', 'entry_date');
+      const vendor = getVariantValue('variant', 'vendor');
+      const grossWeight = +getVariantValue('variant', 'gross_weight');
+
+      // Handle tag_price with proper null checking
+      const tagPriceRaw = getVariantValue('variant', 'tag_price');
+      let tag_price = null;
+
+      if (tagPriceRaw) {
+        try {
+          const parsedTagPrice = JSON.parse(tagPriceRaw);
+          tag_price = parseInt(parsedTagPrice.amount);
+        } catch (parseError) {
+          console.error('Error parsing tag_price:', parseError);
+          return res
+            .status(400)
+            .json({ error: 'Invalid tag_price format' });
+        }
+      }
+
+      const autoUpdate = getVariantValue(
+        'variant',
+        'autoUpdatePrice'
       );
-      const autoUpdate = getValue('sku', 'autoUpdatePrice');
-      const goldKt = getValue('sku', 'gold_karat');
+
+      // Debug logging for missing metafields
+      console.log('Metafield values:', {
+        classcode,
+        goldKt,
+        entryDate,
+        vendor,
+        grossWeight,
+        tag_price,
+        autoUpdate,
+        tagPriceRaw,
+      });
 
       if (!goldKt) {
         return res
@@ -107,12 +169,18 @@ module.exports = {
           .json({ error: 'AutoUpdatePricing is false or not set' });
       }
 
-      // 3. Calculate product age
+      if (!entryDate) {
+        return res
+          .status(400)
+          .json({ error: 'Entry date is missing or not set' });
+      }
+
+      // 4. Calculate product age
       const productAgeMonths =
         (new Date() - new Date(entryDate)) /
         (1000 * 60 * 60 * 24 * 30);
 
-      // 4. Find matching pricing policy
+      // 5. Find matching pricing policy
       const policies = await PricingPolicy.find({
         Classcode: classcode,
         FromMonths: { $lte: productAgeMonths },
@@ -146,27 +214,33 @@ module.exports = {
           );
         }
       } else if (matchedPolicy.Type === 'Discount') {
+        if (!tag_price) {
+          return res.status(400).json({
+            error:
+              'Tag price is required for discount calculation but is missing',
+          });
+        }
         calculatedPrice = Math.round(
           tag_price -
             (tag_price * matchedPolicy.DiscountOnMargin) / 100
         );
       }
 
-      // 7. Update price using GraphQL mutation
+      // 6. Update price using GraphQL mutation
       const mutation = `
-        mutation updateVariantPrice($variantId: ID!, $price: Money!) {
-          productVariantUpdate(input: {id: $variantId, price: $price}) {
-            productVariant {
-              id
-              price
-            }
-            userErrors {
-              field
-              message
-            }
+      mutation updateVariantPrice($variantId: ID!, $price: Money!) {
+        productVariantUpdate(input: {id: $variantId, price: $price}) {
+          productVariant {
+            id
+            price
+          }
+          userErrors {
+            field
+            message
           }
         }
-      `;
+      }
+    `;
 
       const updateResp = await axios({
         url: SHOPIFY_GRAPHQL_URL,
@@ -1002,4 +1076,414 @@ module.exports = {
       });
     }
   },
+
+  async PricingWebhook(req, res) {
+    try {
+      const product = req.body;
+
+      // Step 1: Build initial tempArr from webhook data
+      let tempArr = product.variants.map((variant) => ({
+        id: variant.id,
+        product_id: variant.product_id,
+        sku: variant.sku,
+        inventory_quantity: variant.inventory_quantity,
+        title: variant.title, // For UX display only
+        current_price: variant.price, // ← ADD THIS LINE!
+        // price will be computed and added later
+      }));
+
+      // Step 2: Get metafields and enrich tempArr
+      tempArr = await enrichWithMetafields(tempArr, product.id);
+
+      // Step 3: Do pricing computation
+      tempArr = await computePrices(tempArr);
+
+      console.log(tempArr);
+
+      // Step 4: Update prices back to Shopify
+      await updateVariantPrices(tempArr);
+
+      res.status(200).send('OK');
+    } catch (error) {
+      console.error('Webhook error:', error);
+      res.status(500).send('Error');
+    }
+  },
 };
+
+async function enrichWithMetafields(tempArr, productId) {
+  // Remove 'gid://shopify/Product/' prefix if present
+  const cleanProductId = productId
+    .toString()
+    .replace('gid://shopify/Product/', '');
+
+  // Get product-level metafields (classcode and goldKt)
+  const productMetafieldsResp = await axios({
+    url: `https://${SHOPIFY_SHOP_NAME}.myshopify.com/admin/api/2024-04/products/${cleanProductId}/metafields.json`,
+    method: 'GET',
+    headers: {
+      'X-Shopify-Access-Token': SHOPIFY_ADMIN_API_ACCESS_TOKEN,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  const productMetafields = productMetafieldsResp.data.metafields;
+
+  // Helper function to get product metafield values
+  const getProductValue = (namespace, key) =>
+    productMetafields.find(
+      (m) => m.namespace === namespace && m.key === key
+    )?.value || null;
+
+  // Get product-level data
+  const classcode = +getProductValue('sku', 'classcode');
+  const goldKt = getProductValue('sku', 'gold_karat');
+
+  // Enrich each variant with its metafields + product metafields
+  const enrichedArr = await Promise.all(
+    tempArr.map(async (variant) => {
+      try {
+        // Get variant-level metafields
+        const variantMetafieldsResp = await axios({
+          url: `https://${SHOPIFY_SHOP_NAME}.myshopify.com/admin/api/2024-04/variants/${variant.id}/metafields.json`,
+          method: 'GET',
+          headers: {
+            'X-Shopify-Access-Token': SHOPIFY_ADMIN_API_ACCESS_TOKEN,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const variantMetafields =
+          variantMetafieldsResp.data.metafields;
+
+        // Helper function to get variant metafield values
+        const getVariantValue = (namespace, key) =>
+          variantMetafields.find(
+            (m) => m.namespace === namespace && m.key === key
+          )?.value || null;
+
+        // Get variant metafields
+        const entryDate = getVariantValue('variant', 'entry_date');
+        const vendor = getVariantValue('variant', 'vendor');
+        const grossWeight = +getVariantValue(
+          'variant',
+          'gross_weight'
+        );
+        const autoUpdate = getVariantValue(
+          'variant',
+          'autoUpdatePrice'
+        );
+
+        // Handle tag_price with proper null checking
+        const tagPriceRaw = getVariantValue('variant', 'tag_price');
+        let tag_price = null;
+
+        if (tagPriceRaw) {
+          try {
+            const parsedTagPrice = JSON.parse(tagPriceRaw);
+            tag_price = parseInt(parsedTagPrice.amount);
+          } catch (parseError) {
+            console.error(
+              `Error parsing tag_price for variant ${variant.id}:`,
+              parseError
+            );
+          }
+        }
+
+        return {
+          ...variant,
+          // Product-level metafields
+          classcode,
+          goldKt,
+          // Variant-level metafields
+          entryDate,
+          vendor,
+          grossWeight,
+          tag_price,
+          autoUpdate,
+          // For debugging
+          tagPriceRaw,
+        };
+      } catch (error) {
+        console.error(
+          `Error fetching metafields for variant ${variant.id}:`,
+          error
+        );
+        return {
+          ...variant,
+          // Set defaults for failed fetches
+          classcode: null,
+          goldKt: null,
+          entryDate: null,
+          vendor: null,
+          grossWeight: null,
+          tag_price: null,
+          autoUpdate: null,
+        };
+      }
+    })
+  );
+
+  return enrichedArr;
+}
+
+async function computePrices(tempArr) {
+  const updatedArr = await Promise.all(
+    tempArr.map(async (variant) => {
+      try {
+        // Skip pricing if autoUpdate is not enabled
+        if (!variant.autoUpdate) {
+          console.log(
+            `Skipping ${variant.sku}: AutoUpdatePricing is false or not set`
+          );
+          return {
+            ...variant,
+            needsUpdate: false,
+            skipReason: 'AutoUpdate disabled',
+          };
+        }
+
+        // Validate required metafields
+        if (!variant.goldKt) {
+          console.log(
+            `Skipping ${variant.sku}: Gold karat is missing`
+          );
+          return {
+            ...variant,
+            needsUpdate: false,
+            skipReason: 'Missing gold karat',
+          };
+        }
+
+        if (!variant.grossWeight || isNaN(variant.grossWeight)) {
+          console.log(
+            `Skipping ${variant.sku}: Gross weight is missing or invalid`
+          );
+          return {
+            ...variant,
+            needsUpdate: false,
+            skipReason: 'Missing/invalid gross weight',
+          };
+        }
+
+        if (!variant.entryDate) {
+          console.log(
+            `Skipping ${variant.sku}: Entry date is missing`
+          );
+          return {
+            ...variant,
+            needsUpdate: false,
+            skipReason: 'Missing entry date',
+          };
+        }
+
+        // Calculate product age in months
+        const productAgeMonths =
+          (new Date() - new Date(variant.entryDate)) /
+          (1000 * 60 * 60 * 24 * 30);
+
+        // Find matching pricing policy
+        const policies = await PricingPolicy.find({
+          Classcode: variant.classcode,
+          FromMonths: { $lte: productAgeMonths },
+          ToMonths: { $gte: productAgeMonths },
+        });
+
+        let matchedPolicy =
+          policies.find((p) => p.Vendor === variant.vendor) ||
+          policies.find((p) => !p.Vendor);
+
+        if (!matchedPolicy) {
+          console.log(
+            `Skipping ${variant.sku}: No matching pricing policy found`
+          );
+          return {
+            ...variant,
+            needsUpdate: false,
+            skipReason: 'No matching policy',
+          };
+        }
+
+        let calculatedPrice = 0;
+        let perGramOrDisc;
+
+        // Calculate price based on policy type
+        if (matchedPolicy.Type === 'PerGram') {
+          if (variant.goldKt === '22KT') {
+            calculatedPrice = Math.round(
+              matchedPolicy.Base22KtRate * variant.grossWeight
+            );
+            perGramOrDisc = matchedPolicy.Base22KtRate;
+          } else if (variant.goldKt === '21KT') {
+            calculatedPrice = Math.round(
+              matchedPolicy.Base21KtRate * variant.grossWeight
+            );
+            perGramOrDisc = matchedPolicy.Base21KtRate;
+          } else if (variant.goldKt === '18KT') {
+            calculatedPrice = Math.round(
+              matchedPolicy.Base18KtRate * variant.grossWeight
+            );
+            perGramOrDisc = matchedPolicy.Base18KtRate;
+          } else {
+            console.log(
+              `Skipping ${variant.sku}: Unsupported gold karat ${variant.goldKt}`
+            );
+            return {
+              ...variant,
+              needsUpdate: false,
+              skipReason: 'Unsupported gold karat',
+            };
+          }
+        } else if (matchedPolicy.Type === 'Discount') {
+          if (!variant.tag_price) {
+            console.log(
+              `Skipping ${variant.sku}: Tag price required for discount calculation but missing`
+            );
+            return {
+              ...variant,
+              needsUpdate: false,
+              skipReason: 'Missing tag price for discount',
+            };
+          }
+          calculatedPrice = Math.round(
+            variant.tag_price -
+              (variant.tag_price * matchedPolicy.DiscountOnMargin) /
+                100
+          );
+          perGramOrDisc = matchedPolicy.DiscountOnMargin;
+        } else {
+          console.log(
+            `Skipping ${variant.sku}: Unknown policy type ${matchedPolicy.Type}`
+          );
+          return {
+            ...variant,
+            needsUpdate: false,
+            skipReason: 'Unknown policy type',
+          };
+        }
+
+        // Check if price actually changed
+        const currentPrice = parseFloat(variant.current_price);
+        const priceChanged =
+          Math.floor(currentPrice) !== Math.floor(calculatedPrice); // Allow for small rounding differences
+
+        return {
+          ...variant,
+          calculated_price: calculatedPrice,
+          needsUpdate: priceChanged,
+          policy_used: matchedPolicy.Name || 'Unnamed Policy',
+          price_change: calculatedPrice - currentPrice,
+          perGramOrDisc: perGramOrDisc,
+          currentPrice: currentPrice,
+        };
+      } catch (error) {
+        console.error(
+          `Error calculating price for variant ${variant.id}:`,
+          error
+        );
+        return {
+          ...variant,
+          needsUpdate: false,
+          skipReason: 'Calculation error',
+        };
+      }
+    })
+  );
+
+  return updatedArr;
+}
+
+async function updateVariantPrices(tempArr) {
+  const variantsToUpdate = tempArr.filter(
+    (variant) => variant.needsUpdate
+  );
+
+  if (variantsToUpdate.length === 0) {
+    console.log('No variants need price updates');
+    return;
+  }
+
+  console.log(
+    `Updating prices for ${variantsToUpdate.length} variants`
+  );
+
+  const updatePromises = variantsToUpdate.map(async (variant) => {
+    try {
+      // Parse and update the structured title
+      const titleParts = variant.title
+        .split('|')
+        .map((part) => part.trim());
+
+      // Update index 1 (price part) with new calculated price
+      let updatedTitle = variant.title;
+      if (titleParts.length >= 2) {
+        titleParts[1] = `$${variant.calculated_price}`;
+        updatedTitle = titleParts.join(' | ');
+        console.log(
+          `Attempting option1 update: "${variant.title}" → "${updatedTitle}"`
+        );
+      }
+
+      // Step 1: Update price and option1 (which controls the title)
+      console.log('Making REST API call to update variant...');
+      const restUpdateResp = await axios({
+        url: `https://${SHOPIFY_SHOP_NAME}.myshopify.com/admin/api/2024-04/variants/${variant.id}.json`,
+        method: 'PUT',
+        headers: {
+          'X-Shopify-Access-Token': SHOPIFY_ADMIN_API_ACCESS_TOKEN,
+          'Content-Type': 'application/json',
+        },
+        data: {
+          variant: {
+            id: variant.id,
+            price: variant.calculated_price.toString(),
+            option1: updatedTitle, // Update option1 instead of title!
+          },
+        },
+      });
+
+      console.log(
+        'Updated variant title from response:',
+        restUpdateResp.data.variant.title
+      );
+      console.log(
+        'Updated variant option1 from response:',
+        restUpdateResp.data.variant.option1
+      );
+      console.log(
+        'Updated variant price from response:',
+        restUpdateResp.data.variant.price
+      );
+
+      // Step 2: Update metafields
+      await axios({
+        url: `https://${SHOPIFY_SHOP_NAME}.myshopify.com/admin/api/2024-04/variants/${variant.id}/metafields.json`,
+        method: 'POST',
+        headers: {
+          'X-Shopify-Access-Token': SHOPIFY_ADMIN_API_ACCESS_TOKEN,
+          'Content-Type': 'application/json',
+        },
+        data: {
+          metafield: {
+            namespace: 'variant',
+            key: 'per_gram_or_disc',
+            value: variant.perGramOrDisc.toString(),
+            type: 'single_line_text_field',
+          },
+        },
+      });
+
+      console.log(
+        `✅ Updated ${variant.sku}: $${variant.current_price} → $${variant.calculated_price} (${variant.policy_used}) [Rate: ${variant.perGramOrDisc}]`
+      );
+    } catch (error) {
+      console.error(`Error updating variant ${variant.sku}:`);
+      console.error(
+        'Error details:',
+        error.response?.data || error.message
+      );
+    }
+  });
+
+  await Promise.all(updatePromises);
+}
