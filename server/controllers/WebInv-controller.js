@@ -1076,7 +1076,633 @@ module.exports = {
       });
     }
   },
+  async getSkuListing(req, res) {
+    try {
+      const {
+        search = '',
+        classcode,
+        vendor,
+        gold_karat,
+        autoUpdatePrice,
+        page = 1,
+        limit = 50,
+        sortBy = 'sku',
+        sortOrder = 'asc',
+      } = req.query;
 
+      // Build filter object
+      const filter = {};
+
+      // Text search across multiple fields
+      if (search) {
+        filter.$or = [
+          { sku: { $regex: search, $options: 'i' } },
+          { title: { $regex: search, $options: 'i' } },
+          { vendor: { $regex: search, $options: 'i' } },
+        ];
+      }
+
+      // Specific filters
+      if (classcode) filter.classcode = parseInt(classcode);
+      if (vendor) filter.vendor = vendor;
+      if (gold_karat) filter.gold_karat = gold_karat;
+      if (autoUpdatePrice !== undefined)
+        filter.autoUpdatePrice = autoUpdatePrice === 'true';
+
+      // Pagination
+      const skip = (page - 1) * limit;
+      const totalCount = await WebInv.countDocuments(filter);
+      const totalPages = Math.ceil(totalCount / limit);
+
+      // Sort options
+      const sortOptions = {};
+      sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
+
+      // Get SKUs with pagination and sorting
+      const skus = await WebInv.find(filter)
+        .sort(sortOptions)
+        .skip(skip)
+        .limit(parseInt(limit))
+        .lean();
+
+      // Get filter options for dropdowns (for frontend filters)
+      const [vendors, goldKarats, classcodes] = await Promise.all([
+        WebInv.distinct('vendor', { vendor: { $ne: null } }),
+        WebInv.distinct('gold_karat', { gold_karat: { $ne: null } }),
+        WebInv.distinct('classcode', { classcode: { $ne: null } }),
+      ]);
+
+      // Add some statistics
+      const stats = {
+        totalProducts: totalCount,
+        autoUpdateEnabled: await WebInv.countDocuments({
+          autoUpdatePrice: true,
+        }),
+        autoUpdateDisabled: await WebInv.countDocuments({
+          autoUpdatePrice: false,
+        }),
+        withGoldKarat: await WebInv.countDocuments({
+          gold_karat: { $ne: null },
+        }),
+        withoutGoldKarat: await WebInv.countDocuments({
+          gold_karat: null,
+        }),
+      };
+
+      res.json({
+        message: 'SKU listing retrieved successfully',
+        data: {
+          skus,
+          pagination: {
+            currentPage: parseInt(page),
+            totalPages,
+            totalCount,
+            hasNext: page < totalPages,
+            hasPrev: page > 1,
+            limit: parseInt(limit),
+            showing: skus.length,
+          },
+          filters: {
+            vendors: vendors.sort(),
+            goldKarats: goldKarats.sort(),
+            classcodes: classcodes.sort((a, b) => a - b),
+          },
+          search: {
+            query: search,
+            appliedFilters: {
+              classcode,
+              vendor,
+              gold_karat,
+              autoUpdatePrice,
+            },
+          },
+          stats,
+        },
+      });
+    } catch (error) {
+      console.error('Failed to get SKU listing:', error.message);
+      res.status(500).json({
+        error: 'Failed to retrieve SKU listing',
+        details: error.message,
+      });
+    }
+  },
+  async getSkuDetails(req, res) {
+    try {
+      const { sku } = req.params;
+
+      if (!sku) {
+        return res
+          .status(400)
+          .json({ error: 'SKU parameter is required' });
+      }
+
+      console.log(`Fetching details for SKU: ${sku}`);
+
+      // 1. Get SKU data from local WebInv
+      const localSkuData = await WebInv.findOne({ sku }).lean();
+
+      if (!localSkuData) {
+        return res
+          .status(404)
+          .json({ error: `SKU ${sku} not found in local database` });
+      }
+
+      const { productId, variantId } = localSkuData;
+
+      if (!productId || !variantId) {
+        return res.status(400).json({
+          error:
+            'SKU missing productId or variantId - sync may be required',
+        });
+      }
+
+      console.log(
+        `Found local data - ProductID: ${productId}, VariantID: ${variantId}`
+      );
+
+      // 2. Fetch detailed product and variant info from Shopify
+      const shopifyQuery = `
+      query getProductDetails($productId: ID!, $variantId: ID!) {
+        product(id: $productId) {
+          id
+          title
+          description
+          vendor
+          productType
+          tags
+          status
+          createdAt
+          updatedAt
+         productCategory {
+      productTaxonomyNode {
+        id
+        name
+        fullName
+      }
+    }
+          images(first: 5) {
+            edges {
+              node {
+                id
+                url
+                altText
+              }
+            }
+          }
+          metafields(first: 50, namespace: "sku") {
+            edges {
+              node {
+                namespace
+                key
+                value
+                type
+              }
+            }
+          }
+          variants(first: 50) {
+            edges {
+              node {
+                id
+                sku
+                title
+                price
+                compareAtPrice
+                inventoryQuantity
+                inventoryPolicy
+                weight
+                weightUnit
+                availableForSale
+                selectedOptions {
+                  name
+                  value
+                }
+                image {
+                  id
+                  url
+                  altText
+                }
+              }
+            }
+          }
+        }
+        variant: productVariant(id: $variantId) {
+          id
+          sku
+          title
+          price
+          compareAtPrice
+          inventoryQuantity
+            inventoryPolicy  
+          weight
+          weightUnit
+          availableForSale
+          selectedOptions {
+            name
+            value
+          }
+          image {
+            id
+            url
+            altText
+          }
+          metafields(first: 20) {
+            edges {
+              node {
+                namespace
+                key
+                value
+                type
+              }
+            }
+          }
+        }
+      }
+    `;
+
+      const shopifyResponse = await axios({
+        url: SHOPIFY_GRAPHQL_URL,
+        method: 'POST',
+        headers: {
+          'X-Shopify-Access-Token': SHOPIFY_ADMIN_API_ACCESS_TOKEN,
+          'Content-Type': 'application/json',
+        },
+        data: {
+          query: shopifyQuery,
+          variables: {
+            productId: `gid://shopify/Product/${productId}`,
+            variantId: `gid://shopify/ProductVariant/${variantId}`,
+          },
+        },
+      });
+
+      if (shopifyResponse.data.errors) {
+        console.error(
+          'Shopify GraphQL errors:',
+          shopifyResponse.data.errors
+        );
+        return res.status(500).json({
+          error: 'Failed to fetch data from Shopify',
+          details: shopifyResponse.data.errors,
+        });
+      }
+
+      const { product, variant } = shopifyResponse.data.data;
+
+      if (!product) {
+        return res.status(404).json({
+          error: `Product with ID ${productId} not found in Shopify`,
+        });
+      }
+
+      if (!variant) {
+        return res.status(404).json({
+          error: `Variant with ID ${variantId} not found in Shopify`,
+        });
+      }
+
+      // 3. Process product metafields
+      const productMetafields = {};
+      product.metafields.edges.forEach(({ node }) => {
+        productMetafields[node.key] = {
+          value: node.value,
+          type: node.type,
+        };
+      });
+
+      // 4. Process variant metafields
+      const variantMetafields = {};
+
+      variant.metafields.edges.forEach(({ node }) => {
+        variantMetafields[node.key] = {
+          namespace: node.namespace,
+          value: node.value,
+          type: node.type,
+        };
+      });
+
+      // 5. Process all variants (siblings)
+      const allVariants = product.variants.edges.map(({ node }) => ({
+        id: node.id.replace('gid://shopify/ProductVariant/', ''),
+        sku: node.sku,
+        title: node.title,
+        price: parseFloat(node.price),
+        compareAtPrice: node.compareAtPrice
+          ? parseFloat(node.compareAtPrice)
+          : null,
+        inventoryQuantity: node.inventoryQuantity,
+        weight: node.weight,
+        weightUnit: node.weightUnit,
+        availableForSale: node.availableForSale,
+        selectedOptions: node.selectedOptions,
+        image: node.image
+          ? {
+              id: node.image.id,
+              url: node.image.url,
+              altText: node.image.altText,
+            }
+          : null,
+        isCurrentVariant:
+          node.id === `gid://shopify/ProductVariant/${variantId}`,
+      }));
+
+      // 6. Get recent change history for this SKU
+      const recentChanges = await WebChangeLog.find({
+        destination: 'shopify',
+        id: sku,
+      })
+        .populate('user', 'firstName lastName email employeeId')
+        .sort({ timestamp: -1 })
+        .limit(10)
+        .lean();
+
+      // 7. Build comprehensive response
+      const response = {
+        message: 'SKU details retrieved successfully',
+        data: {
+          // Local database info
+          localData: localSkuData,
+
+          // Shopify product info
+          product: {
+            id: product.id.replace('gid://shopify/Product/', ''),
+            title: product.title,
+            description: product.description,
+            vendor: product.vendor,
+            productType: product.productType,
+            tags: product.tags,
+            status: product.status,
+            createdAt: product.createdAt,
+            updatedAt: product.updatedAt,
+            productCategory: {
+              id: product.productCategory.productTaxonomyNode.id,
+              name: product.productCategory.productTaxonomyNode.name,
+              fullName:
+                product.productCategory.productTaxonomyNode.fullName,
+            },
+            images: product.images.edges.map(({ node }) => ({
+              id: node.id,
+              url: node.url,
+              altText: node.altText,
+            })),
+            metafields: productMetafields,
+          },
+
+          // Current variant info
+          currentVariant: {
+            id: variant.id.replace(
+              'gid://shopify/ProductVariant/',
+              ''
+            ),
+            sku: variant.sku,
+            title: variant.title,
+            price: parseFloat(variant.price),
+            compareAtPrice: variant.compareAtPrice
+              ? parseFloat(variant.compareAtPrice)
+              : null,
+            inventoryQuantity: variant.inventoryQuantity,
+            weight: variant.weight,
+            weightUnit: variant.weightUnit,
+            availableForSale: variant.availableForSale,
+            selectedOptions: variant.selectedOptions,
+            image: variant.image
+              ? {
+                  id: variant.image.id,
+                  url: variant.image.url,
+                  altText: variant.image.altText,
+                }
+              : null,
+            metafields: variantMetafields,
+          },
+
+          // All variants (siblings)
+          allVariants: allVariants,
+          variantCount: allVariants.length,
+
+          // Change history
+          recentChanges: recentChanges.map((change) => ({
+            timestamp: change.timestamp,
+            user:
+              change.user?.employeeId ||
+              change.user?.firstName ||
+              'Unknown',
+            changes: change.changes,
+            summary: change.changes
+              .map(
+                (c) =>
+                  `${c.fieldName}: ${c.oldValue} → ${c.newValue}${
+                    c.message ? ` (${c.message})` : ''
+                  }`
+              )
+              .join(', '),
+          })),
+
+          // Comparison between local and Shopify data
+          dataComparison: {
+            priceMatch:
+              localSkuData.currentPrice === parseFloat(variant.price),
+            localPrice: localSkuData.currentPrice,
+            shopifyPrice: parseFloat(variant.price),
+            lastSynced: localSkuData.updatedAt,
+          },
+        },
+      };
+
+      res.json(response);
+    } catch (error) {
+      console.error('Failed to get SKU details:', error.message);
+      res.status(500).json({
+        error: 'Failed to retrieve SKU details',
+        details: error.message,
+      });
+    }
+  },
+  async updateSkuDetails(req, res) {
+    try {
+      const userId = req.user?._id;
+      const { sku } = req.params;
+      const { changes, currentData } = req.body;
+
+      let changeLog = [];
+
+      // 1. CONVERT CHANGES TO LOG FORMAT
+
+      // Product field changes
+      Object.entries(changes.product.fields).forEach(
+        ([field, change]) => {
+          changeLog.push({
+            fieldName: field,
+            oldValue: change.oldValue,
+            newValue: change.newValue,
+            source: 'SKU Detail Page',
+            message: `${field} updated successfully`,
+          });
+        }
+      );
+
+      // Variant field changes
+      Object.entries(changes.variant.fields).forEach(
+        ([field, change]) => {
+          changeLog.push({
+            fieldName: field,
+            oldValue: change.oldValue,
+            newValue: change.newValue,
+            source: 'SKU Detail Page',
+            message: `${field} updated successfully`,
+          });
+        }
+      );
+
+      // Product metafield changes
+      Object.entries(changes.product.metafields).forEach(
+        ([namespace, fields]) => {
+          Object.entries(fields).forEach(([key, change]) => {
+            changeLog.push({
+              fieldName: `${namespace}.${key}`,
+              oldValue: change.oldValue,
+              newValue: change.newValue,
+              source: 'SKU Detail Page',
+              message: `${key} updated successfully`,
+            });
+          });
+        }
+      );
+
+      // Variant metafield changes
+      Object.entries(changes.variant.metafields).forEach(
+        ([namespace, fields]) => {
+          Object.entries(fields).forEach(([key, change]) => {
+            changeLog.push({
+              fieldName: `variant.${namespace}.${key}`,
+              oldValue: change.oldValue,
+              newValue: change.newValue,
+              source: 'SKU Detail Page',
+              message: `${key} updated successfully`,
+            });
+          });
+        }
+      );
+
+      // 2. APPLY BUSINESS LOGIC (using current data)
+      const processedData = { ...currentData };
+
+      // Auto pricing logic (if enabled and relevant fields changed)
+      const autoUpdatePrice =
+        currentData.product.metafields.sku?.autoUpdatePrice;
+
+      if (autoUpdatePrice) {
+        const entryDate =
+          currentData.product.metafields.sku?.entryDate;
+
+        const classCode =
+          currentData.product.metafields.sku?.classcode;
+
+        const vendor = currentData.product.metafields.sku?.vendor;
+
+        const grossWeight =
+          currentData.product.metafields.sku?.grossWeight;
+
+        const tagPrice =
+          currentData.product.metafields.sku?.tag_price;
+
+        const goldKarat =
+          currentData.product.metafields.sku?.gold_karat;
+
+        const productAgeMonths =
+          (new Date() - new Date(entryDate)) /
+          (1000 * 60 * 60 * 24 * 30);
+
+        const policies = await PricingPolicy.find({
+          Classcode: classCode,
+          FromMonths: { $lte: productAgeMonths },
+          ToMonths: { $gte: productAgeMonths },
+        });
+
+        let matchedPolicy =
+          policies.find((p) => p.Vendor === vendor) ||
+          policies.find((p) => !p.Vendor);
+
+        if (matchedPolicy) {
+          let calculatedPrice = currentData.variant.price;
+
+          if (matchedPolicy.Type === 'PerGram' && grossWeight) {
+            if (goldKarat === '22KT') {
+              calculatedPrice = Math.round(
+                matchedPolicy.Base22KtRate * grossWeight
+              );
+            } else if (goldKarat === '21KT') {
+              calculatedPrice = Math.round(
+                matchedPolicy.Base21KtRate * grossWeight
+              );
+            } else if (goldKarat === '18KT') {
+              calculatedPrice = Math.round(
+                matchedPolicy.Base18KtRate * grossWeight
+              );
+            }
+          } else if (matchedPolicy.Type === 'Discount' && tagPrice) {
+            calculatedPrice = Math.floor(
+              tagPrice -
+                (tagPrice * matchedPolicy.DiscountOnMargin) / 100
+            );
+          }
+
+          // Add auto-calculated price change
+          if (calculatedPrice !== currentData.variant.price) {
+            changeLog.push({
+              fieldName: 'price',
+              oldValue: currentData.variant.price,
+              newValue: calculatedPrice,
+              source: 'Auto Pricing',
+              message: 'Price auto-calculated based on policy',
+            });
+            if (matchedPolicy.Type === 'PerGram') {
+              changeLog.push({
+                fieldName: 'Per Gram Or Discount',
+                oldValue: Math.floor(
+                  currentData.variant.price / grossWeight
+                ),
+                newValue: Math.floor(calculatedPrice / grossWeight),
+                source: 'Auto Pricing',
+                message: 'Price auto-calculated based on policy',
+              });
+            } else {
+              changeLog.push({
+                fieldName: 'Per Gram Or Discount',
+                oldValue: Math.floor(
+                  (currentData.variant.price / tagPrice) * 100
+                ),
+                newValue: Math.floor(
+                  (calculatedPrice / tagPrice) * 100
+                ),
+                source: 'Auto Pricing',
+                message: 'Price auto-calculated based on policy',
+              });
+            }
+
+            processedData.variant.price = calculatedPrice;
+          }
+        }
+      }
+
+      // 3. RETURN RESULTS
+      res.json({
+        success: true,
+        message: `SKU ${sku} updated successfully`,
+        data: processedData,
+        changes: changeLog,
+        changesCount: changeLog.length,
+      });
+
+      // TODO: Update Shopify and local database
+      // TODO: Save change log to database
+    } catch (error) {
+      console.error('Failed to update SKU details:', error.message);
+      res.status(500).json({
+        error: 'Failed to update SKU details',
+        details: error.message,
+      });
+    }
+  },
   async refreshNewArrivals(req, res) {
     const log = createLogger('refreshNewArrivals');
 
