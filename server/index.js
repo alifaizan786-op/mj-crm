@@ -22,16 +22,15 @@ app.use(express.static(path.join(__dirname, './public/')));
 
 // To serve the client folder locally
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, './public/index.html'));
+	res.sendFile(path.join(__dirname, './public/index.html'));
 });
 
-// To serve the client folder
 app.get('/*', (req, res) => {
-  res.sendFile(path.join(__dirname, './public/index.html'));
+	res.sendFile(path.join(__dirname, './public/index.html'));
 });
 
 MalaniCRM.once('open', () => {
-  app.listen(PORT, () => {
-    console.log(`API server running on port ${PORT}!`);
-  });
+	app.listen(PORT, () => {
+		console.log(`API server running on port ${PORT}!`);
+	});
 });
