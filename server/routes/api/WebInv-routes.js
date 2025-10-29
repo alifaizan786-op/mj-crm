@@ -9,11 +9,15 @@ const {
   updateSkuDetails,
   PricingWebhook,
   refreshNewArrivals,
+  priceRefresh,
 } = require('../../controllers/WebInv-controller');
 const { authMiddleware } = require('../../utils/auth');
 
 // /api/webInv/PricingWebhook
 router.post('/PricingWebhook', PricingWebhook);
+
+// /api/webInv/price-refresh
+router.post('/price-refresh', priceRefresh);
 
 // /api/webInv/refreshNewArrivals
 router.post('/refreshNewArrivals', refreshNewArrivals);

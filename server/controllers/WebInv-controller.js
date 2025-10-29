@@ -8,6 +8,10 @@ const axios = require('axios');
 const { runBulkJob } = require('../utils/bulkRunner');
 const { updateField } = require('../utils/updateField');
 const { createLogger } = require('../utils/logger');
+const {
+  batchUpdateVariantsGraphQL,
+  testSingleVariant,
+} = require('../utils/bulkUpdateVariants');
 
 const SHOPIFY_ADMIN_API_ACCESS_TOKEN =
   process.env.Shopify_Admin_Api_Access_Token;
@@ -19,6 +23,13 @@ const SHOPIFY_GRAPHQL_URL = `https://${SHOPIFY_SHOP_NAME}.myshopify.com/admin/ap
 function getTodayDate() {
   return new Date().toISOString().slice(0, 10);
 }
+
+const getTodaySuffix = () => {
+  const d = new Date();
+  return `${String(d.getMonth() + 1).padStart(2, '0')}${String(
+    d.getDate()
+  ).padStart(2, '0')}${String(d.getFullYear()).slice(-2)}`;
+};
 
 module.exports = {
   async updateSkuPriceByRule(req, res) {
@@ -1787,7 +1798,6 @@ module.exports = {
       return res.status(500).send('Internal server error.');
     }
   },
-  
   async PricingWebhook(req, res) {
     try {
       const product = req.body;
@@ -1818,6 +1828,117 @@ module.exports = {
     } catch (error) {
       console.error('Webhook error:', error);
       res.status(500).send('Error');
+    }
+  },
+  async priceRefresh(req, res) {
+    const log = createLogger('priceRefresh');
+
+    try {
+      await log('🚀 Starting Price Refresh Bulk Job');
+
+      // 🎯 SEND RESPONSE IMMEDIATELY
+      res.status(202).json({
+        message: 'Price refresh bulk job triggered successfully',
+        status: 'running_in_background',
+        logFile: `priceRefresh_${getTodaySuffix()}.txt`,
+      });
+
+      const variantBuffer = [];
+      const productMap = new Map();
+
+      await runBulkJob({
+        jobName: 'priceRefresh',
+        graphqlQuery: `{
+         productVariants(query: "status:active") {
+            edges {
+              node {
+                id
+                title
+                sku
+                price
+                inventoryQuantity
+                product {
+                  id
+                  classcode: metafield(namespace: "sku", key: "classcode") { value }
+                  gold_karat: metafield(namespace: "sku", key: "gold_karat") { value }
+                }
+                entry_date: metafield(namespace: "variant", key: "entry_date") { value }
+                vendor: metafield(namespace: "variant", key: "vendor") { value }
+                gross_weight: metafield(namespace: "variant", key: "gross_weight") { value }
+                autoUpdatePrice: metafield(namespace: "variant", key: "autoUpdatePrice") { value }
+                tag_price: metafield(namespace: "variant", key: "tag_price") { value }
+              }
+            }
+          }
+        }
+        `,
+        onEachRecord: async (variant) => {
+          const productId = variant.product?.id;
+          let productClasscode = null;
+          let goldKt = null;
+
+          if (productId) {
+            if (!productMap.has(productId)) {
+              productMap.set(productId, {
+                classcode: +variant.product.classcode?.value || null,
+                goldKt: variant.product.gold_karat?.value || null,
+              });
+            }
+
+            const productMeta = productMap.get(productId);
+            productClasscode = productMeta.classcode;
+            goldKt = productMeta.goldKt;
+          }
+
+          const variantData = {
+            id: variant.id,
+            sku: variant.sku,
+            productId: variant.product?.id, // ← ADD THIS LINE
+            title: variant.title,
+            inventory_quantity: variant.inventoryQuantity,
+            current_price: variant.price,
+            classcode: productClasscode,
+            goldKt,
+            entryDate: variant.entry_date?.value || null,
+            vendor: variant.vendor?.value || null,
+            grossWeight: +variant.gross_weight?.value || null,
+            autoUpdate: variant.autoUpdatePrice?.value,
+            tag_price: (() => {
+              try {
+                const raw = variant.tag_price?.value;
+                if (!raw) return null;
+                const parsed = JSON.parse(raw);
+                return parseInt(parsed.amount);
+              } catch {
+                return null;
+              }
+            })(),
+          };
+
+          variantBuffer.push(variantData);
+        },
+      });
+
+      await log(`💾 Total variants found: ${variantBuffer.length}`);
+      const enriched = await computePrices(variantBuffer, log);
+      const variantsToUpdate = enriched.filter((v) => v.needsUpdate);
+
+      // Run the full batch update
+      const result = await batchUpdateVariantsGraphQL(
+        variantsToUpdate,
+        log
+      );
+
+      await log(
+        `🎯 Final Results: ${result.updated} updated, ${result.errors} errors`
+      );
+
+      await log('✅ Price refresh completed successfully');
+      return res.status(200).send('Price refresh complete');
+    } catch (error) {
+      console.error('❌ PriceRefresh error:', error);
+      await log('❌ Error: ' + error.message);
+      return res.status(500).send('Error running price refresh');
     }
   },
 };
@@ -1938,14 +2059,14 @@ async function enrichWithMetafields(tempArr, productId) {
   return enrichedArr;
 }
 
-async function computePrices(tempArr) {
+async function computePrices(tempArr, log = console.log) {
   const updatedArr = await Promise.all(
     tempArr.map(async (variant) => {
       try {
         // Skip pricing if autoUpdate is not enabled
         if (!variant.autoUpdate) {
-          console.log(
-            `Skipping ${variant.sku}: AutoUpdatePricing is false or not set`
+          await log(
+            `⚠️ Skipping ${variant.sku}: AutoUpdate disabled`
           );
           return {
             ...variant,
@@ -1956,8 +2077,8 @@ async function computePrices(tempArr) {
 
         // Validate required metafields
         if (!variant.goldKt) {
-          console.log(
-            `Skipping ${variant.sku}: Gold karat is missing`
+          await log(
+            `✅ Computed price for ${variant.sku}: $${calculatedPrice}`
           );
           return {
             ...variant,
@@ -1967,8 +2088,8 @@ async function computePrices(tempArr) {
         }
 
         if (!variant.grossWeight || isNaN(variant.grossWeight)) {
-          console.log(
-            `Skipping ${variant.sku}: Gross weight is missing or invalid`
+          await log(
+            `❌ Error computing ${variant.sku}: ${error.message}`
           );
           return {
             ...variant,
@@ -1978,9 +2099,7 @@ async function computePrices(tempArr) {
         }
 
         if (!variant.entryDate) {
-          console.log(
-            `Skipping ${variant.sku}: Entry date is missing`
-          );
+          await log(`Skipping ${variant.sku}: Entry date is missing`);
           return {
             ...variant,
             needsUpdate: false,
@@ -2005,7 +2124,7 @@ async function computePrices(tempArr) {
           policies.find((p) => !p.Vendor);
 
         if (!matchedPolicy) {
-          console.log(
+          await log(
             `Skipping ${variant.sku}: No matching pricing policy found`
           );
           return {
@@ -2036,7 +2155,7 @@ async function computePrices(tempArr) {
             );
             perGramOrDisc = matchedPolicy.Base18KtRate;
           } else {
-            console.log(
+            await log(
               `Skipping ${variant.sku}: Unsupported gold karat ${variant.goldKt}`
             );
             return {
@@ -2047,7 +2166,7 @@ async function computePrices(tempArr) {
           }
         } else if (matchedPolicy.Type === 'Discount') {
           if (!variant.tag_price) {
-            console.log(
+            await log(
               `Skipping ${variant.sku}: Tag price required for discount calculation but missing`
             );
             return {
@@ -2063,7 +2182,7 @@ async function computePrices(tempArr) {
           );
           perGramOrDisc = matchedPolicy.DiscountOnMargin;
         } else {
-          console.log(
+          await log(
             `Skipping ${variant.sku}: Unknown policy type ${matchedPolicy.Type}`
           );
           return {
@@ -2088,7 +2207,7 @@ async function computePrices(tempArr) {
           currentPrice: currentPrice,
         };
       } catch (error) {
-        console.error(
+        await log(
           `Error calculating price for variant ${variant.id}:`,
           error
         );
@@ -2104,7 +2223,7 @@ async function computePrices(tempArr) {
   return updatedArr;
 }
 
-async function updateVariantPrices(tempArr) {
+async function updateVariantPrices(tempArr, log = console.log) {
   const variantsToUpdate = tempArr.filter(
     (variant) => variant.needsUpdate
   );
@@ -2114,9 +2233,7 @@ async function updateVariantPrices(tempArr) {
     return;
   }
 
-  console.log(
-    `Updating prices for ${variantsToUpdate.length} variants`
-  );
+  await log(`🔁 Updating ${variantsToUpdate.length} variants...`);
 
   const updatePromises = variantsToUpdate.map(async (variant) => {
     try {
@@ -2130,13 +2247,9 @@ async function updateVariantPrices(tempArr) {
       if (titleParts.length >= 2) {
         titleParts[1] = `$${variant.calculated_price}`;
         updatedTitle = titleParts.join(' | ');
-        console.log(
-          `Attempting option1 update: "${variant.title}" → "${updatedTitle}"`
-        );
       }
 
       // Step 1: Update price and option1 (which controls the title)
-      console.log('Making REST API call to update variant...');
       const restUpdateResp = await axios({
         url: `https://${SHOPIFY_SHOP_NAME}.myshopify.com/admin/api/2024-04/variants/${variant.id}.json`,
         method: 'PUT',
@@ -2153,18 +2266,10 @@ async function updateVariantPrices(tempArr) {
         },
       });
 
-      console.log(
-        'Updated variant title from response:',
-        restUpdateResp.data.variant.title
+      await log(
+        `✅ Updated ${variant.sku} → $${variant.calculated_price}`
       );
-      console.log(
-        'Updated variant option1 from response:',
-        restUpdateResp.data.variant.option1
-      );
-      console.log(
-        'Updated variant price from response:',
-        restUpdateResp.data.variant.price
-      );
+      await log(`✅ Updated ${variant.sku} → $${updatedTitle}`);
 
       // Step 2: Update metafields
       await axios({
@@ -2183,12 +2288,14 @@ async function updateVariantPrices(tempArr) {
           },
         },
       });
-
-      console.log(
-        `✅ Updated ${variant.sku}: $${variant.current_price} → $${variant.calculated_price} (${variant.policy_used}) [Rate: ${variant.perGramOrDisc}]`
+      await log(
+        `✅ Updated ${variant.sku} → $${variant.perGramOrDisc}`
       );
     } catch (error) {
       console.error(`Error updating variant ${variant.sku}:`);
+      await log(
+        `❌ Failed to update ${variant.sku}: ${error.message}`
+      );
       console.error(
         'Error details:',
         error.response?.data || error.message

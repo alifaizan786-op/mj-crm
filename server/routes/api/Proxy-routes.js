@@ -5,6 +5,7 @@ const {
   removeFromWishlist,
   proxyUpdateViewCount,
   getClientCoupons,
+  goldPriceApi,
 } = require('../../controllers/Proxy-controller');
 
 // Inline middleware to verify allowed domains
@@ -31,6 +32,8 @@ const verifyDomain = (req, res, next) => {
 
   next();
 };
+
+router.route('/gold-price-api').post(verifyDomain, goldPriceApi);
 
 router.route('/goldPrice').get(
   // verifyDomain,

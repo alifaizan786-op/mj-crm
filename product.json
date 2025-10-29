@@ -1,0 +1,1153 @@
+[
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100028383515",
+      "name": "Classcode",
+      "namespace": "sku",
+      "key": "classcode",
+      "type": {
+        "name": "number_integer",
+        "category": "NUMBER"
+      },
+      "description": "Classcode Group Assignment",
+      "validations": [
+        {
+          "name": "min",
+          "value": "1"
+        },
+        {
+          "name": "max",
+          "value": "1000"
+        }
+      ]
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100028842267",
+      "name": "Vendor",
+      "namespace": "sku",
+      "key": "vendor",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "Vendor Of This Item",
+      "validations": [
+        {
+          "name": "choices",
+          "value": "[\"EMR\",\"UG\",\"DP\",\"GS\",\"BLJ\",\"HPG\",\"PR\",\"SHT\",\"RHC\",\"SUR\",\"SCS\",\"MJA\",\"FC\",\"MJW\",\"VM\",\"AU\",\"SON\",\"ZAR\",\"OP\",\"SRY\",\"SRE\",\"MIS\",\"RML\",\"MJ\",\"EJZ\",\"SWR\",\"UJ\",\"BM\",\"CVM\",\"SSN\",\"ANM\",\"MNX\",\"DHA\",\"MLO\",\"KUS\",\"KPS\",\"MOT\",\"GUR\",\"CJ\",\"HPD\",\"ISQ\",\"CF\",\"KS\",\"LGS\",\"BNG\",\"BRK\",\"LKS\",\"PRD\",\"EDI\",\"NRD\",\"RAM\",\"FRZ\",\"GP\",\"MRG\",\"GSJ\",\"PRT\",\"KRN\",\"MOD\",\"BAF\",\"HOP\",\"SRK\",\"ALW\",\"PG\",\"RC\",\"SN\",\"SMW\",\"PPM\",\"RK\",\"LUX\",\"MNJ\",\"NIH\",\"WAT\",\"RVA\",\"TRU\",\"MJI\",\"JH\",\"PM\",\"MYS\",\"AMP\",\"LXM\",\"SP\",\"SBC\",\"NA\",\"GFT\",\"ORO\",\"JA\",\"ITN\",\"RS\",\"JN\",\"ZVR\",\"DEW\",\"CCI\",\"MAH\",\"SSK\",\"MAT\",\"SRN\",\"RA\",\"MAN\",\"RJN\"]"
+        }
+      ]
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100029268251",
+      "name": "Vendor Style",
+      "namespace": "sku",
+      "key": "vendorStyle",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100030218523",
+      "name": "Gross Weight",
+      "namespace": "sku",
+      "key": "grossWeight",
+      "type": {
+        "name": "number_decimal",
+        "category": "NUMBER"
+      },
+      "description": "Gross Weight Of The SKU",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100030349595",
+      "name": "Entry Date",
+      "namespace": "sku",
+      "key": "entryDate",
+      "type": {
+        "name": "date",
+        "category": "DATE_TIME"
+      },
+      "description": "Entry Date Of The SKU",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100030939419",
+      "name": "DC",
+      "namespace": "sku",
+      "key": "dc",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100034543899",
+      "name": "Tag Price",
+      "namespace": "sku",
+      "key": "tag_price",
+      "type": {
+        "name": "money",
+        "category": "MONEY"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100034576667",
+      "name": "Category",
+      "namespace": "sku",
+      "key": "category",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": [
+        {
+          "name": "choices",
+          "value": "[\"Women\",\"Men\",\"Kids\",\"Watches\",\"Others\",\"Deals\",\"Gifts\"]"
+        }
+      ]
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100034674971",
+      "name": "Sub Category",
+      "namespace": "sku",
+      "key": "sub_category",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": [
+        {
+          "name": "choices",
+          "value": "[\"DEALS->Deal Of The Day\",\"DEALS->No Making Charges\",\"Gifts->Beyond Gold\",\"Gifts->Beyond Gold->Cases & Accessories\",\"Gifts->Beyond Gold->Dori/Tassel\",\"Gifts->Beyond Gold->Religious\",\"Gifts->By Gender\",\"Gifts->By Gender->For Her\",\"Gifts->By Gender->For Him\",\"Gifts->By Gender->For Kids\",\"Gifts->By Price\",\"Gifts->By Price->Under $1000\",\"Gifts->By Price->Under $2000\",\"Gifts->By Price->Under $500\",\"Gifts->Gold Gifts\",\"Gifts->Gold Gifts->Gold Coins\",\"Gifts->Gold Gifts->Gold Idols\",\"Gifts->Silver Gifts\",\"Gifts->Silver Gifts->Silver Coins\",\"Gifts->Silver Gifts->Silver Idols\",\"KIDS->Accessories\",\"KIDS->Bangles\",\"KIDS->Bracelets\",\"KIDS->Chains\",\"KIDS->Earrings\",\"KIDS->Pendants\",\"KIDS->Rings\",\"MEN->Bracelets\",\"MEN->Bracelets->Fancy Bracelets\",\"MEN->Bracelets->Kara\",\"MEN->Necklaces\",\"MEN->Necklaces->Fancy Chains\",\"MEN->Necklaces->Pendants\",\"MEN->Rings\",\"MEN->Rings->Designer Bands\",\"MEN->Rings->Fancy Rings\",\"MEN->Rings->Plain Bands\",\"OTHERS->Astrological\",\"OTHERS->Astrological->Astrological Pendants\",\"OTHERS->Astrological->Astrological Rings\",\"OTHERS->Astrological->Astrological Stones\",\"OTHERS->Custom Jewelry\",\"OTHERS->Custom Jewelry->Bands\",\"OTHERS->Custom Jewelry->Earrings\",\"OTHERS->Custom Jewelry->Kara & Bracelets\",\"OTHERS->Custom Jewelry->Pendants\",\"OTHERS->Custom Jewelry->Rings\",\"WATCHES->Cartier\",\"WATCHES->Movado\",\"WATCHES->Rado\",\"WATCHES->Rolex\",\"WOMEN->Accessories\",\"WOMEN->Accessories->Anklets (Payal)\",\"WOMEN->Accessories->Broach\",\"WOMEN->Accessories->Extension Links\",\"WOMEN->Accessories->Kum Kum Box\",\"WOMEN->Accessories->Maang Tikka\",\"WOMEN->Accessories->Nosepins\",\"WOMEN->Accessories->Sahara\",\"WOMEN->Accessories->Waist Band\",\"WOMEN->Bangles\",\"WOMEN->Bangles->Arm Bracelets (Baju Bandh)\",\"WOMEN->Bangles->Bangle/Bracelet\",\"WOMEN->Bangles->Bracelets\",\"WOMEN->Bangles->Finger Bracelets\",\"WOMEN->Bangles->Kara\",\"WOMEN->Bangles->Set of Bangles\",\"WOMEN->Certified Solitaires\",\"WOMEN->Certified Solitaires->Earrings\",\"WOMEN->Certified Solitaires->Necklaces\",\"WOMEN->Certified Solitaires->Rings\",\"WOMEN->Earrings\",\"WOMEN->Earrings->Chandbali\",\"WOMEN->Earrings->Clipons\",\"WOMEN->Earrings->Hoops\",\"WOMEN->Earrings->Jumkha\",\"WOMEN->Earrings->Long Drops\",\"WOMEN->Earrings->Sui Dhaga\",\"WOMEN->Earrings->Tops\",\"WOMEN->Necklaces\",\"WOMEN->Necklaces->Fancy Chains\",\"WOMEN->Necklaces->Mangalsutras\",\"WOMEN->Necklaces->Necklace Sets\",\"WOMEN->Necklaces->Patta Sets\",\"WOMEN->Necklaces->Pendant Sets\",\"WOMEN->Necklaces->Pendants\",\"WOMEN->Necklaces->Plain Chains\",\"WOMEN->Rings\",\"WOMEN->Rings->Bands\",\"WOMEN->Rings->Designer Bands\",\"WOMEN->Rings->Fancy Rings\",\"COLLECTIONS->Diamore Collection\"]"
+        }
+      ]
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100035002651",
+      "name": "Length",
+      "namespace": "sku",
+      "key": "length",
+      "type": {
+        "name": "number_decimal",
+        "category": "NUMBER"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100035035419",
+      "name": "Width",
+      "namespace": "sku",
+      "key": "width",
+      "type": {
+        "name": "number_decimal",
+        "category": "NUMBER"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100035068187",
+      "name": "Chain Length",
+      "namespace": "sku",
+      "key": "chain_length",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": [
+        {
+          "name": "choices",
+          "value": "[\"2\",\"4\",\"6\",\"8\",\"10\",\"12\",\"14\",\"16\",\"18\",\"20\",\"22\",\"24\",\"26\",\"28\",\"30\",\"32\",\"34\",\"36\",\"38\",\"40\"]"
+        }
+      ]
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100035100955",
+      "name": "Chain included in the price",
+      "namespace": "sku",
+      "key": "chain_included_in_the_price",
+      "type": {
+        "name": "boolean",
+        "category": "TRUE_FALSE"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100035133723",
+      "name": "Pendant Length",
+      "namespace": "sku",
+      "key": "pendant_length",
+      "type": {
+        "name": "number_decimal",
+        "category": "NUMBER"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100035166491",
+      "name": "Pendant Width",
+      "namespace": "sku",
+      "key": "pendant_width",
+      "type": {
+        "name": "number_decimal",
+        "category": "NUMBER"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100035199259",
+      "name": "Earrings Length",
+      "namespace": "sku",
+      "key": "earrings_length",
+      "type": {
+        "name": "number_decimal",
+        "category": "NUMBER"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100035232027",
+      "name": "Earrings Width",
+      "namespace": "sku",
+      "key": "earrings_width",
+      "type": {
+        "name": "number_decimal",
+        "category": "NUMBER"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100035264795",
+      "name": "Earring Post Type",
+      "namespace": "sku",
+      "key": "earring_post_type",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": [
+        {
+          "name": "choices",
+          "value": "[\"Screw Back\",\"Push-Pull\",\"Madras Screw Back\",\"Fish Hook\",\"Clip-on With A Screw Back\",\"Clip-on With Push Pull\",\"Clip-on Back\"]"
+        }
+      ]
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100035723547",
+      "name": "Ring Size",
+      "namespace": "sku",
+      "key": "ring_size",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": [
+        {
+          "name": "choices",
+          "value": "[\"3\",\"3.25\",\"3.5\",\"3.75\",\"4\",\"4.25\",\"4.5\",\"4.75\",\"5\",\"5.25\",\"5.5\",\"5.75\",\"6\",\"6.25\",\"6.5\",\"6.75\",\"7\",\"7.25\",\"7.5\",\"7.75\",\"8\",\"8.25\",\"8.5\",\"8.75\",\"9\",\"9.25\",\"9.5\",\"9.75\",\"10\",\"10.25\",\"10.5\",\"10.75\",\"11\",\"11.25\",\"11.5\",\"11.75\",\"12\",\"12.25\",\"12.5\",\"12.75\",\"13\",\"13.25\",\"13.5\",\"13.75\",\"14\",\"14.25\",\"14.5\",\"14.75\"]"
+        }
+      ]
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100035756315",
+      "name": "Ring Design Height",
+      "namespace": "sku",
+      "key": "ring_design_height",
+      "type": {
+        "name": "number_decimal",
+        "category": "NUMBER"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100035789083",
+      "name": "Ring Width",
+      "namespace": "sku",
+      "key": "ring_width",
+      "type": {
+        "name": "number_decimal",
+        "category": "NUMBER"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100035821851",
+      "name": "Ring Type",
+      "namespace": "sku",
+      "key": "ring_type",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": [
+        {
+          "name": "choices",
+          "value": "[\"Adjustable\"]"
+        }
+      ]
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100036772123",
+      "name": "Bangle Size",
+      "namespace": "sku",
+      "key": "bangle_size",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": [
+        {
+          "name": "choices",
+          "value": "[\"2\",\"2.1\",\"2.2\",\"2.3\",\"2.4\",\"2.5\",\"2.6\",\"2.7\",\"2.8\",\"2.9\",\"2.10\",\"2.11\",\"2.12\",\"2.13\",\"2.14\",\"2.15\",\"3\",\"3.1\",\"3.2\",\"3.3\",\"3.4\",\"3.5\"]"
+        }
+      ]
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100036804891",
+      "name": "Bangle Inner Diameter",
+      "namespace": "sku",
+      "key": "bangle_inner_diameter",
+      "type": {
+        "name": "number_decimal",
+        "category": "NUMBER"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100036837659",
+      "name": "Bangle Width",
+      "namespace": "sku",
+      "key": "bangle_width",
+      "type": {
+        "name": "number_decimal",
+        "category": "NUMBER"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100037427483",
+      "name": "Bangle Design Height",
+      "namespace": "sku",
+      "key": "bangle_design_height",
+      "type": {
+        "name": "number_decimal",
+        "category": "NUMBER"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100037460251",
+      "name": "Bangle/Bracelet Type",
+      "namespace": "sku",
+      "key": "bangle_bracelet_type",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": [
+        {
+          "name": "choices",
+          "value": "[\"Open-able with a spring hinge\",\"Open-able with a screw or clip on the side or top\",\"Open-able\",\"Flexible\",\"Adjustable Size\"]"
+        }
+      ]
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100037493019",
+      "name": "Bangle/Bracelet Size Adjustable up-to",
+      "namespace": "sku",
+      "key": "bangle_bracelet_size_adjustable_up_to",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": [
+        {
+          "name": "choices",
+          "value": "[\"2\",\"2.1\",\"2.2\",\"2.3\",\"2.4\",\"2.5\",\"2.6\",\"2.7\",\"2.8\",\"2.9\",\"2.10\",\"2.11\",\"2.12\",\"2.13\",\"2.14\",\"2.15\",\"3\",\"3.1\",\"3.2\",\"3.3\",\"3.4\",\"3.5\"]"
+        }
+      ]
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100037755163",
+      "name": "Nose Pin Type",
+      "namespace": "sku",
+      "key": "nose_pin_type",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": [
+        {
+          "name": "choices",
+          "value": "[\"Wire\",\"Screw Back\"]"
+        }
+      ]
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100038050075",
+      "name": "Collection",
+      "namespace": "sku",
+      "key": "collection",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": [
+        {
+          "name": "choices",
+          "value": "[\"Ameera Collection\",\"Anora Collection\",\"Bridal Collection\",\"Diamore Collection\",\"Mudra Collection\",\"Navya Collection\",\"Nikhar Collection\",\"Nitya Collection\",\"Pushtaini Collection\",\"Rangoli Collection\",\"Romance Collection\",\"Rose Collection\",\"Starlight Collection\",\"Sunehra Collection\",\"Tejasvi Collection\",\"Ujwal Collection\",\"Utsavam Collection\"]"
+        }
+      ]
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100038082843",
+      "name": "Jewelry For",
+      "namespace": "sku",
+      "key": "jewelry_for",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": [
+        {
+          "name": "choices",
+          "value": "[\"Men\",\"Women\",\"Kids\",\"Unisex\",\"Coins\"]"
+        }
+      ]
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100038115611",
+      "name": "Jewelry Type",
+      "namespace": "sku",
+      "key": "jewelry_type",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": [
+        {
+          "name": "choices",
+          "value": "[\"Silver\",\"Platinum\",\"Gold\",\"Gemstones\",\"Diamonds\",\"Antique\"]"
+        }
+      ]
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100038148379",
+      "name": "Gold Karat",
+      "namespace": "sku",
+      "key": "gold_karat",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": [
+        {
+          "name": "choices",
+          "value": "[\"24KT\",\"22KT\",\"21KT\",\"20KT\",\"18KT\",\"14KT\",\"Oth\"]"
+        }
+      ]
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100038181147",
+      "name": "Color",
+      "namespace": "sku",
+      "key": "color",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": [
+        {
+          "name": "choices",
+          "value": "[\"Yellow\",\"Rose\",\"White\",\"Antique\"]"
+        }
+      ]
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100038312219",
+      "name": "Finish",
+      "namespace": "sku",
+      "key": "finish",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": [
+        {
+          "name": "choices",
+          "value": "[\"Minakari\",\"Antique\",\"Two tone\",\"Three tone\",\"Yellow\",\"White\",\"Rose\",\"Yellow and White\",\"Yellow and Rose\",\"Rose and White\",\"Yellow, White, and Rose\"]"
+        }
+      ]
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100038344987",
+      "name": "Disclaimer",
+      "namespace": "sku",
+      "key": "disclaimer",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": [
+        {
+          "name": "choices",
+          "value": "[\"The Design Pattern On The Lock Itself May Vary.\",\"The Chain Style May Differ from the images.\",\"Final Sale, No Return, No Exchange.\",\"Due to the Intricacy of the Locking Mechanism, A Small Iron Piece May Be Used Inside of the Lock.\",\"All Gemstones Are Authentic And Natural. Therefore, Gemstone Colors May Vary Slightly.\",\"Chain Finish & Style May Vary.\"]"
+        }
+      ]
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100038443291",
+      "name": "Upload Date",
+      "namespace": "sku",
+      "key": "upload_date",
+      "type": {
+        "name": "date",
+        "category": "DATE_TIME"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100038541595",
+      "name": "Per Gram Or Disc",
+      "namespace": "sku",
+      "key": "per_gram_or_disc",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100038574363",
+      "name": "Center Diamond Weight",
+      "namespace": "sku",
+      "key": "center_diamond_weight",
+      "type": {
+        "name": "number_decimal",
+        "category": "NUMBER"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100039000347",
+      "name": "Diamond Total Weight",
+      "namespace": "sku",
+      "key": "diamond_total_weight",
+      "type": {
+        "name": "number_decimal",
+        "category": "NUMBER"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100039033115",
+      "name": "Diamond Total Pcs",
+      "namespace": "sku",
+      "key": "diamond_total_pcs",
+      "type": {
+        "name": "number_integer",
+        "category": "NUMBER"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100039262491",
+      "name": "Diamond Clarity",
+      "namespace": "sku",
+      "key": "diamond_clarity",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": [
+        {
+          "name": "choices",
+          "value": "[\"FL\",\"IF\",\"VVS\",\"VVS1\",\"VVS2\",\"VVS-VS\",\"VS\",\"VS1\",\"VS2\",\"VS-SI\",\"SI\",\"SI1\",\"SI2\"]"
+        }
+      ]
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100039295259",
+      "name": "Diamond Color",
+      "namespace": "sku",
+      "key": "diamond_color",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": [
+        {
+          "name": "choices",
+          "value": "[\"D\",\"D-E-F\",\"E\",\"E-F\",\"F-G\",\"F-G-H\",\"G\",\"G-H\",\"G-H-I\",\"H\",\"H-I\",\"I\",\"J\",\"K\",\"F\"]"
+        }
+      ]
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100039426331",
+      "name": "Diamond Type",
+      "namespace": "sku",
+      "key": "diamond_type",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": [
+        {
+          "name": "choices",
+          "value": "[\"White Diamonds\",\"White & Polki Diamonds\",\"White & Color Diamonds\",\"White & Black Diamonds\",\"Polki Diamonds\",\"Color Diamonds\",\"Black Diamonds\",\"Lab Grown Diamonds\"]"
+        }
+      ]
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100039459099",
+      "name": "Certification Type",
+      "namespace": "sku",
+      "key": "certification_type",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": [
+        {
+          "name": "choices",
+          "value": "[\"GIA\",\"GAL\",\"IGI\"]"
+        }
+      ]
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100039590171",
+      "name": "Certificate # 1",
+      "namespace": "sku",
+      "key": "certificate_1",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100041130267",
+      "name": "Certificate # 2",
+      "namespace": "sku",
+      "key": "certificate_2",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100041163035",
+      "name": "Certificate # 3",
+      "namespace": "sku",
+      "key": "certificate_3",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100041195803",
+      "name": "Certificate # 4",
+      "namespace": "sku",
+      "key": "certificate_4",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100041228571",
+      "name": "Certificate # 5",
+      "namespace": "sku",
+      "key": "certificate_5",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100041261339",
+      "name": "Gemstones Type",
+      "namespace": "sku",
+      "key": "gemstones_type",
+      "type": {
+        "name": "list.single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": [
+        {
+          "name": "choices",
+          "value": "[\"Ruby\",\"Emerald\",\"Sapphire\",\"Coral\",\"Garnet\",\"Navratan - Multi Color\",\"Zircon\",\"Yellow Sapphire - Pukhraj\",\"Pearl\",\"Agate\",\"Opal\",\"Semi Precious\",\"Turquoise\",\"Lapis\",\"Morganite\",\"Tourmaline\",\"Cats Eye\",\"Gomed\",\"Amethyst\",\"Topaz\",\"Kundan\"]"
+        }
+      ]
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100041326875",
+      "name": "Changeable Stones Included",
+      "namespace": "sku",
+      "key": "changeable_stones_included",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": [
+        {
+          "name": "choices",
+          "value": "[\"6 additional pairs\",\"5 pieces\",\"5 additional pairs\",\"4 additional pairs\",\"3 pieces\",\"3 additional pairs\",\"2 pieces\",\"2 additional pairs\",\"1 pair\"]"
+        }
+      ]
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100041359643",
+      "name": "Customizable",
+      "namespace": "sku",
+      "key": "customizable",
+      "type": {
+        "name": "boolean",
+        "category": "TRUE_FALSE"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100041949467",
+      "name": "Price Fall",
+      "namespace": "sku",
+      "key": "price_fall",
+      "type": {
+        "name": "boolean",
+        "category": "TRUE_FALSE"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100041982235",
+      "name": "Show Tag Price",
+      "namespace": "sku",
+      "key": "show_tag_price",
+      "type": {
+        "name": "boolean",
+        "category": "TRUE_FALSE"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100042015003",
+      "name": "Hot Seller",
+      "namespace": "sku",
+      "key": "hot_seller",
+      "type": {
+        "name": "boolean",
+        "category": "TRUE_FALSE"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100042047771",
+      "name": "New Arrival",
+      "namespace": "sku",
+      "key": "new_arrival",
+      "type": {
+        "name": "boolean",
+        "category": "TRUE_FALSE"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100042080539",
+      "name": "Close out",
+      "namespace": "sku",
+      "key": "close_out",
+      "type": {
+        "name": "boolean",
+        "category": "TRUE_FALSE"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100223549723",
+      "name": "Watch Condition",
+      "namespace": "sku",
+      "key": "watch_condition",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": [
+        {
+          "name": "choices",
+          "value": "[\"Unworn\",\"Pre Owned\"]"
+        }
+      ]
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100223582491",
+      "name": "Watch Bracelet Type",
+      "namespace": "sku",
+      "key": "watch_bracelet_type",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": [
+        {
+          "name": "choices",
+          "value": "[\"Presidential\",\"Oyster\",\"Jubilee\"]"
+        }
+      ]
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100223615259",
+      "name": "Watch Case Size",
+      "namespace": "sku",
+      "key": "watch_case_size",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": [
+        {
+          "name": "choices",
+          "value": "[\"22\",\"24\",\"26\",\"28\",\"30\",\"32\",\"34\",\"36\",\"38\",\"39\",\"40\",\"41\",\"42\",\"43\",\"46\"]"
+        }
+      ]
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100223648027",
+      "name": "Watch Bezel Type",
+      "namespace": "sku",
+      "key": "watch_bezel_type",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": [
+        {
+          "name": "choices",
+          "value": "[\"Smooth\",\"Rotatable\",\"Fluted\",\"Diamond\"]"
+        }
+      ]
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100224762139",
+      "name": "Watch Papers Included",
+      "namespace": "custom",
+      "key": "watch_papers_included",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": [
+        {
+          "name": "choices",
+          "value": "[\"Yes\",\"No\"]"
+        }
+      ]
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100224794907",
+      "name": "Watch Disclaimer",
+      "namespace": "sku",
+      "key": "watch_disclaimer",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": [
+        {
+          "name": "choices",
+          "value": "[\"We are not affiliated OR associated with Rolex. Malani Jewelers will provide a 2-Year warranty.\",\"Malani Jewelers Is Not Affiliated OR Associated With Rado USA. One year Limited warranty by MJ\"]"
+        }
+      ]
+    }
+  },
+
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/100873175323",
+      "name": "Gemstones Weight",
+      "namespace": "sku",
+      "key": "gemstones_weight",
+      "type": {
+        "name": "number_decimal",
+        "category": "NUMBER"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/102190416155",
+      "name": "Number Of Pieces",
+      "namespace": "custom",
+      "key": "number_of_pieces",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": [
+        {
+          "name": "choices",
+          "value": "[\"1\",\"2\",\"3\",\"4\",\"5\",\"6\",\"7\",\"8\",\"9\",\"10\",\"11\",\"12\",\"13\",\"14\",\"15\"]"
+        }
+      ]
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/103435272475",
+      "name": "Metal Type",
+      "namespace": "sku",
+      "key": "metal_type",
+      "type": {
+        "name": "single_line_text_field",
+        "category": "TEXT"
+      },
+      "description": "",
+      "validations": [
+        {
+          "name": "choices",
+          "value": "[\"Gold\",\"Silver\",\"Platinum\",\"Gold & Carbon Fiber\"]"
+        }
+      ]
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/148536983835",
+      "name": "Auto Update Price",
+      "namespace": "sku",
+      "key": "autoUpdatePrice",
+      "type": {
+        "name": "boolean",
+        "category": "TRUE_FALSE"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/151540072731",
+      "name": "Video Url",
+      "namespace": "sku",
+      "key": "video_url",
+      "type": {
+        "name": "url",
+        "category": "URL"
+      },
+      "description": "",
+      "validations": []
+    }
+  },
+  {
+    "node": {
+      "id": "gid://shopify/MetafieldDefinition/152854200603",
+      "name": "View Count",
+      "namespace": "sku",
+      "key": "view_count",
+      "type": {
+        "name": "number_integer",
+        "category": "NUMBER"
+      },
+      "description": "",
+      "validations": []
+    }
+  }
+]

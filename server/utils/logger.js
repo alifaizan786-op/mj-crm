@@ -25,7 +25,7 @@ function createLogger(jobName) {
     const timestamp = new Date().toISOString();
     const line = `[${timestamp}] ${message}\n`;
     await fsp.appendFile(logFilePath, line);
-    console.log(line.trim()); // Also log to console
+    // console.log(line.trim()); // Also log to console
   };
 }
 

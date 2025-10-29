@@ -3,6 +3,9 @@ const axios = require('axios');
 const SHOP = process.env.Shopify_Shop_Name;
 const ADMIN_TOKEN = process.env.Shopify_Admin_Api_Access_Token;
 const SHOPIFY_API_URL = `https://${SHOP}.myshopify.com/admin/api/2023-10/graphql.json`;
+const METAL_PRICE_API = process.env.METAL_PRICE_API;
+const cache = new Map();
+const CACHE_TTL = 60 * 60 * 1000; // 1 hour in milliseconds
 
 const restInstance = axios.create({
   baseURL: `https://${SHOP}.myshopify.com/admin/api/2023-10`,
@@ -429,6 +432,50 @@ module.exports = {
     } catch (error) {
       console.error('View count update error:', error.message);
       return res.status(500).send('Server error');
+    }
+  },
+  async goldPriceApi(req, res) {
+    const { url } = req.body;
+
+    if (!url) {
+      return res
+        .status(400)
+        .json({ error: 'URL is required in request body' });
+    }
+
+    try {
+      const apiUrl = url.replace('replaceApiKey', METAL_PRICE_API);
+
+      // Normalize URL (sort query params)
+      const urlObj = new URL(apiUrl);
+      urlObj.searchParams.sort(); // Ensure order consistency
+
+      const cacheKey = urlObj.toString();
+
+      const cachedEntry = cache.get(cacheKey);
+      const now = Date.now();
+
+      if (cachedEntry && now - cachedEntry.timestamp < CACHE_TTL) {
+        console.log('Serving from cache for:', cacheKey);
+        return res.json(cachedEntry.data);
+      }
+
+      console.log('Fetching fresh data for:', cacheKey);
+      const response = await fetch(cacheKey);
+      const data = await response.json();
+
+      // Cache it
+      cache.set(cacheKey, {
+        data,
+        timestamp: now,
+      });
+
+      res.json(data);
+    } catch (error) {
+      console.error('Error fetching gold price:', error);
+      res
+        .status(500)
+        .json({ error: 'Failed to fetch gold price data' });
     }
   },
 };
